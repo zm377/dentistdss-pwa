@@ -1,6 +1,10 @@
-# Getting Started with Create React App
+# DentistGPT
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A web application that utilizes OpenAI's API for... (describe what the app does).
+
+## Configuration
+
+-   Set your OpenAI API key in `src/config.js`.
 
 ## Available Scripts
 
