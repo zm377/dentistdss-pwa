@@ -1,6 +1,6 @@
 services:
   web:
-    image: zm377/dentistgpt:stable
+    image: zm377/dentistdss:stable
     platform: linux/amd64
     ports:
       - "80:80"

@@ -17,6 +17,14 @@ body {
   padding: 1rem;
   border-radius: 4px;
   overflow-x: auto;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 600px) {
+  .markdown-content pre {
+    padding: 0.75rem;
+    font-size: 0.8rem;
+  }
 }
 
 .markdown-content code {
@@ -30,6 +38,14 @@ body {
   border-collapse: collapse;
   width: 100%;
   margin: 1rem 0;
+  overflow-x: auto;
+  display: block;
+}
+
+@media (max-width: 600px) {
+  .markdown-content table {
+    font-size: 0.85rem;
+  }
 }
 
 .markdown-content th,
@@ -37,6 +53,13 @@ body {
   border: 1px solid #ddd;
   padding: 8px;
   text-align: left;
+}
+
+@media (max-width: 600px) {
+  .markdown-content th,
+  .markdown-content td {
+    padding: 6px;
+  }
 }
 
 .markdown-content th {
@@ -99,6 +122,14 @@ body {
   animation: typing 1.5s infinite ease-in-out;
 }
 
+@media (max-width: 600px) {
+  .typing-indicator .dot {
+    width: 3px;
+    height: 3px;
+    margin: 0 1px;
+  }
+}
+
 .typing-indicator .dot:nth-child(1) {
   animation-delay: 0s;
 }
@@ -119,5 +150,31 @@ body {
   30% {
     transform: translateY(-4px);
     opacity: 1;
+  }
+}
+
+/* Mobile-specific styles */
+@media (max-width: 600px) {
+  @keyframes typing {
+    0%, 60%, 100% {
+      transform: translateY(0);
+      opacity: 0.5;
+    }
+    30% {
+      transform: translateY(-3px);
+      opacity: 1;
+    }
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  body {
+    font-size: 14px;
+  }
+
+  .MuiContainer-root {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
   }
 }

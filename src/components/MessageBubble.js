@@ -5,68 +5,71 @@ import PsychologyIcon from '@mui/icons-material/Psychology';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
 import PersonIcon from '@mui/icons-material/Person';
 
-const MessageBubble = ({ message, showThinking, onToggleThinking, isThinkingClosing }) => {
+const MessageBubble = ({ message, showThinking, onToggleThinking, isThinkingClosing, isMobile }) => {
   const isUser = message.role === 'user';
-  
+
   return (
     <Box
       sx={{
         display: 'flex',
         justifyContent: isUser ? 'flex-end' : 'flex-start',
-        mb: 2,
+        mb: isMobile ? 1.5 : 2,
         position: 'relative',
+        px: isMobile ? 0.5 : 0,
       }}
     >
       {!isUser && (
-        <Avatar 
-          sx={{ 
-            bgcolor: 'primary.main', 
+        <Avatar
+          sx={{
+            bgcolor: 'primary.main',
             mr: 1,
-            width: 36, 
-            height: 36 
+            width: isMobile ? 28 : 36,
+            height: isMobile ? 28 : 36
           }}
         >
-          <SmartToyIcon fontSize="small" />
+          <SmartToyIcon fontSize={isMobile ? "inherit" : "small"} />
         </Avatar>
       )}
-      
+
       <Paper
         elevation={1}
         sx={{
-          p: 2,
-          maxWidth: '75%',
+          p: isMobile ? 1.5 : 2,
+          maxWidth: isMobile ? '85%' : '75%',
           bgcolor: isUser ? 'primary.light' : 'background.paper',
           color: isUser ? 'primary.contrastText' : 'text.primary',
-          borderRadius: 2,
+          borderRadius: isMobile ? 1.5 : 2,
+          wordBreak: 'break-word',
         }}
       >
         {message.thinking && (
           <Box sx={{ mt: 2 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-              <IconButton 
-                size="small" 
+              <IconButton
+                size={isMobile ? "small" : "medium"}
                 onClick={onToggleThinking}
-                sx={{ mr: 1 }}
+                sx={{ mr: 1, p: isMobile ? 0.5 : 1 }}
               >
-                <PsychologyIcon fontSize="small" color={showThinking ? "primary" : "action"} />
+                <PsychologyIcon fontSize={isMobile ? "small" : "medium"} color={showThinking ? "primary" : "action"} />
               </IconButton>
-              <Typography variant="caption" sx={{ fontWeight: 'bold' }}>
-                {showThinking ? "Hide Thinking Process" : "Show Thinking Process"}
+              <Typography variant={isMobile ? "caption" : "body2"} sx={{ fontWeight: 'bold' }}>
+                {showThinking ? "Hide Thinking" : "Show Thinking"}
               </Typography>
             </Box>
-            
+
             {showThinking && (
               <Fade in={!isThinkingClosing} timeout={1000}>
-                <Box 
-                  sx={{ 
-                    p: 2, 
-                    bgcolor: 'background.default', 
+                <Box
+                  sx={{
+                    p: isMobile ? 1 : 2,
+                    bgcolor: 'background.default',
                     borderRadius: 1,
                     borderLeft: '3px solid',
                     borderColor: 'primary.main',
                     fontFamily: 'monospace',
-                    fontSize: '0.85rem',
-                    whiteSpace: 'pre-wrap'
+                    fontSize: isMobile ? '0.75rem' : '0.85rem',
+                    whiteSpace: 'pre-wrap',
+                    overflowX: 'auto'
                   }}
                 >
                   <Box sx={{ display: 'inline' }}>
@@ -87,17 +90,17 @@ const MessageBubble = ({ message, showThinking, onToggleThinking, isThinkingClos
 
         <ReactMarkdown>{message.content}</ReactMarkdown>
       </Paper>
-      
+
       {isUser && (
-        <Avatar 
-          sx={{ 
-            bgcolor: 'secondary.main', 
+        <Avatar
+          sx={{
+            bgcolor: 'secondary.main',
             ml: 1,
-            width: 36, 
-            height: 36 
+            width: isMobile ? 28 : 36,
+            height: isMobile ? 28 : 36
           }}
         >
-          <PersonIcon fontSize="small" />
+          <PersonIcon fontSize={isMobile ? "inherit" : "small"} />
         </Avatar>
       )}
     </Box>
