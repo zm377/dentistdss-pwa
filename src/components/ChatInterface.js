@@ -5,9 +5,11 @@ import {
   Paper,
   IconButton,
   InputAdornment,
+  useTheme,
+  useMediaQuery,
 } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
-import { callChatBot } from '../services/chatbot';
+import api from '../api';
 import MessageBubble from './MessageBubble';
 import config from '../config';
 
@@ -30,6 +32,9 @@ const ChatInterface = ({ apiKeyProp }) => {
   const [dots, setDots] = useState('');
   const [isThinkingClosing, setIsThinkingClosing] = useState(false);
   const [isAtBottom, setIsAtBottom] = useState(true);
+
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const apiKey = apiKeyProp || config.chatbot.apiKey;
   const messagesEndRef = useRef(null);
@@ -151,7 +156,7 @@ const ChatInterface = ({ apiKeyProp }) => {
     setIsThinkingClosing(false);
 
     try {
-      await callChatBot([...messages, userMessage], apiKey, (token, fullText) => {
+      await api.chatbot.callChatBot([...messages, userMessage], apiKey, (token, fullText) => {
         setMessages(prevMessages => {
           const { updatedMessages } = processThinkingContent(fullText, prevMessages);
 
@@ -182,16 +187,22 @@ const ChatInterface = ({ apiKeyProp }) => {
   const paperStyles = useMemo(() => ({
     flexGrow: 1,
     mb: 2,
-    p: 2,
+    p: isMobile ? 1 : 2,
     overflowY: 'scroll',
     display: 'flex',
-    flexDirection: 'column'
-  }), []);
+    flexDirection: 'column',
+    borderRadius: isMobile ? 1 : 2
+  }), [isMobile]);
 
   const isLastMessage = useCallback((index) => index === messages.length - 1, [messages.length]);
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', height: '70vh' }}>
+    <Box sx={{
+      display: 'flex',
+      flexDirection: 'column',
+      height: isMobile ? 'calc(100vh - 120px)' : '70vh',
+      maxWidth: '100%'
+    }}>
       <Paper elevation={3} sx={paperStyles} ref={messageContainerRef}>
         {messages.map((message, index) => (
           <MessageBubble
@@ -201,6 +212,7 @@ const ChatInterface = ({ apiKeyProp }) => {
             onToggleThinking={toggleThinking}
             isThinkingClosing={isThinkingClosing && isLastMessage(index)}
             animationDots={isLastMessage(index) && message.isStreaming ? dots : ''}
+            isMobile={isMobile}
           />
         ))}
         <div ref={messagesEndRef} />
@@ -210,13 +222,20 @@ const ChatInterface = ({ apiKeyProp }) => {
         <TextField
           fullWidth
           variant="outlined"
-          placeholder="Ask about dental care, procedures, or concerns..."
+          placeholder={isMobile ? "Ask a dental question..." : "Ask about dental care, procedures, or concerns..."}
           value={input}
           onChange={(e) => setInput(e.target.value)}
           disabled={loading}
           multiline
-          maxRows={4}
-          minRows={input.includes('\n') ? 3 : 1}
+          maxRows={isMobile ? 3 : 4}
+          minRows={input.includes('\n') ? (isMobile ? 2 : 3) : 1}
+          size={isMobile ? "small" : "medium"}
+          sx={{
+            '& .MuiOutlinedInput-root': {
+              borderRadius: isMobile ? '12px' : '16px',
+              fontSize: isMobile ? '0.875rem' : '1rem',
+            }
+          }}
           InputProps={{
             endAdornment: (
               <InputAdornment position="end">
@@ -224,8 +243,9 @@ const ChatInterface = ({ apiKeyProp }) => {
                   type="submit"
                   disabled={!input.trim() || loading}
                   color="primary"
+                  size={isMobile ? "small" : "medium"}
                 >
-                  <SendIcon />
+                  <SendIcon fontSize={isMobile ? "small" : "medium"} />
                 </IconButton>
               </InputAdornment>
             ),

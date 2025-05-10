@@ -1,4 +1,4 @@
-# DentistGPT
+# DentistDSS
 
 A web application that utilizes OpenAI's API for... (describe what the app does).
 
