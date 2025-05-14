@@ -64,6 +64,8 @@ const apiService = {
   auth: {
     login: (email, password) => api.post('/api/auth/login', { email, password }),
     signup: (userData) => api.post('/api/auth/signup', userData),
+    verifySignupToken: (vtoken) => api.get(`/api/auth/signup/verify?vtoken=${vtoken}`),
+    verifySignupWithCode: (email, code) => api.post('/api/auth/signup/verify/code', { email, code }),
     logout: () => api.post('/api/auth/logout'),
     me: () => api.get('/api/auth/me'),
   },
@@ -76,4 +78,4 @@ const apiService = {
   // },
 };
 
-export default apiService; 
+export default apiService;

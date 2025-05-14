@@ -36,14 +36,22 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Function to handle signup (Email/Password)
-  const signup = async (email, password, fullName, role = 'patient', clinicName = null, existingClinicId = null) => {
+  const loginWithTokenAndData = (token, userData) => {
+    localStorage.setItem('authToken', token);
+    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    setCurrentUser(userData);
+    console.log('Logged in with verified token:', userData.email);
+  };
+
+  const signup = async (email, password, firstName, lastName, role = 'patient', clinicName = null, existingClinicId = null) => {
     try {
       console.log(`Attempting signup for ${email}`);
       
       const signupData = { 
         email, 
         password, 
-        fullName, 
+        firstName,
+        lastName,
         role
       };
       
@@ -55,15 +63,21 @@ export const AuthProvider = ({ children }) => {
       const user = response.data.user;
       const token = response.data.token;
 
-      // If token is returned, user is automatically logged in (e.g., for patients)
-      if (token) {
-        localStorage.setItem('authToken', token); // Store token
-        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`; // Set auth header
+      // For patient role, we no longer auto-login here. Verification is required.
+      if (role === 'patient') {
+        console.log('Patient signup successful, email verification required.');
+        // Return user details, but don't set token or current user yet.
+        // The actual user object might come from the API response or be constructed.
+        // For now, we assume the API returns some user info even if not fully authenticated.
+        return { ...user, emailVerificationPending: true }; 
+      } else if (token) { // For other roles that might auto-login or have different flows
+        localStorage.setItem('authToken', token); 
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`; 
         setCurrentUser(user);
-        console.log('Signup and login successful');
+        console.log('Signup and login successful for non-patient role or auto-approved role');
       } else {
-        // For roles that need approval
-        console.log('Signup successful, waiting for approval');
+        // For roles that need approval and don't return a token immediately
+        console.log('Signup successful, waiting for approval (non-patient)');
       }
       
       return user; // Return user details, including status
@@ -135,6 +149,7 @@ export const AuthProvider = ({ children }) => {
     signup,
     logout,
     oauthLogin,
+    loginWithTokenAndData,
     // Add a function to update user details if needed, e.g., after approval
     // updateUser: (userData) => setCurrentUser(prev => ({...prev, ...userData }))
   };
