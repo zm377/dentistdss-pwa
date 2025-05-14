@@ -4,10 +4,12 @@ import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import GoogleIcon from '@mui/icons-material/Google';
 // import FacebookIcon from '@mui/icons-material/Facebook'; // Example for other providers
-import MicrosoftIcon from '@mui/icons-material/Microsoft'; // Example for Microsoft
+
 
 const Signup = () => {
   const { signup, oauthLogin: authOauthLogin } = useAuth();
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -33,16 +35,26 @@ const Signup = () => {
     if (password !== confirmPassword) {
       return setError('Passwords do not match');
     }
+    if (!firstName || !lastName) {
+      return setError('First name and last name are required');
+    }
 
     setLoading(true);
     try {
-      // Use the signup function from AuthContext
-      await signup(email, password); 
-      // Decide navigation after signup (e.g., to login or directly to home)
-      navigate('/'); // Navigate to home page on successful signup (or '/login')
+      // The role 'patient' is implicitly handled by this form.
+      // The signup function from AuthContext will be called.
+      // We need to ensure it doesn't auto-login patients but signals success for redirection.
+      const result = await signup(email, password, firstName, lastName, 'patient');
+
+      // Assuming signup now returns something to indicate success without auto-login for patients
+      // or that the API call itself was successful and email verification is the next step.
+      // If signup in AuthContext still auto-logs in, this logic will need adjustment there.
+      // For now, proceed to pending verification page.
+      navigate('/verify-email-pending', { state: { email: email, firstName: firstName } });
+
     } catch (err) { 
       console.error('Signup failed:', err);
-      setError(err.message || 'Failed to create an account. Please try again.'); // Display error from context or default
+      setError(err.message || 'Failed to create an account. Please try again.');
     }
     setLoading(false);
   };
@@ -54,6 +66,31 @@ const Signup = () => {
           Sign Up
         </Typography>
         <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            id="firstName"
+            label="First Name"
+            name="firstName"
+            autoComplete="given-name"
+            autoFocus
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+            disabled={loading}
+          />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            id="lastName"
+            label="Last Name"
+            name="lastName"
+            autoComplete="family-name"
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
+            disabled={loading}
+          />
           <TextField
             margin="normal"
             required
@@ -105,29 +142,21 @@ const Signup = () => {
             sx={{ mt: 3, mb: 2 }}
             disabled={loading}
           >
-            {loading ? 'Signing Up...' : 'Sign Up as Patient'}
+            {loading ? 'Signing Up...' : 'Sign Up'}
           </Button>
+          <Typography variant="body2" align="center" sx={{ mt: 2, mb: 1 }}>
+            Or
+          </Typography>
           <Grid container spacing={2} justifyContent="center" sx={{ mb: 2 }}>
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={12}>
                 <Button
                     fullWidth
                     variant="outlined"
                     startIcon={<GoogleIcon />}
                     onClick={() => handleOauthLogin('google')}
-                    sx={{ textTransform: 'none' }}
+                    sx={{ textTransform: 'none' }} // Keep textTransform if desired, or remove for default
                 >
                     Sign Up with Google
-                </Button>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-                <Button
-                    fullWidth
-                    variant="outlined"
-                    startIcon={<MicrosoftIcon />}
-                    onClick={() => handleOauthLogin('microsoft')}
-                    sx={{ textTransform: 'none' }}
-                >
-                    Sign Up with Microsoft
                 </Button>
             </Grid>
           </Grid>

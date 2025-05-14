@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Box, Button, TextField, Typography, Container, Paper, Link as MuiLink } from '@mui/material';
+import { Box, Button, TextField, Typography, Container, Paper, Link as MuiLink, Grid } from '@mui/material';
 import { Link as RouterLink, useNavigate } from 'react-router-dom'; // Import useNavigate
 import { useAuth } from '../context/AuthContext'; // Import useAuth
+import GoogleIcon from '@mui/icons-material/Google';
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -26,7 +27,7 @@ function Login() {
     try {
       // Use the login function from AuthContext
       await login(email, password); 
-      navigate('/'); // Navigate to home page on successful login
+      navigate('/dashboard'); // Navigate to dashboard on successful login
     } catch (err) { 
       console.error('Login failed:', err);
       setError(err.message || 'Failed to log in. Please check your credentials.'); // Display error from context or default
@@ -85,38 +86,22 @@ function Login() {
 
           {/* OAuth Buttons */}
           <Typography variant="body2" align="center" sx={{ mt: 2, mb: 1 }}>
-            Or log in with
+            Or
           </Typography>
-          <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1, mb: 2 }}>
-            {/* Replace with actual icons or styled buttons */}
-            <Button 
-              variant="outlined" 
-              onClick={() => oauthLogin('google')} 
-              disabled={loading}
-              size="small"
-              // Add Google Icon here later
-            >
-              Google
-            </Button>
-            <Button 
-              variant="outlined" 
-              onClick={() => oauthLogin('microsoft')} 
-              disabled={loading}
-              size="small"
-              // Add Microsoft Icon here later
-            >
-              Microsoft
-            </Button>
-            <Button 
-              variant="outlined" 
-              onClick={() => oauthLogin('apple')} 
-              disabled={loading}
-              size="small"
-              // Add Apple Icon here later
-            >
-              Apple
-            </Button>
-          </Box>
+          <Grid container spacing={2} justifyContent="center" sx={{ mb: 2 }}>
+            <Grid item xs={12}>
+              <Button 
+                fullWidth
+                variant="outlined" 
+                startIcon={<GoogleIcon />}
+                onClick={() => oauthLogin('google')} 
+                disabled={loading}
+                sx={{ textTransform: 'none' }}
+              >
+                Log In with Google
+              </Button>
+            </Grid>
+          </Grid>
 
           <Box sx={{ mt: 2, textAlign: 'center' }}>
             <MuiLink component={RouterLink} to="/signup" variant="body2">

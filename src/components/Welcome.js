@@ -18,6 +18,7 @@ import { Link as RouterLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import config from '../config';
+import Divider from '@mui/material/Divider';
 
 // Import images from assets
 import dentalQuestionImg from '../assets/d2.jpg';
@@ -201,43 +202,36 @@ const Welcome = () => {
         </Typography>
         
         <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
-          <Button 
-            variant="text" 
-            color="primary" 
-            component={RouterLink} 
-            to="/chat/questions"
+          <Typography 
+            variant="h6" 
+            align="center"
             sx={{ 
               mx: 2, 
               fontWeight: 'medium',
               color: isDarkMode ? '#81c784' : 'primary.main',
-              '&:hover': {
-                backgroundColor: isDarkMode ? 'rgba(129, 199, 132, 0.08)' : 'rgba(1, 52, 39, 0.04)',
-              }
             }}
           >
             Ask Dental Questions
-          </Button>
-          <Typography sx={{ 
-            mx: 2, 
-            color: isDarkMode ? 'rgba(255, 255, 255, 0.6)' : 'text.secondary',
-            fontWeight: isDarkMode ? 'medium' : 'normal'
-          }}>|</Typography>
-          <Button 
-            variant="text" 
-                color="primary"
-            component={RouterLink} 
-            to="/find-dentist"
+          </Typography>
+          <Divider 
+            orientation="vertical"
+            flexItem
+            sx={{ 
+              mx: 2, 
+              borderColor: isDarkMode ? '#b2dfdb' : 'primary.main',
+            }}
+          />
+          <Typography 
+            variant="h6" 
+            align="center"
             sx={{ 
               mx: 2, 
               fontWeight: 'medium',
               color: isDarkMode ? '#81c784' : 'primary.main',
-              '&:hover': {
-                backgroundColor: isDarkMode ? 'rgba(129, 199, 132, 0.08)' : 'rgba(1, 52, 39, 0.04)',
-              }
             }}
           >
-            Find a Dentist
-          </Button>
+            Find a Clinic
+          </Typography>
         </Box>
         
         <Grid container spacing={4} sx={{ mt: 2 }}>
@@ -250,7 +244,7 @@ const Welcome = () => {
                 flexDirection: 'column',
                 borderRadius: 2,
                 bgcolor: isDarkMode ? 'rgba(38, 50, 56, 0.9)' : 'background.paper',
-                border: isDarkMode ? '1px solid rgba(0, 230, 180, 0.1)' : 'none'
+                border: isDarkMode ? '1px solid rgba(0, 230, 180, 0.1)' : 'none',
               }}
             >
               <CardContent sx={{ flexGrow: 1, textAlign: 'center', p: 3 }}>
@@ -266,6 +260,8 @@ const Welcome = () => {
                   }}
                 />
                 <Button
+                  component={RouterLink}
+                  to="/chat"
                   variant="contained"
                   color="primary"
                   size="large"
@@ -304,12 +300,13 @@ const Welcome = () => {
                     }
                   }}
                 >
-                  <Box sx={{ 
-                    fontWeight: 'medium', 
-                    display: 'inline-block',
-                    textShadow: isDarkMode 
-                      ? '0 1px 3px rgba(0, 0, 0, 0.4)' 
-                      : '0 1px 2px rgba(0, 0, 0, 0.2)'
+                  <Box
+                    sx={{ 
+                      fontWeight: 'medium', 
+                      display: 'inline-block',
+                      textShadow: isDarkMode 
+                        ? '0 1px 3px rgba(0, 0, 0, 0.4)' 
+                        : '0 1px 2px rgba(0, 0, 0, 0.2)'
                   }}>
                     Ask a dental question
                   </Box>
@@ -334,7 +331,7 @@ const Welcome = () => {
                 flexDirection: 'column',
                 borderRadius: 2,
                 bgcolor: isDarkMode ? 'rgba(38, 50, 56, 0.9)' : 'background.paper',
-                border: isDarkMode ? '1px solid rgba(0, 230, 180, 0.1)' : 'none'
+                border: isDarkMode ? '1px solid rgba(0, 230, 180, 0.1)' : 'none',
               }}
             >
               <CardContent sx={{ flexGrow: 1, textAlign: 'center', p: 3 }}>
@@ -395,7 +392,7 @@ const Welcome = () => {
                       ? '0 1px 3px rgba(0, 0, 0, 0.4)' 
                       : '0 1px 2px rgba(0, 0, 0, 0.2)'
                   }}>
-                    Find a dentist
+                    Find a clinic
                   </Box>
                   </Button>
                 <Typography 
@@ -861,7 +858,7 @@ const Welcome = () => {
                   fontWeight: 'medium'
                 }}
               >
-                Dental Assistant
+                Help Assistant
               </Typography>
             </Box>
             
@@ -911,7 +908,7 @@ const Welcome = () => {
                   color={isDarkMode ? 'rgba(224, 247, 250, 0.7)' : 'text.secondary'}
                   sx={{ textAlign: 'center', mt: 10 }}
                 >
-                  Ask me any dental question!
+                  Hi there! How can I help you today?
                 </Typography>
               )}
             </Box>
