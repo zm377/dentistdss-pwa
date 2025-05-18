@@ -9,6 +9,8 @@ const PROD_API_PORT = undefined;
 
 // OpenAi API Keys
 const OPENAI_API_KEY = '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';
+const OPENAI_API_BASE_URL = 'https://api.openai.com';
+const OPENAI_API_PATH = '/v1/chat/completions';
 
 const config = {
   // Environment info
@@ -19,6 +21,8 @@ const config = {
   
   // ChatBot API configuration
   chatbot: {
+    baseUrl: process.env.OPENAI_API_BASE_URL || OPENAI_API_BASE_URL,
+    openaiApiPath: process.env.OPENAI_API_PATH || OPENAI_API_PATH,
     openaiApiKey: process.env.OPENAI_API_KEY || OPENAI_API_KEY,
     model: 'gpt-4.1-nano-2025-04-14', // or whichever model you're using
   },

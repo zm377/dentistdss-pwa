@@ -17,8 +17,9 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('authToken');
+    const tokenType = localStorage.getItem('tokenType');
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+      config.headers.Authorization = `${tokenType} ${token}`;
     }
     return config;
   },
@@ -29,7 +30,33 @@ api.interceptors.request.use(
 
 // Response interceptor for API calls
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Check if the response data and success field exist
+    if (response.data && typeof response.data.success !== 'undefined') {
+      if (response.data.success) {
+        // If success is true, return the dataObject (which is response.data.message)
+        return response.data.message;
+      } else {
+        // If success is false, extract the message and dispatch an event
+        const errorMessage = response.data.message || 'An unknown error occurred.';
+        
+        // Dispatch a custom event to show the Snackbar
+        const event = new CustomEvent('show-snackbar', {
+          detail: {
+            message: errorMessage,
+            severity: 'error', // Or 'warning', 'info', 'success'
+          },
+        });
+        window.dispatchEvent(event);
+        
+        // Reject the promise with the error message
+        return Promise.reject(new Error(errorMessage));
+      }
+    }
+    // If the response doesn't match the expected structure, return it as is or handle as an error
+    // For now, returning the original response if not conforming to the expected structure
+    return response;
+  },
   (error) => {
     const originalRequest = error.config;
     
@@ -57,4 +84,4 @@ api.interceptors.response.use(
   }
 );
 
-export default api;
+export default api; 

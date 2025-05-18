@@ -1,23 +1,19 @@
 import config from '../config';
 
 export const callChatBot = async (messages, apiKey, onTokenReceived) => {
-  // We're using the same API path for both environments now
-  // The proxy middleware will handle routing in development
-  // Nginx will handle routing in production
-  
-  const url = process.env.NODE_ENV === 'development'
-    ? 'http://localhost:20000/v1/chat/completions'
-    : '/api/deepseekr132b/chat/completions'; 
+  // Use the standard OpenAI API endpoint
+  const url = config.chatbot.baseUrl + config.chatbot.openaiApiPath; 
   
   try {
     const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey || config.chatbot.apiKey}`
+        // Ensure the apiKey from argument (sourced from config.chatbot.openaiApiKey by ChatInterface) is used
+        'Authorization': `Bearer ${apiKey}` 
       },
       body: JSON.stringify({
-        model: config.chatbot.model || 'deepseek-r1-distill-qwen-32b',
+        model: config.chatbot.model, // Uses the model from config.js (e.g., 'gpt-4.1')
         messages: messages.map(msg => ({
           role: msg.role,
           content: msg.content

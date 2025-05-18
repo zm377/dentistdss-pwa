@@ -47,14 +47,8 @@ const Signup = () => {
   };
 
   const handleOauthLogin = (provider) => {
-    // Placeholder for OAuth login logic
-    console.log(`OAuth login with ${provider} not implemented yet.`);
-    // You'll want to redirect to your backend or the OAuth provider's page
-    // Example: window.location.href = `/auth/${provider}`;
-    setError(`OAuth login with ${provider} is not yet implemented.`);
-    
-    // Call the actual OAuth login from context when implemented
-    // authOauthLogin(provider);
+    // Call the actual OAuth login from context
+    authOauthLogin(provider);
   };
 
   const handleSubmit = async (event) => {

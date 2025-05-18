@@ -11,8 +11,10 @@ import ClinicStaffSignup from './ClinicStaffSignup';
 import VerifyEmailPendingPage from '../pages/VerifyEmailPendingPage';
 import VerifyEmailPage from '../pages/VerifyEmailPage';
 import DashboardPage from '../pages/DashboardPage';
+import QuizPage from './QuizPage';
 import { useAuth } from '../context/AuthContext';
 import config from '../config';
+import OAuth2RedirectHandler from './OAuth2RedirectHandler';
 
 function AppRoutes() {
   const { isAuthenticated, currentUser } = useAuth();
@@ -50,6 +52,10 @@ function AppRoutes() {
       <Route
         path="/learn"
         element={<Learn />}
+      />
+      <Route
+        path="/quiz"
+        element={<QuizPage />}
       />
       <Route
         path="/chat"
@@ -94,6 +100,7 @@ function AppRoutes() {
         path="/pending-approval"
         element={<Typography variant="h5" align="center" sx={{mt: 4}}>Your account is pending approval. Please check your email or contact support.</Typography>}
       />
+      <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
