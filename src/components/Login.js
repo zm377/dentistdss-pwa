@@ -26,23 +26,47 @@ function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [emailError, setEmailError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const { login } = useAuth();
+  const { login, oauthLogin } = useAuth();
   const navigate = useNavigate();
+
+  const validateEmail = (emailToValidate) => {
+    if (!emailToValidate) {
+      return 'Email is required';
+    }
+    const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+    if (!emailRegex.test(emailToValidate)) {
+      return 'Please enter a valid email address';
+    }
+    return '';
+  };
+
+  const handleEmailChange = (e) => {
+    const newEmail = e.target.value;
+    setEmail(newEmail);
+    if (emailError) {
+      setEmailError(validateEmail(newEmail));
+    }
+  };
+
+  const handleEmailBlur = () => {
+    setEmailError(validateEmail(email));
+  };
 
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
   };
 
-  const oauthLogin = (provider) => {
-    console.log(`OAuth login with ${provider} not implemented yet.`);
-    setError(`OAuth login with ${provider} is not yet implemented.`);
-  };
-
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError('');
+    const currentEmailError = validateEmail(email);
+    setEmailError(currentEmailError);
+    if (currentEmailError) {
+      return;
+    }
     setLoading(true);
     try {
       await login(email, password); 
@@ -101,7 +125,10 @@ function Login() {
             autoComplete="email"
             autoFocus
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={handleEmailChange}
+            onBlur={handleEmailBlur}
+            error={!!emailError || !!error}
+            helperText={emailError || (error && error.toLowerCase().includes('email') ? error : '')}
             disabled={loading}
             InputProps={{
               startAdornment: (
@@ -244,7 +271,7 @@ function Login() {
                 fullWidth
                 variant="outlined" 
                 startIcon={<GoogleIcon />}
-                onClick={() => oauthLogin('google')} 
+                onClick={() => oauthLogin('google')}
                 disabled={loading}
                 sx={{ 
                   textTransform: 'none', 

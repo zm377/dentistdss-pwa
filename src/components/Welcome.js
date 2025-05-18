@@ -19,6 +19,7 @@ import { useAuth } from '../context/AuthContext';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import config from '../config';
 import Divider from '@mui/material/Divider';
+import OpenAI from 'openai';
 
 // Import images from assets
 import dentalQuestionImg from '../assets/d2.jpg';
@@ -33,6 +34,12 @@ const Welcome = () => {
   const [chatOpen, setChatOpen] = useState(false);
   const [chatInput, setChatInput] = useState('');
   const [chatMessages, setChatMessages] = useState([]);
+
+  // Instantiate OpenAI client
+  const openai = new OpenAI({
+    apiKey: config.chatbot.openaiApiKey,
+    dangerouslyAllowBrowser: true 
+  });
 
   const handleChatToggle = () => {
     setChatOpen(!chatOpen);
@@ -49,96 +56,71 @@ const Welcome = () => {
       // Call OpenAI API directly
       const fetchChatResponse = async () => {
         try {
-          const response = await fetch('https://api.openai.com/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${config.chatbot.openaiApiKey}`
-            },
-            body: JSON.stringify({
-              model: `${config.chatbot.model}`,
-              messages: [
-                {
-                  role: 'system',
-                  content: 'You are a helpful dental assistant chatbot. Provide concise, accurate information about dental care, procedures, and oral health.'
-                },
-                ...chatMessages.map(msg => ({
-                  role: msg.sender === 'user' ? 'user' : 'assistant',
-                  content: msg.text
-                })),
-                {
-                  role: 'user',
-                  content: userMessage
-                }
-              ],
-              stream: true
-            })
+          const systemMessage = {
+            role: 'system',
+            content: 'You are a helpful dental assistant chatbot. Provide concise, accurate information about dental care, procedures, and oral health.'
+          };
+          const currentMessages = chatMessages.map(msg => ({
+            role: msg.sender === 'user' ? 'user' : 'assistant',
+            content: msg.text
+          }));
+          const userMessageObject = {
+            role: 'user',
+            content: userMessage
+          };
+
+          const stream = await openai.chat.completions.create({
+            model: config.chatbot.model,
+            messages: [systemMessage, ...currentMessages, userMessageObject],
+            stream: true
           });
 
-          if (!response.ok) {
-            throw new Error('API request failed');
-          }
-
-          // Handle streaming response
-          const reader = response.body.getReader();
-          const decoder = new TextDecoder('utf-8');
           let responseText = '';
-
           // Add a temporary message for streaming
           setChatMessages(prev => [...prev, { sender: 'bot', text: '', isStreaming: true }]);
 
-          // Process the stream
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            
-            const chunk = decoder.decode(value);
-            // Parse SSE formatted data
-            const lines = chunk.split('\n').filter(line => line.trim() !== '');
-            
-            for (const line of lines) {
-              if (line.startsWith('data: ')) {
-                const data = line.substring(6);
-                if (data === '[DONE]') continue;
-                
-                try {
-                  const parsedData = JSON.parse(data);
-                  const content = parsedData.choices[0]?.delta?.content || '';
-                  if (content) {
-                    // Create a copy to avoid directly referencing the loop variable
-                    const updatedText = responseText + content;
-                    responseText = updatedText;
-                    
-                    // Update the last message with the accumulated text
-                    setChatMessages(prev => {
-                      const updated = [...prev];
-                      updated[updated.length - 1] = {
-                        ...updated[updated.length - 1],
-                        text: updatedText
-                      };
-                      return updated;
-                    });
-                  }
-                } catch (e) {
-                  console.error('Error parsing chunk:', e);
+          for await (const chunk of stream) {
+            const token = chunk.choices[0]?.delta?.content || '';
+            if (token) {
+              responseText += token;
+              setChatMessages(prev => {
+                const updated = [...prev];
+                // Ensure we are updating the correct streaming message
+                if (updated.length > 0 && updated[updated.length - 1].isStreaming) {
+                  updated[updated.length - 1] = {
+                    ...updated[updated.length - 1],
+                    text: responseText
+                  };
                 }
-              }
+                return updated;
+              });
             }
           }
-
+          
           // After the stream is complete, remove the streaming flag
           setChatMessages(prev => {
             const updated = [...prev];
-            updated[updated.length - 1] = {
-              sender: 'bot',
-              text: responseText,
-              isStreaming: false
-            };
+            if (updated.length > 0 && updated[updated.length - 1].isStreaming) {
+                 updated[updated.length - 1] = {
+                    sender: 'bot',
+                    text: responseText,
+                    isStreaming: false
+                };
+            } else if (updated.length > 0 && updated[updated.length-1].sender === 'bot' && updated[updated.length-1].text === responseText ) {
+                // This case handles if somehow isStreaming was already set to false
+                // but the message content is the full responseText
+            }
+            else {
+                 // If the last message is not the one we were streaming to (e.g., user sent another message)
+                 // or if it's already finalized, add a new message.
+                 // This path should ideally not be hit if logic is correct.
+                updated.push({ sender: 'bot', text: responseText, isStreaming: false });
+            }
             return updated;
           });
           
         } catch (error) {
-          console.error('Error calling OpenAI API:', error);
+          console.error('Error calling OpenAI API with SDK:', error);
           setChatMessages(prev => [...prev, { 
             sender: 'bot', 
             text: "I'm sorry, I encountered an error processing your request. Please try again later."
@@ -417,13 +399,23 @@ const Welcome = () => {
         borderBottom: isDarkMode ? '1px solid rgba(0, 230, 180, 0.1)' : 'none',
       }}>
         <Container maxWidth="md">
-          <Paper
-            elevation={isDarkMode ? 4 : 3}
+          <CardActionArea 
+            component={RouterLink}
+            to="/quiz"
             sx={{
-              p: 4,
-              borderRadius: 2,
+              display: 'block',
+              textDecoration: 'none',
+              '&:hover': {
+                transform: 'translateY(-3px)',
+                boxShadow: isDarkMode 
+                  ? '0 6px 12px rgba(0, 230, 180, 0.2)' 
+                  : '0 6px 12px rgba(0, 0, 0, 0.15)'
+              },
+              transition: 'all 0.25s ease-in-out',
               bgcolor: isDarkMode ? 'rgba(30, 42, 46, 0.9)' : 'background.paper',
-              border: isDarkMode ? '1px solid rgba(0, 230, 180, 0.1)' : 'none'
+              border: isDarkMode ? '1px solid rgba(0, 230, 180, 0.1)' : 'none',
+              borderRadius: 2,
+              p: 4,
             }}
           >
             <Typography 
@@ -431,11 +423,11 @@ const Welcome = () => {
               component="h2" 
               align="center" 
               gutterBottom
-                sx={{ 
+              sx={{ 
                 color: isDarkMode ? '#4db6ac' : 'primary.main',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
                 mb: 3,
                 textShadow: isDarkMode ? '0 0 8px rgba(0, 230, 180, 0.3)' : 'none',
                 fontWeight: isDarkMode ? 'medium' : 'normal'
@@ -453,84 +445,27 @@ const Welcome = () => {
                 color: isDarkMode ? '#e0f7fa' : 'text.primary'
               }}
             >
-              💭 How often do you brush your teeth daily?
+              💭 Test your dental knowledge and learn more about oral health!
             </Typography>
             
-            <Grid container spacing={2} direction="column">
-              <Grid item>
-                <Button 
-                  fullWidth 
-                  variant={isDarkMode ? "contained" : "outlined"}
-                  color="primary"
-                  sx={{ 
-                    textTransform: 'none', 
-                    py: 1,
-                    bgcolor: isDarkMode ? 'rgba(0, 137, 123, 0.2)' : 'transparent',
-                    color: isDarkMode ? '#e0f7fa' : 'primary.main',
-                    borderColor: isDarkMode ? 'rgba(0, 230, 180, 0.3)' : 'primary.main',
-                    '&:hover': {
-                      bgcolor: isDarkMode ? 'rgba(0, 137, 123, 0.4)' : 'rgba(1, 52, 39, 0.04)',
-                      borderColor: isDarkMode ? 'rgba(0, 230, 180, 0.5)' : 'primary.dark',
-                    }
-                  }}
-                >
-                  Once
-                </Button>
-              </Grid>
-              <Grid item>
-                <Button 
-                  fullWidth 
-                  variant={isDarkMode ? "contained" : "outlined"}
-                  color="primary"
-                  sx={{ 
-                    textTransform: 'none', 
-                    py: 1,
-                    bgcolor: isDarkMode ? 'rgba(0, 137, 123, 0.2)' : 'transparent',
-                    color: isDarkMode ? '#e0f7fa' : 'primary.main',
-                    borderColor: isDarkMode ? 'rgba(0, 230, 180, 0.3)' : 'primary.main',
-                    '&:hover': {
-                      bgcolor: isDarkMode ? 'rgba(0, 137, 123, 0.4)' : 'rgba(1, 52, 39, 0.04)',
-                      borderColor: isDarkMode ? 'rgba(0, 230, 180, 0.5)' : 'primary.dark',
-                    }
-                  }}
-                >
-                  Twice
-                </Button>
-              </Grid>
-              <Grid item>
-                <Button 
-                  fullWidth 
-                  variant={isDarkMode ? "contained" : "outlined"}
-                  color="primary"
-                  sx={{ 
-                    textTransform: 'none', 
-                    py: 1,
-                    bgcolor: isDarkMode ? 'rgba(0, 137, 123, 0.2)' : 'transparent',
-                    color: isDarkMode ? '#e0f7fa' : 'primary.main',
-                    borderColor: isDarkMode ? 'rgba(0, 230, 180, 0.3)' : 'primary.main',
-                    '&:hover': {
-                      bgcolor: isDarkMode ? 'rgba(0, 137, 123, 0.4)' : 'rgba(1, 52, 39, 0.04)',
-                      borderColor: isDarkMode ? 'rgba(0, 230, 180, 0.5)' : 'primary.dark',
-                    }
-                  }}
-                >
-                  More than twice
-                </Button>
-              </Grid>
-            </Grid>
-            
-            <Typography 
-              variant="caption" 
-              align="center" 
+            <Button 
+              fullWidth 
+              variant="contained"
+              color="primary"
               sx={{ 
-                display: 'block', 
-                mt: 2, 
-                color: isDarkMode ? 'rgba(255, 255, 255, 0.7)' : 'text.secondary'
+                mt: 3,
+                textTransform: 'none', 
+                py: 1.5,
+                bgcolor: isDarkMode ? '#00897b' : '#013427',
+                color: isDarkMode ? '#e0f2f1' : 'white',
+                '&:hover': {
+                  bgcolor: isDarkMode ? '#00796b' : '#014d40',
+                }
               }}
             >
-              Question 1 of 20
-            </Typography>
-          </Paper>
+              Start Dental Health Quiz
+            </Button>
+          </CardActionArea>
         </Container>
       </Box>
 

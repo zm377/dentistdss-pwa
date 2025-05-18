@@ -6,6 +6,7 @@ import Header from './components/Header';
 import { useAuth } from './context/AuthContext';
 import config from './config';
 import './App.css';
+import GlobalSnackbar from './components/GlobalSnackbar';
 
 import AppRoutes from './components/AppRoutes';
 
@@ -118,6 +119,7 @@ function App() {
           </Box>
         </Box>
       </Router>
+      <GlobalSnackbar />
     </ThemeProvider>
   );
 }

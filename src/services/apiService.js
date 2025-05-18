@@ -66,6 +66,7 @@ const apiService = {
     signup: (userData) => api.post('/api/auth/signup', userData),
     verifySignupToken: (vtoken) => api.get(`/api/auth/signup/verify?vtoken=${vtoken}`),
     verifySignupWithCode: (email, code) => api.post('/api/auth/signup/verify/code', { email, code }),
+    resendVerificationCode: (email) => api.post(`/api/auth/signup/verify/code/resend?email=${email}`),
     logout: () => api.post('/api/auth/logout'),
     me: () => api.get('/api/auth/me'),
   },

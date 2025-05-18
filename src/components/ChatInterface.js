@@ -36,7 +36,7 @@ const ChatInterface = ({ apiKeyProp }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-  const apiKey = apiKeyProp || config.chatbot.apiKey;
+  const apiKey = apiKeyProp || config.chatbot.openaiApiKey;
   const messagesEndRef = useRef(null);
   const messageContainerRef = useRef(null);
 
