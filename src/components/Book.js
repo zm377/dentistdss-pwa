@@ -23,7 +23,7 @@ const dentalBooksData = [
     title: "Dental Secrets",
     authors: "Stephen T. Sonis",
     description: "A comprehensive guide covering a wide range of dental topics in a question-and-answer format.",
-    imageUrl: "https://via.placeholder.com/150x220.png?text=Dental+Secrets",
+    imageUrl: "https://m.media-amazon.com/images/I/71617TD98tL._AC_UY436_FMwebp_QL65_.jpg",
     amazonLink: generateAmazonLink("Dental Secrets", "Stephen T. Sonis"),
     topics: ["General Dentistry", "Reference"]
   },
@@ -32,7 +32,7 @@ const dentalBooksData = [
     title: "Oxford Handbook of Clinical Dentistry",
     authors: "Laura Mitchell, David A. Mitchell, et al.", // Example authors, update if needed
     description: "A concise and practical guide to clinical dentistry, ideal for students and practitioners.",
-    imageUrl: "https://via.placeholder.com/150x220.png?text=Oxford+Handbook",
+    imageUrl: "https://m.media-amazon.com/images/I/713f5wYx+ZL._AC_UY436_FMwebp_QL65_.jpg",
     amazonLink: generateAmazonLink("Oxford Handbook of Clinical Dentistry", "Laura Mitchell"),
     topics: ["General Dentistry", "Clinical Practice", "Reference"]
   },
@@ -41,7 +41,7 @@ const dentalBooksData = [
     title: "Clinical Practice of the Dental Hygienist",
     authors: "Esther M. Wilkins, Charlotte J. Wyche", // Example authors
     description: "A cornerstone text for dental hygiene students and professionals, covering theory and practice.",
-    imageUrl: "https://via.placeholder.com/150x220.png?text=Clinical+Practice",
+    imageUrl: "https://m.media-amazon.com/images/I/41-15dj1luL._AC_UY436_FMwebp_QL65_.jpg",
     amazonLink: generateAmazonLink("Clinical Practice of the Dental Hygienist", "Esther M. Wilkins"),
     topics: ["Dental Hygiene", "Clinical Practice"]
   },
@@ -50,7 +50,7 @@ const dentalBooksData = [
     title: "Color Atlas of Dental Hygiene - Periodontology",
     authors: "Herbert F. Wolf, Thomas M. Hassell", // Example authors
     description: "A visually rich atlas focusing on the periodontal aspects of dental hygiene.",
-    imageUrl: "https://via.placeholder.com/150x220.png?text=Color+Atlas",
+    imageUrl: "https://m.media-amazon.com/images/I/41Ztb8K715L._AC_UY436_FMwebp_QL65_.jpg",
     amazonLink: generateAmazonLink("Color Atlas of Dental Hygiene - Periodontology", "Herbert F. Wolf"),
     topics: ["Dental Hygiene", "Periodontology", "Atlas"]
   },
@@ -59,7 +59,7 @@ const dentalBooksData = [
     title: "Netter's Head and Neck Anatomy for Dentistry",
     authors: "Neil S. Norton",
     description: "Detailed anatomical illustrations by Frank H. Netter, tailored for dental students and professionals.",
-    imageUrl: "https://via.placeholder.com/150x220.png?text=Netter%27s+Anatomy",
+    imageUrl: "https://m.media-amazon.com/images/I/61M1b5BDq9L._AC_UY436_FMwebp_QL65_.jpg",
     amazonLink: generateAmazonLink("Netter's Head and Neck Anatomy for Dentistry", "Neil S. Norton"),
     topics: ["Anatomy", "Reference", "Atlas"]
   },
@@ -68,7 +68,7 @@ const dentalBooksData = [
     title: "Mosby's Dental Dictionary",
     authors: "Elsevier", // Often publisher or editorial board for dictionaries
     description: "A comprehensive dictionary of dental terms, essential for dental professionals and students.",
-    imageUrl: "https://via.placeholder.com/150x220.png?text=Mosby%27s+Dictionary",
+    imageUrl: "https://m.media-amazon.com/images/I/51WIjU01iGL._AC_UY436_FMwebp_QL65_.jpg",
     amazonLink: generateAmazonLink("Mosby's Dental Dictionary", "Elsevier"),
     topics: ["Dictionary", "Reference"]
   },
@@ -77,7 +77,7 @@ const dentalBooksData = [
     title: "Newman and Carranza's Clinical Periodontology", // Combined from list
     authors: "Michael G. Newman, Henry Takei, Perry R. Klokkevold, Fermin A. Carranza",
     description: "A leading textbook on periodontology, covering the full scope of periodontal diseases and treatment.",
-    imageUrl: "https://via.placeholder.com/150x220.png?text=Newman+Carranza",
+    imageUrl: "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcSVf6Y4C-y_o3-nHGX5vp2JvkoZZ5fYSw9UkFrY62tj4QbfI71ZRp7AIkTHaXpdyTwZ0CUPpk9oLwSe92dbZ9LMMO2t4ewJSEm5clLUe6oW&usqp=CAc",
     amazonLink: generateAmazonLink("Newman and Carranza's Clinical Periodontology", "Michael G. Newman"),
     topics: ["Periodontology", "Clinical Practice", "Implantology"]
   },
@@ -86,7 +86,7 @@ const dentalBooksData = [
     title: "Holistic Dental Care: The Complete Guide to Healthy Teeth and Gums",
     authors: "Nadine Artemis",
     description: "Explores a natural and holistic approach to dental health and oral hygiene.",
-    imageUrl: "https://via.placeholder.com/150x220.png?text=Holistic+Dental",
+    imageUrl: "https://m.media-amazon.com/images/I/71W4HEId6DL._AC_UY436_FMwebp_QL65_.jpg",
     amazonLink: generateAmazonLink("Holistic Dental Care", "Nadine Artemis"),
     topics: ["Holistic Dentistry", "Wellness"]
   },
@@ -95,7 +95,7 @@ const dentalBooksData = [
     title: "The Dental Diet: The Surprising Link between Your Teeth, Real Food, and Life-Changing Natural Health",
     authors: "Dr. Steven Lin",
     description: "Discusses the connection between diet and oral health, advocating for a food-based approach to dental wellness.",
-    imageUrl: "https://via.placeholder.com/150x220.png?text=The+Dental+Diet",
+    imageUrl: "https://m.media-amazon.com/images/I/61GhAAvhmML._AC_UY436_FMwebp_QL65_.jpg",
     amazonLink: generateAmazonLink("The Dental Diet", "Dr. Steven Lin"),
     topics: ["Nutrition", "Wellness", "Holistic Dentistry"]
   },
@@ -104,7 +104,7 @@ const dentalBooksData = [
     title: "The Toxic Tooth: How a Root Canal Could Be Making You Sick",
     authors: "Robert Kulacz, Thomas E. Levy",
     description: "Examines potential health risks associated with root canals and offers alternative perspectives.",
-    imageUrl: "https://via.placeholder.com/150x220.png?text=The+Toxic+Tooth",
+    imageUrl: "https://m.media-amazon.com/images/I/61HORbZYuEL._AC_UY436_FMwebp_QL65_.jpg",
     amazonLink: generateAmazonLink("The Toxic Tooth", "Robert Kulacz"),
     topics: ["Holistic Dentistry", "Controversies"]
   },
@@ -113,7 +113,7 @@ const dentalBooksData = [
     title: "Woelfel's Dental Anatomy",
     authors: "Rickne C. Scheid, Gabriela Weiss",
     description: "A detailed guide to dental anatomy, its application in practice, and tooth identification.",
-    imageUrl: "https://via.placeholder.com/150x220.png?text=Woelfel%27s+Anatomy",
+    imageUrl: "https://m.media-amazon.com/images/I/71eg4lMr69L._AC_UY436_FMwebp_QL65_.jpg",
     amazonLink: generateAmazonLink("Woelfel's Dental Anatomy", "Rickne C. Scheid"),
     topics: ["Anatomy", "Reference"]
   },
@@ -122,7 +122,7 @@ const dentalBooksData = [
     title: "Clinical Periodontology and Implant Dentistry",
     authors: "Jan Lindhe, Niklaus P. Lang, Thorkild Karring",
     description: "An authoritative text covering all aspects of periodontology and implant dentistry.",
-    imageUrl: "https://via.placeholder.com/150x220.png?text=Lindhe+Periodontology",
+    imageUrl: "https://m.media-amazon.com/images/I/511Zt29i85L._AC_UY436_FMwebp_QL65_.jpg",
     amazonLink: generateAmazonLink("Clinical Periodontology and Implant Dentistry", "Jan Lindhe"),
     topics: ["Periodontology", "Implantology", "Clinical Practice"]
   },
@@ -131,7 +131,7 @@ const dentalBooksData = [
     title: "Contemporary Orthodontics",
     authors: "William R. Proffit, Henry W. Fields Jr., Brent E. Larson, David M. Sarver",
     description: "A comprehensive and widely used textbook on orthodontic principles and techniques.",
-    imageUrl: "https://via.placeholder.com/150x220.png?text=Contemporary+Ortho",
+    imageUrl: "https://m.media-amazon.com/images/I/81Lfb5UR+gL._AC_UY436_FMwebp_QL65_.jpg",
     amazonLink: generateAmazonLink("Contemporary Orthodontics", "William R. Proffit"),
     topics: ["Orthodontics", "Clinical Practice"]
   },
@@ -140,7 +140,7 @@ const dentalBooksData = [
     title: "Little and Falace's Dental Management of the Medically Compromised Patient",
     authors: "James W. Little, Craig S. Miller, Nelson L. Rhodus",
     description: "Focuses on the dental treatment of patients with systemic diseases and medical conditions.",
-    imageUrl: "https://via.placeholder.com/150x220.png?text=Little+Falace",
+    imageUrl: "https://m.media-amazon.com/images/I/81NNN7h6PpL._AC_UY436_FMwebp_QL65_.jpg",
     amazonLink: generateAmazonLink("Little and Falace's Dental Management of the Medically Compromised Patient", "James W. Little"),
     topics: ["Special Needs Dentistry", "Clinical Practice", "General Dentistry"]
   },
@@ -149,7 +149,7 @@ const dentalBooksData = [
     title: "Cure Tooth Decay: Heal and Prevent Cavities with Nutrition",
     authors: "Ramiel Nagel",
     description: "Advocates for a nutritional approach to preventing and healing tooth decay.",
-    imageUrl: "https://via.placeholder.com/150x220.png?text=Cure+Tooth+Decay",
+    imageUrl: "https://m.media-amazon.com/images/I/61eCYy5NDFL._AC_UY436_FMwebp_QL65_.jpg",
     amazonLink: generateAmazonLink("Cure Tooth Decay", "Ramiel Nagel"),
     topics: ["Nutrition", "Holistic Dentistry", "Prevention"]
   },
@@ -158,7 +158,7 @@ const dentalBooksData = [
     title: "The Mouth-Body Connection: The 28-Day Program to Create Real Health",
     authors: "Gerald P. Curatola, Diane Reverand",
     description: "Explores the link between oral health and overall systemic health, with a 28-day program.",
-    imageUrl: "https://via.placeholder.com/150x220.png?text=Mouth+Body+Connection",
+    imageUrl: "https://m.media-amazon.com/images/I/61I5mxjAZdL._AC_UY436_FMwebp_QL65_.jpg",
     amazonLink: generateAmazonLink("The Mouth-Body Connection", "Gerald P. Curatola"),
     topics: ["Wellness", "Holistic Dentistry", "General Public"]
   },
@@ -167,7 +167,7 @@ const dentalBooksData = [
     title: "It's All in Your Mouth: The Surprising Link Between the State of Your Teeth and Gums and Your Overall Health",
     authors: "Dr. Frank J. Jerome",
     description: "Highlights the critical role of oral health in overall well-being and disease prevention.",
-    imageUrl: "https://via.placeholder.com/150x220.png?text=It%27s+All+In+Your+Mouth",
+    imageUrl: "https://m.media-amazon.com/images/I/71WJo5naINL._AC_UY436_FMwebp_QL65_.jpg",
     amazonLink: generateAmazonLink("It's All in Your Mouth", "Dr. Frank J. Jerome"),
     topics: ["Wellness", "General Public", "Prevention"]
   },
