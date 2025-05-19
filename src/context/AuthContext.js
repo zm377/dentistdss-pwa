@@ -15,7 +15,14 @@ export const AuthProvider = ({ children }) => {
     try {
       localStorage.setItem('authToken', token);
       localStorage.setItem('tokenType', tokenType);
-      api.defaults.headers.common['Authorization'] = `${tokenType} ${token}`;
+      // Assuming 'api.axiosInstance' is the actual Axios instance
+      if (api.axiosInstance && api.axiosInstance.defaults && api.axiosInstance.defaults.headers) {
+        api.axiosInstance.defaults.headers.common['Authorization'] = `${tokenType} ${token}`;
+      } else {
+        console.warn("Could not set Authorization header: api.axiosInstance or its defaults/headers are not defined.");
+        // Fallback or throw error if this structure is critical and unexpected
+        // For now, we proceed assuming it might be an optional setup or handled elsewhere if this path is not valid
+      }
       
       console.log('Token stored, fetching user details...');
       const userData = await api.auth.me(); // Fetch user details using the new token
@@ -35,7 +42,12 @@ export const AuthProvider = ({ children }) => {
       console.error('Failed to process auth token or fetch user:', error);
       localStorage.removeItem('authToken');
       localStorage.removeItem('tokenType');
-      delete api.defaults.headers.common['Authorization'];
+      // Assuming 'api.axiosInstance' is the actual Axios instance
+      if (api.axiosInstance && api.axiosInstance.defaults && api.axiosInstance.defaults.headers && api.axiosInstance.defaults.headers.common) {
+        delete api.axiosInstance.defaults.headers.common['Authorization'];
+      } else {
+        console.warn("Could not delete Authorization header: api.axiosInstance or its defaults/headers are not defined.");
+      }
       setCurrentUser(null);
       throw error;
     }
@@ -103,7 +115,12 @@ export const AuthProvider = ({ children }) => {
       // Always clear client-side session
       localStorage.removeItem('authToken');
       localStorage.removeItem('tokenType');
-      delete api.defaults.headers.common['Authorization'];
+      // Assuming 'api.axiosInstance' is the actual Axios instance
+      if (api.axiosInstance && api.axiosInstance.defaults && api.axiosInstance.defaults.headers && api.axiosInstance.defaults.headers.common) {
+        delete api.axiosInstance.defaults.headers.common['Authorization'];
+      } else {
+        console.warn("Could not delete Authorization header during logout: api.axiosInstance or its defaults/headers are not defined.");
+      }
       setCurrentUser(null);
       console.log('Client-side logout complete.');
     }
@@ -157,7 +174,12 @@ export const AuthProvider = ({ children }) => {
         try {
           console.log('Token found, verifying session...');
           // No need to call processAuthToken here, just set header and fetch user
-          api.defaults.headers.common['Authorization'] = `${tokenType} ${token}`;
+          // Assuming 'api.axiosInstance' is the actual Axios instance
+          if (api.axiosInstance && api.axiosInstance.defaults && api.axiosInstance.defaults.headers) {
+            api.axiosInstance.defaults.headers.common['Authorization'] = `${tokenType} ${token}`;
+          } else {
+            console.warn("Could not set Authorization header during initial auth check: api.axiosInstance or its defaults/headers are not defined.");
+          }
           const userData = await api.auth.me();
           if (userData && userData.user) {
             setCurrentUser(userData.user);
