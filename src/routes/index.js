@@ -1,20 +1,20 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { Typography } from '@mui/material';
-import ChatInterface from './ChatInterface';
-import Login from './Login';
-import Signup from './Signup';
-import Welcome from './Welcome';
-import Book from './Book';
-import Learn from './Learn';
-import ClinicStaffSignup from './ClinicStaffSignup';
+import ChatInterface from '../pages/ChatBotDentist';
+import Login from '../pages/Login';
+import Signup from '../pages/Signup';
+import Welcome from '../pages/Welcome';
+import Book from '../pages/Book';
+import Learn from '../pages/Learn';
+import ClinicStaffSignup from '../pages/ClinicStaffSignup';
 import VerifyEmailPendingPage from '../pages/VerifyEmailPendingPage';
 import VerifyEmailPage from '../pages/VerifyEmailPage';
 import DashboardPage from '../pages/DashboardPage';
-import QuizPage from './QuizPage';
+import QuizPage from '../pages/Quiz';
+import FindAClinic from '../pages/FindAClinic';
 import { useAuth } from '../context/AuthContext';
 import config from '../config';
-import OAuth2RedirectHandler from './OAuth2RedirectHandler';
 
 function AppRoutes() {
   const { isAuthenticated, currentUser } = useAuth();
@@ -74,7 +74,7 @@ function AppRoutes() {
               >
                 {config.app.name} - Your Dental Assistant
               </Typography>
-              <ChatInterface apiKeyProp={config.chatbot.apiKey} />
+              <ChatInterface />
             </>
           ) : (
             <Navigate to="/login" replace />
@@ -83,24 +83,16 @@ function AppRoutes() {
       />
       <Route
         path="/dashboard"
-        element={
-          isAuthenticated ? (
-            currentUser && currentUser.roles && currentUser.roles.length > 0 && currentUser.approvalStatus === 'approved' ? 
-              <DashboardPage /> : 
-              (currentUser && currentUser.approvalStatus === 'pending' ? 
-                <Navigate to="/pending-approval" replace /> :
-                <Navigate to="/login" replace />
-              )
-          ) : (
-            <Navigate to="/login" replace />
-          )
-        }
+        element={isAuthenticated ? <DashboardPage /> : <Navigate to="/login" replace />}
       />
       <Route 
         path="/pending-approval"
         element={<Typography variant="h5" align="center" sx={{mt: 4}}>Your account is pending approval. Please check your email or contact support.</Typography>}
       />
-      <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
+      <Route
+        path="/find-a-clinic"
+        element={<FindAClinic />}
+      />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

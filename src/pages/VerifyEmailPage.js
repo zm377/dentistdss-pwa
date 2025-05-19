@@ -14,7 +14,7 @@ import {
 import EmailIcon from '@mui/icons-material/Email';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
-import apiService from '../services/apiService';
+import authAPI from '../api/auth';
 import { useAuth } from '../context/AuthContext';
 
 const VerifyEmailPage = () => {
@@ -44,7 +44,7 @@ const VerifyEmailPage = () => {
     
     try {
       // Call API to verify the code
-      const response = await apiService.auth.verifySignupWithCode(email, verificationCode);
+      const response = await authAPI.verifySignupWithCode(email, verificationCode);
       
       setVerificationStatus('success');
       console.log('Verification successful');

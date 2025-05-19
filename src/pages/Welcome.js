@@ -17,9 +17,8 @@ import {
 import { Link as RouterLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
-import config from '../config';
 import Divider from '@mui/material/Divider';
-import OpenAI from 'openai';
+import api from '../api';
 
 // Import images from assets
 import dentalQuestionImg from '../assets/d2.jpg';
@@ -35,12 +34,6 @@ const Welcome = () => {
   const [chatInput, setChatInput] = useState('');
   const [chatMessages, setChatMessages] = useState([]);
 
-  // Instantiate OpenAI client
-  const openai = new OpenAI({
-    apiKey: config.chatbot.openaiApiKey,
-    dangerouslyAllowBrowser: true 
-  });
-
   const handleChatToggle = () => {
     setChatOpen(!chatOpen);
   };
@@ -53,82 +46,48 @@ const Welcome = () => {
       setChatMessages([...chatMessages, { sender: 'user', text: userMessage }]);
       setChatInput('');
       
-      // Call OpenAI API directly
-      const fetchChatResponse = async () => {
-        try {
-          const systemMessage = {
-            role: 'system',
-            content: 'You are a helpful dental assistant chatbot. Provide concise, accurate information about dental care, procedures, and oral health.'
-          };
-          const currentMessages = chatMessages.map(msg => ({
-            role: msg.sender === 'user' ? 'user' : 'assistant',
-            content: msg.text
-          }));
-          const userMessageObject = {
-            role: 'user',
-            content: userMessage
-          };
+      // Add a placeholder bot message for streaming
+      setChatMessages(prev => [...prev, { sender: 'bot', text: '', isStreaming: true }]);
 
-          const stream = await openai.chat.completions.create({
-            model: config.chatbot.model,
-            messages: [systemMessage, ...currentMessages, userMessageObject],
-            stream: true
-          });
-
-          let responseText = '';
-          // Add a temporary message for streaming
-          setChatMessages(prev => [...prev, { sender: 'bot', text: '', isStreaming: true }]);
-
-          for await (const chunk of stream) {
-            const token = chunk.choices[0]?.delta?.content || '';
-            if (token) {
-              responseText += token;
-              setChatMessages(prev => {
-                const updated = [...prev];
-                // Ensure we are updating the correct streaming message
-                if (updated.length > 0 && updated[updated.length - 1].isStreaming) {
-                  updated[updated.length - 1] = {
-                    ...updated[updated.length - 1],
-                    text: responseText
-                  };
-                }
-                return updated;
-              });
-            }
-          }
-          
-          // After the stream is complete, remove the streaming flag
+      // Use the central chatbot helper to stream a response
+      api.chatbot.botAssistant(
+        chatMessages,
+        userMessage,
+        (token, fullText) => {
+          // Update the streaming message with the latest text
           setChatMessages(prev => {
             const updated = [...prev];
             if (updated.length > 0 && updated[updated.length - 1].isStreaming) {
-                 updated[updated.length - 1] = {
-                    sender: 'bot',
-                    text: responseText,
-                    isStreaming: false
-                };
-            } else if (updated.length > 0 && updated[updated.length-1].sender === 'bot' && updated[updated.length-1].text === responseText ) {
-                // This case handles if somehow isStreaming was already set to false
-                // but the message content is the full responseText
-            }
-            else {
-                 // If the last message is not the one we were streaming to (e.g., user sent another message)
-                 // or if it's already finalized, add a new message.
-                 // This path should ideally not be hit if logic is correct.
-                updated.push({ sender: 'bot', text: responseText, isStreaming: false });
+              updated[updated.length - 1] = {
+                ...updated[updated.length - 1],
+                text: fullText,
+              };
             }
             return updated;
           });
-          
-        } catch (error) {
-          console.error('Error calling OpenAI API with SDK:', error);
-          setChatMessages(prev => [...prev, { 
-            sender: 'bot', 
-            text: "I'm sorry, I encountered an error processing your request. Please try again later."
-          }]);
         }
-      };
-
-      fetchChatResponse();
+      )
+        .then((fullResponse) => {
+          // Finalise the streaming message
+          setChatMessages(prev => {
+            const updated = [...prev];
+            if (updated.length > 0 && updated[updated.length - 1].isStreaming) {
+              updated[updated.length - 1] = {
+                sender: 'bot',
+                text: fullResponse,
+                isStreaming: false,
+              };
+            }
+            return updated;
+          });
+        })
+        .catch((error) => {
+          console.error('Error calling ChatBot:', error);
+          setChatMessages(prev => [
+            ...prev,
+            { sender: 'bot', text: "I'm sorry, I encountered an error processing your request. Please try again later." },
+          ]);
+        });
     }
   };
 
@@ -321,7 +280,7 @@ const Welcome = () => {
                   component="img"
                   height="200"
                   image={findDentistImg}
-                  alt="Find a Dentist"
+                  alt="Find a Clinic"
                   sx={{ 
                     borderRadius: 2, 
                     mb: 2,
@@ -329,7 +288,9 @@ const Welcome = () => {
                   }}
                 />
                   <Button
-                  variant="contained"
+                    component={RouterLink}
+                    to="/find-a-clinic"
+                    variant="contained"
                     color="primary"
                   size="large"
                   sx={{ 

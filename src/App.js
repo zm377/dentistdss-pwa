@@ -8,7 +8,7 @@ import config from './config';
 import './App.css';
 import GlobalSnackbar from './components/GlobalSnackbar';
 
-import AppRoutes from './components/AppRoutes';
+import AppRoutes from './routes';
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);

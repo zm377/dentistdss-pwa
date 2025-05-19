@@ -10,12 +10,11 @@ import {
 } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import api from '../api';
-import MessageBubble from './MessageBubble';
-import config from '../config';
+import MessageBubble from '../components/MessageBubble';
 
 const INITIAL_MESSAGE = {
-  role: 'assistant',
-  content: "Hello! I'm your dental assistant AI. How can I help you with your dental questions today?"
+  role: 'Professional Dentist',
+  content: "Hello! I'm your professional dentist AI. How can I help you with your dental questions today?"
 };
 
 const THINKING_ANIMATION_DURATION = 1000;
@@ -23,7 +22,7 @@ const DOTS_INTERVAL = 500;
 const THINK_TAG_START = '<think>';
 const THINK_TAG_END = '</think>';
 
-const ChatInterface = ({ apiKeyProp }) => {
+const ChatInterface = () => {
   const [messages, setMessages] = useState([INITIAL_MESSAGE]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -36,7 +35,6 @@ const ChatInterface = ({ apiKeyProp }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-  const apiKey = apiKeyProp || config.chatbot.openaiApiKey;
   const messagesEndRef = useRef(null);
   const messageContainerRef = useRef(null);
 
@@ -156,13 +154,17 @@ const ChatInterface = ({ apiKeyProp }) => {
     setIsThinkingClosing(false);
 
     try {
-      await api.chatbot.callChatBot([...messages, userMessage], apiKey, (token, fullText) => {
-        setMessages(prevMessages => {
-          const { updatedMessages } = processThinkingContent(fullText, prevMessages);
+      await api.chatbot.botDentist(
+        messages,
+        input,
+        (token, fullText) => {
+          setMessages(prevMessages => {
+            const { updatedMessages } = processThinkingContent(fullText, prevMessages);
 
-          return updatedMessages;
-        });
-      });
+            return updatedMessages;
+          });
+        }
+      );
     } catch (error) {
       console.error('Error calling ChatBot:', error);
       setMessages(prev => [

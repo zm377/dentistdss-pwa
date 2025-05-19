@@ -1,11 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import axios from 'axios'; // Keep for setting default headers
 import api from '../api';
-import config from '../config';
-
-
-// Set the base URL based on environment
-const baseURL = config.api.baseUrl;
 
 const AuthContext = createContext(null);
 
@@ -22,14 +16,11 @@ export const AuthProvider = ({ children }) => {
       // The response interceptor in api/config.js already unwraps response.data.message for successful (success: true) responses.
       // So, 'authData' here will directly be the object containing accessToken, tokenType, and user.
       const authData = await api.auth.login(email, password);
-      console.log('Login data received after interceptor:', authData);
 
       if (authData && authData.accessToken && authData.user) { // Check for essential properties
         const { accessToken, tokenType, user } = authData;
         
-        localStorage.setItem('authToken', accessToken);
-        localStorage.setItem('tokenType', tokenType); // Store tokenType
-        axios.defaults.headers.common['Authorization'] = `${tokenType} ${accessToken}`; 
+        // Token persistence is handled inside authAPI.login; we just update state.
         setCurrentUser(user);
         console.log('Login successful, user context updated:', user);
         return user;
@@ -47,14 +38,6 @@ export const AuthProvider = ({ children }) => {
       console.error('Login failed (AuthContext catch block):', error.message || error);
       throw error; // Re-throw the error (which should already be an Error instance from the interceptor or a network error)
     }
-  };
-
-  // Function to handle signup (Email/Password)
-  const loginWithTokenAndData = (token, userData) => {
-    localStorage.setItem('authToken', token);
-    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    setCurrentUser(userData);
-    console.log('Logged in with verified token:', userData.email);
   };
 
   const signup = async (email, password, firstName, lastName, role = 'patient', clinicName = null, existingClinicId = null) => {
@@ -108,17 +91,15 @@ export const AuthProvider = ({ children }) => {
     try {
       console.log('Logging out');
       // Call backend logout endpoint if token exists
-      if (localStorage.getItem('authToken')) {
-        await api.auth.logout();
-      }
-      localStorage.removeItem('authToken'); // Remove token
-      delete axios.defaults.headers.common['Authorization']; // Remove auth header
+      await api.auth.logout();
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('tokenType');
       setCurrentUser(null);
     } catch (error) {
       console.error('Logout error:', error);
       // Still clear local data even if server logout fails
       localStorage.removeItem('authToken');
-      delete axios.defaults.headers.common['Authorization'];
+      localStorage.removeItem('tokenType');
       setCurrentUser(null);
     }
   };
@@ -127,8 +108,7 @@ export const AuthProvider = ({ children }) => {
   const oauthLogin = (provider) => {
     console.log(`Initiating OAuth login with ${provider}`);
     // Redirect to the backend's Spring Security standard authorization endpoint via API Gateway.
-    // Assumes baseURL in frontend config (src/config.js) points to the API Gateway (e.g., http://localhost:8080)
-    window.location.href = `${baseURL}/api/oauth2/${provider.toLowerCase()}`;
+    throw new Error('OAuth login not implemented');
   };
 
   // Check authentication status on initial load
@@ -138,14 +118,13 @@ export const AuthProvider = ({ children }) => {
       if (token) {
         try {
           console.log('Token found, verifying session...');
-          const response = await api.auth.me();
-          setCurrentUser(response.data.user);
-          axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+          const user = await api.auth.me();
+          setCurrentUser(user);
           console.log('Session verified');
         } catch (error) {
           console.error('Token verification failed:', error);
           localStorage.removeItem('authToken');
-          delete axios.defaults.headers.common['Authorization'];
+          localStorage.removeItem('tokenType');
           setCurrentUser(null);
         }
       } else {
@@ -165,7 +144,6 @@ export const AuthProvider = ({ children }) => {
     signup,
     logout,
     oauthLogin,
-    loginWithTokenAndData,
     // Add a function to update user details if needed, e.g., after approval
     // updateUser: (userData) => setCurrentUser(prev => ({...prev, ...userData }))
   };

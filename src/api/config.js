@@ -4,13 +4,11 @@ import config from '../config';
 // Set the base URL based on environment
 const baseURL = config.api.baseUrl;
 
+
 // Create an instance of axios with custom configuration
 const api = axios.create({
   baseURL,
   withCredentials: true,
-  headers: {
-    'Content-Type': 'application/json',
-  },
 });
 
 // Request interceptor for API calls
@@ -34,11 +32,10 @@ api.interceptors.response.use(
     // Check if the response data and success field exist
     if (response.data && typeof response.data.success !== 'undefined') {
       if (response.data.success) {
-        // If success is true, return the dataObject (which is response.data.message)
-        return response.data.message;
+        return response.data.dataObject;
       } else {
         // If success is false, extract the message and dispatch an event
-        const errorMessage = response.data.message || 'An unknown error occurred.';
+        const errorMessage = response.data.dataObject || 'An unknown error occurred.';
         
         // Dispatch a custom event to show the Snackbar
         const event = new CustomEvent('show-snackbar', {
@@ -83,5 +80,10 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+// ---- Consolidated API helper objects ----
+// Re-create the helper object that used to live in services/apiService.js but now reuses
+// the single axios instance defined above.  This keeps all API wiring in one place.
+// (Previously exported apiService has been merged into dedicated modules like auth.js)
 
 export default api; 

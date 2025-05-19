@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Box, Typography, Container, Paper, Grid, Card, CardContent, CardHeader, Avatar } from '@mui/material';
 import { useAuth } from '../context/AuthContext'; // To get user roles
 import PersonIcon from '@mui/icons-material/Person';
@@ -7,6 +7,7 @@ import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import SupportAgentIcon from '@mui/icons-material/SupportAgent';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { blue, green, orange, purple, red } from '@mui/material/colors';
+import { useNavigate } from 'react-router-dom';
 
 // Placeholder components for different roles - these would be actual components
 const PatientSection = () => (
@@ -81,6 +82,15 @@ const SystemAdminSection = () => (
 
 const DashboardPage = () => {
   const { currentUser } = useAuth();
+  const navigate = useNavigate();
+
+  // Redirect users whose account is still pending approval.
+  useEffect(() => {
+    if (currentUser?.approvalStatus === 'pending') {
+      navigate('/pending-approval', { replace: true });
+    }
+  }, [currentUser?.approvalStatus, navigate]);
+
   // Ensure roles is always an array, even if currentUser or currentUser.roles is null/undefined
   const roles = Array.isArray(currentUser?.roles) ? currentUser.roles : (currentUser?.role ? [currentUser.role] : []);
 

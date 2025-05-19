@@ -14,7 +14,7 @@ import {
 import EmailIcon from '@mui/icons-material/Email';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
-import apiService from '../services/apiService'; // Assuming apiService is correctly set up
+import authAPI from '../api/auth'; // Assuming apiService is correctly set up
 
 const MAX_RESEND_ATTEMPTS = 3;
 const RESEND_WINDOW_SECONDS = 90;
@@ -119,21 +119,17 @@ const VerifyEmailPendingPage = () => {
     setResendError('');
 
     try {
-      const response = await apiService.auth.verifySignupWithCode(email, verificationCode);
-      if (response.data.success) {
-        localStorage.removeItem(LOCAL_STORAGE_RESEND_KEY); // Clear resend limit on successful verification
-        setShowSuccessMessage(true);
-        setCountdown(3); // Reset countdown
-        // Clear other messages/errors
-        setError('');
-        setResendMessage('');
-        setResendError('');
-      } else {
-        setError(response.data.message || 'Invalid verification code. Please try again.');
-      }
+      const response = await authAPI.verifySignupWithCode(email, verificationCode);
+      localStorage.removeItem(LOCAL_STORAGE_RESEND_KEY); // Clear resend limit on successful verification
+      setShowSuccessMessage(true);
+      setCountdown(3); // Reset countdown
+      // Clear other messages/errors
+      setError('');
+      setResendMessage('');
+      setResendError('');
     } catch (err) {
       console.error('Verification API error:', err);
-      setError(err.response?.data?.message || 'An error occurred during verification.');
+      setError(err.response?.message || 'An error occurred during verification.');
     }
     setLoadingVerify(false);
   };
@@ -165,22 +161,18 @@ const VerifyEmailPendingPage = () => {
     setResendMessage('');
     setResendError('');
     try {
-      const response = await apiService.auth.resendVerificationCode(email);
-      if (response.data.success) {
-        const attempts = (currentStatus?.attempts || 0) + 1;
-        const newTimestamp = currentStatus?.timestamp || now;
-        localStorage.setItem(LOCAL_STORAGE_RESEND_KEY, JSON.stringify({
-          attempts: attempts,
-          timestamp: newTimestamp
-        }));
-        setResendMessage(response.data.message || 'A new verification code has been sent to your email.');
-        if (attempts >= MAX_RESEND_ATTEMPTS) {
-          setResendError(`Max resend attempts reached. Try again in ${RESEND_WINDOW_SECONDS} seconds.`);
-          setResendDisabled(true);
-          setResendCooldown(RESEND_WINDOW_SECONDS);
-        }
-      } else {
-        setResendError(response.data.message || 'Failed to resend verification code.');
+      const response = await authAPI.resendVerificationCode(email);
+      const attempts = (currentStatus?.attempts || 0) + 1;
+      const newTimestamp = currentStatus?.timestamp || now;
+      localStorage.setItem(LOCAL_STORAGE_RESEND_KEY, JSON.stringify({
+        attempts: attempts,
+        timestamp: newTimestamp
+      }));
+      setResendMessage(response.dataObject || 'A new verification code has been sent to your email.');
+      if (attempts >= MAX_RESEND_ATTEMPTS) {
+        setResendError(`Max resend attempts reached. Try again in ${RESEND_WINDOW_SECONDS} seconds.`);
+        setResendDisabled(true);
+        setResendCooldown(RESEND_WINDOW_SECONDS);
       }
     } catch (err) {
       console.error('Resend code API error:', err);
