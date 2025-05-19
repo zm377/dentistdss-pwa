@@ -1,5 +1,6 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
 import api from '../api';
+import config from '../config';
 
 const AuthContext = createContext(null);
 
@@ -9,34 +10,55 @@ export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true); // To check auth status on initial load
 
+  // Function to process a received token (from OAuth or direct login)
+  const processAuthToken = useCallback(async (token, tokenType = 'Bearer') => {
+    try {
+      localStorage.setItem('authToken', token);
+      localStorage.setItem('tokenType', tokenType);
+      api.defaults.headers.common['Authorization'] = `${tokenType} ${token}`;
+      
+      console.log('Token stored, fetching user details...');
+      const userData = await api.auth.me(); // Fetch user details using the new token
+      if (userData && userData.user) { // Assuming api.auth.me() returns { success: true, dataObject: { user: {...} } }
+        setCurrentUser(userData.user);
+        console.log('User details fetched and context updated:', userData.user);
+        return userData.user;
+      } else if (userData) { // If userData is directly the user object
+        setCurrentUser(userData);
+        console.log('User details fetched and context updated (direct user object):', userData);
+        return userData;
+      }
+      else {
+        throw new Error('User data not found after token processing.');
+      }
+    } catch (error) {
+      console.error('Failed to process auth token or fetch user:', error);
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('tokenType');
+      delete api.defaults.headers.common['Authorization'];
+      setCurrentUser(null);
+      throw error;
+    }
+  }, []);
+
   // Function to handle login (Email/Password)
   const login = async (email, password) => {
     try {
       console.log(`Attempting login for ${email}`);
-      // The response interceptor in api/config.js already unwraps response.data.message for successful (success: true) responses.
-      // So, 'authData' here will directly be the object containing accessToken, tokenType, and user.
       const authData = await api.auth.login(email, password);
 
-      if (authData && authData.accessToken && authData.user) { // Check for essential properties
-        const { accessToken, tokenType, user } = authData;
-        
-        // Token persistence is handled inside authAPI.login; we just update state.
-        setCurrentUser(user);
-        console.log('Login successful, user context updated:', user);
-        return user;
+      if (authData && authData.accessToken && authData.user) {
+        // The authData now directly contains accessToken and user from the successful response
+        await processAuthToken(authData.accessToken, authData.tokenType);
+        return authData.user;
       } else {
-        // This case should ideally not be hit if the interceptor works as expected for success:true,
-        // but serves as a fallback if authData is not in the expected shape.
-        const errorMessage = 'Login failed: Invalid data structure after interceptor.';
+        const errorMessage = 'Login failed: Invalid data structure from API.';
         console.error(errorMessage, authData);
         throw new Error(errorMessage);
       }
     } catch (error) {
-      // The interceptor already converts failed (success: false) API responses into an Error object
-      // with error.message being response.data.message.
-      // It also handles the snackbar for these errors.
       console.error('Login failed (AuthContext catch block):', error.message || error);
-      throw error; // Re-throw the error (which should already be an Error instance from the interceptor or a network error)
+      throw error;
     }
   };
 
@@ -51,90 +73,114 @@ export const AuthProvider = ({ children }) => {
         lastName,
         role
       };
-      // cache signup data
       localStorage.setItem('signupData', JSON.stringify(signupData));
 
-      
-      // Add clinic data if provided
       if (clinicName) signupData.clinicName = clinicName;
       if (existingClinicId) signupData.existingClinicId = existingClinicId;
       
-      const response = await api.auth.signup(signupData);
+      // Assuming api.auth.signup returns a message like { success: true, dataObject: "User registered..." }
+      // It does not log the user in directly.
+      const responseMessage = await api.auth.signup(signupData); 
       
-
-      // For patient role, we no longer auto-login here. Verification is required.
-      if (role === 'patient') {
-        console.log('Patient signup successful, email verification required.');
-        // Return user details, but don't set token or current user yet.
-        // The actual user object might come from the API response or be constructed.
-        // For now, we assume the API returns some user info even if not fully authenticated.
-        return { ...signupData, emailVerificationPending: true }; 
-      // } else if (token) { // For other roles that might auto-login or have different flows
-      //   localStorage.setItem('authToken', token); 
-      //   axios.defaults.headers.common['Authorization'] = `Bearer ${token}`; 
-      //   setCurrentUser(user);
-      //   console.log('Signup and login successful for non-patient role or auto-approved role');
-      // } else {
-      //   // For roles that need approval and don't return a token immediately
-      //   console.log('Signup successful, waiting for approval (non-patient)');
-      }
-      
-      // return user; // Return user details, including status
+      console.log('Signup successful:', responseMessage);
+      // For patient role, verification is required.
+      // The UI will navigate to a pending verification page.
+      return { ...signupData, emailVerificationPending: true, message: responseMessage };
     } catch (error) {
       console.error('Signup failed:', error);
-      throw new Error(error.response?.data?.message || 'Signup failed. Please try again.');
+      // Error should already be formatted by the API interceptor
+      throw error;
     }
   };
 
-  // Function to handle logout
-  const logout = async () => {
+  const logout = useCallback(async () => {
     try {
       console.log('Logging out');
-      // Call backend logout endpoint if token exists
-      await api.auth.logout();
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('tokenType');
-      setCurrentUser(null);
+      await api.auth.logout(); // Inform backend
     } catch (error) {
-      console.error('Logout error:', error);
-      // Still clear local data even if server logout fails
+      console.error('Backend logout error (will proceed with client-side logout):', error);
+    } finally {
+      // Always clear client-side session
       localStorage.removeItem('authToken');
       localStorage.removeItem('tokenType');
+      delete api.defaults.headers.common['Authorization'];
       setCurrentUser(null);
+      console.log('Client-side logout complete.');
     }
-  };
+  }, []);
 
-  // Function to handle OAuth login
+  // Function to initiate OAuth login flow
   const oauthLogin = (provider) => {
     console.log(`Initiating OAuth login with ${provider}`);
     // Redirect to the backend's Spring Security standard authorization endpoint via API Gateway.
-    throw new Error('OAuth login not implemented');
+    // The API gateway will route this to the oauth-service.
+    // Ensure REACT_APP_API_BASE_URL is configured in your .env file
+    const baseUrl = config.api.baseUrl; // Default to localhost:443 (api-gateway)
+    window.location.href = `${baseUrl}/oauth2/authorization/${provider.toLowerCase()}`;
   };
+
+  // Function to handle the OAuth redirect, called from a dedicated redirect page/component
+  const handleOauthRedirect = useCallback(async () => {
+    console.log("Handling OAuth redirect...");
+    const queryParams = new URLSearchParams(window.location.search);
+    const token = queryParams.get('token');
+    const error = queryParams.get('error');
+
+    if (error) {
+      console.error("OAuth Error:", error);
+      setLoading(false);
+      return;
+    }
+
+    if (token) {
+      console.log("Token received from OAuth redirect:", token);
+      try {
+        await processAuthToken(token);
+      } catch (err) {
+        console.error("Error processing OAuth token:", err);
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      console.log("No token found in OAuth redirect, navigating to login.");
+      setLoading(false);
+    }
+  }, [processAuthToken]);
 
   // Check authentication status on initial load
   useEffect(() => {
     const checkAuth = async () => {
+      setLoading(true);
       const token = localStorage.getItem('authToken');
+      const tokenType = localStorage.getItem('tokenType') || 'Bearer';
       if (token) {
         try {
           console.log('Token found, verifying session...');
-          const user = await api.auth.me();
-          setCurrentUser(user);
-          console.log('Session verified');
+          // No need to call processAuthToken here, just set header and fetch user
+          api.defaults.headers.common['Authorization'] = `${tokenType} ${token}`;
+          const userData = await api.auth.me();
+          if (userData && userData.user) {
+            setCurrentUser(userData.user);
+            console.log('Session verified, user set:', userData.user);
+          } else if (userData) { // if userData is the user object directly
+             setCurrentUser(userData);
+             console.log('Session verified, user set (direct object):', userData);
+          } else {
+             throw new Error("User data not found during initial auth check");
+          }
         } catch (error) {
-          console.error('Token verification failed:', error);
-          localStorage.removeItem('authToken');
-          localStorage.removeItem('tokenType');
-          setCurrentUser(null);
+          console.error('Token verification failed during initial load:', error);
+          // If 'me' endpoint fails (e.g. token expired), logout
+          await logout(); // Use the new logout which clears state
         }
       } else {
-        console.log('No token found.');
+        console.log('No token found during initial load.');
       }
       setLoading(false);
     };
     
     checkAuth();
-  }, []);
+  }, [logout]); // Added logout to dependency array
 
   const value = {
     currentUser,
@@ -144,13 +190,14 @@ export const AuthProvider = ({ children }) => {
     signup,
     logout,
     oauthLogin,
-    // Add a function to update user details if needed, e.g., after approval
-    // updateUser: (userData) => setCurrentUser(prev => ({...prev, ...userData }))
+    handleOauthRedirect, // Expose this function
+    processAuthToken // Expose this if needed elsewhere, e.g. for email verification link auto-login
   };
 
   return (
     <AuthContext.Provider value={value}>
-      {!loading && children} {/* Render children only after initial auth check */}
+      {/* Render children only after initial auth check, or always show children and let them adapt */}
+      {children}
     </AuthContext.Provider>
   );
 };
