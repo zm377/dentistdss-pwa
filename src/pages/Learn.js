@@ -180,7 +180,7 @@ function Learn() {
           gutterBottom 
           sx={{ 
             fontWeight: 700, 
-            color: theme.palette.mode === 'dark' ? theme.palette.primary.light : theme.palette.primary.main, 
+            color: theme.palette.mode === 'dark' ? theme.palette.primary.light : theme.palette.primary.contrastText, 
             mb: 2,
             textShadow: '0px 2px 4px rgba(0,0,0,0.05)'
           }}
@@ -388,9 +388,7 @@ function Learn() {
                             bgcolor: theme.palette.mode === 'dark' 
                               ? theme.palette.primary.dark 
                               : theme.palette.primary.light,
-                            color: theme.palette.mode === 'dark' 
-                              ? theme.palette.primary.light 
-                              : theme.palette.primary.dark,
+                            color: theme.palette.primary.contrastText,
                             fontSize: '0.75rem',
                             height: 24
                           }} 

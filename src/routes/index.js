@@ -43,7 +43,7 @@ function AppRoutes() {
       />
       <Route
         path="/"
-        element={<Welcome />}
+        element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Welcome />}
       />
       <Route
         path="/book"
