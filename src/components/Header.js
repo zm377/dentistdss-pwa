@@ -320,31 +320,33 @@ const Header = ({ darkMode, toggleDarkMode }) => {
           <Box sx={{ my: 1, borderBottom: '1px solid rgba(0, 0, 0, 0.12)' }} />
 
           {isAuthenticated ? (
-            <>
-              <MenuItem disabled>
+            [
+              <MenuItem disabled key="user-email">
                 <Typography variant="body2" noWrap>
                   {currentUser?.email || 'User'}
                 </Typography>
-              </MenuItem>
-              <MenuItem onClick={handleLogout}>Logout</MenuItem>
-            </>
+              </MenuItem>,
+              <MenuItem onClick={handleLogout} key="logout">Logout</MenuItem>
+            ]
           ) : (
-            <>
+            [
               <MenuItem
                 component={RouterLink}
                 to="/login"
                 onClick={handleMobileMenuClose}
+                key="mobile-login"
               >
                 Login
-              </MenuItem>
+              </MenuItem>,
               <MenuItem
                 component={RouterLink}
                 to="/signup"
                 onClick={handleMobileMenuClose}
+                key="mobile-signup"
               >
                 Sign Up
               </MenuItem>
-            </>
+            ]
           )}
         </Menu>
       </Toolbar>

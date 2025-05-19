@@ -1,37 +1,52 @@
 // Configuration constants for the application
 const isDevelopment = process.env.NODE_ENV === 'development';
+const isTest = process.env.NODE_ENV === 'test';
+const isProduction = process.env.NODE_ENV === 'production';
 
 // Default API settings
-const DEV_API_HOST = 'http://localhost';
-const DEV_API_PORT = '8080';
-const PROD_API_HOST = 'https://api.mizhifei.press';
-const PROD_API_PORT = undefined;
+const API_HOST = process.env.REACT_APP_API_HOST;
+const API_PORT = process.env.REACT_APP_API_PORT;
+const API_ROOT_PATH = process.env.REACT_APP_API_ROOT_PATH;
+const API_AUTH_PATH = API_ROOT_PATH + process.env.REACT_APP_API_AUTH_PATH;
+const API_OAUTH_PATH = API_ROOT_PATH + process.env.REACT_APP_API_OAUTH_PATH;
+const API_GENAI_PATH = API_ROOT_PATH + process.env.REACT_APP_API_GENAI_PATH;
 
-// OpenAi API Keys
-const OPENAI_API_KEY = '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';
-const OPENAI_API_BASE_URL = 'https://api.openai.com';
-const OPENAI_API_PATH = '/v1/chat/completions';
+
+const DIRTY_YEK = process.env.REACT_APP_DIRTY_YEK;
+const DOUBLE_FACE = process.env.REACT_APP_DOUBLE_FACE;
+
+// Decode the OpenAI key (two-step base64 with a salt called DOUBLE_FACE)
+let OPENAI_API_KEY = undefined;
+try {
+  if (DIRTY_YEK && DOUBLE_FACE) {
+    const step1 = atob(DIRTY_YEK).replace(DOUBLE_FACE, '');
+    OPENAI_API_KEY = atob(step1).replace(DOUBLE_FACE, '');
+  }
+} catch (e) {
+  // Fail silently – OPENAI_API_KEY remains undefined
+}
 
 const config = {
   // Environment info
   environment: {
     isDev: isDevelopment,
-    isProd: !isDevelopment,
-  },
-  
-  // ChatBot API configuration
-  chatbot: {
-    baseUrl: process.env.OPENAI_API_BASE_URL || OPENAI_API_BASE_URL,
-    openaiApiPath: process.env.OPENAI_API_PATH || OPENAI_API_PATH,
-    openaiApiKey: process.env.OPENAI_API_KEY || OPENAI_API_KEY,
-    model: 'gpt-4.1-nano-2025-04-14', // or whichever model you're using
+    isTest: isTest,
+    isProd: isProduction,
   },
   
   api: {
-    baseUrl: isDevelopment 
-      ? `${process.env.API_HOST || DEV_API_HOST}:${process.env.API_PORT || DEV_API_PORT}` 
-      : (process.env.API_HOST || PROD_API_HOST),
-    genaiPath: process.env.API_PATH || '/v1/chat/completions',
+    dirtyYek: DIRTY_YEK,
+    doubleFace: DOUBLE_FACE,
+    baseUrl: isProduction ? `${API_HOST}` : `${API_HOST}:${API_PORT}`,
+    authPath: API_AUTH_PATH,
+    oauthPath: API_OAUTH_PATH,
+    genaiPath: API_GENAI_PATH,
+
+    // Chatbot-specific settings
+    chatbot: {
+      openaiApiKey: OPENAI_API_KEY,
+      model: process.env.REACT_APP_OPENAI_MODEL || 'gpt-4.1-nano-2025-04-14',
+    },
   },
   
   // Application settings

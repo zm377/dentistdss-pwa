@@ -9,7 +9,7 @@ import {
   Box,
   Button as MuiButton // Renamed to avoid conflict if you use a Button variable later
 } from '@mui/material';
-import BookCard from './BookCard'; // Import the BookCard component
+import BookCard from '../components/BookCard'; // Import the BookCard component
 
 // Helper function to generate Amazon search links
 const generateAmazonLink = (title, authors) => {
@@ -176,7 +176,7 @@ const dentalBooksData = [
     title: "Contemporary Fixed Prosthodontics",
     authors: "Stephen F. Rosenstiel, Martin F. Land, Junhei Fujimoto",
     description: "A comprehensive text on fixed prosthodontics, covering diagnosis, treatment planning, and procedures.",
-    imageUrl: "https://via.placeholder.com/150x220.png?text=Fixed+Prostho",
+    imageUrl: "https://m.media-amazon.com/images/I/61erCbJWUYL._AC_UY436_FMwebp_QL65_.jpg",
     amazonLink: generateAmazonLink("Contemporary Fixed Prosthodontics", "Stephen F. Rosenstiel"),
     topics: ["Prosthodontics", "Clinical Practice"]
   },
@@ -185,7 +185,7 @@ const dentalBooksData = [
     title: "Misch's Contemporary Implant Dentistry",
     authors: "Carl E. Misch, Randolph R. Resnik",
     description: "A leading resource on implant dentistry, from basic science to advanced clinical techniques.",
-    imageUrl: "https://via.placeholder.com/150x220.png?text=Misch+Implant",
+    imageUrl: "https://m.media-amazon.com/images/I/61VwoIOWUtL._AC_UY436_FMwebp_QL65_.jpg",
     amazonLink: generateAmazonLink("Misch's Contemporary Implant Dentistry", "Carl E. Misch"),
     topics: ["Implantology", "Clinical Practice"]
   },
@@ -194,7 +194,7 @@ const dentalBooksData = [
     title: "Handbook of Local Anesthesia",
     authors: "Stanley F. Malamed",
     description: "The definitive guide to local anesthesia in dentistry, covering pharmacology, techniques, and complications.",
-    imageUrl: "https://via.placeholder.com/150x220.png?text=Local+Anesthesia",
+    imageUrl: "https://m.media-amazon.com/images/I/31q2KYF10TL._AC_UY436_FMwebp_QL65_.jpg",
     amazonLink: generateAmazonLink("Handbook of Local Anesthesia", "Stanley F. Malamed"),
     topics: ["Anesthesia", "Clinical Practice", "Reference"]
   },
@@ -203,7 +203,7 @@ const dentalBooksData = [
     title: "Dental Radiography: Principles and Techniques",
     authors: "Joen Iannucci Haring, Laura Jansen Howerton",
     description: "Covers the principles, techniques, and safety aspects of dental radiography.",
-    imageUrl: "https://via.placeholder.com/150x220.png?text=Dental+Radiography",
+    imageUrl: "https://m.media-amazon.com/images/I/517JYun5R3L._AC_UY436_FMwebp_QL65_.jpg",
     amazonLink: generateAmazonLink("Dental Radiography: Principles and Techniques", "Joen Iannucci Haring"),
     topics: ["Radiography", "Clinical Practice"]
   },
@@ -212,7 +212,7 @@ const dentalBooksData = [
     title: "Handbook of Pediatric Dentistry",
     authors: "Angus C. Cameron, Richard P. Widmer",
     description: "A comprehensive guide to the dental care of children and adolescents.",
-    imageUrl: "https://via.placeholder.com/150x220.png?text=Pediatric+Dentistry",
+    imageUrl: "https://m.media-amazon.com/images/I/71X92PQW4VL._AC_UY436_FMwebp_QL65_.jpg",
     amazonLink: generateAmazonLink("Handbook of Pediatric Dentistry", "Angus C. Cameron"),
     topics: ["Pediatric Dentistry", "Clinical Practice"]
   },
@@ -221,7 +221,7 @@ const dentalBooksData = [
     title: "Contemporary Oral and Maxillofacial Surgery",
     authors: "James R. Hupp, Myron R. Tucker, Edward Ellis III",
     description: "A widely used text covering the full scope of oral and maxillofacial surgery.",
-    imageUrl: "https://via.placeholder.com/150x220.png?text=Oral+Surgery",
+    imageUrl: "https://m.media-amazon.com/images/I/61Cl5GiqeGL._AC_UY436_FMwebp_QL65_.jpg",
     amazonLink: generateAmazonLink("Contemporary Oral and Maxillofacial Surgery", "James R. Hupp"),
     topics: ["Oral Surgery", "Clinical Practice"]
   },
@@ -230,7 +230,7 @@ const dentalBooksData = [
     title: "Cohen's Pathways of the Pulp",
     authors: "Kenneth M. Hargreaves, Louis H. Berman",
     description: "An authoritative text on endodontics, covering pulp biology, diseases, and treatments.",
-    imageUrl: "https://via.placeholder.com/150x220.png?text=Pathways+of+Pulp",
+    imageUrl: "https://m.media-amazon.com/images/I/917bqAFgA6L._AC_UY436_FMwebp_QL65_.jpg",
     amazonLink: generateAmazonLink("Cohen's Pathways of the Pulp", "Kenneth M. Hargreaves"),
     topics: ["Endodontics", "Clinical Practice"]
   },
@@ -239,7 +239,7 @@ const dentalBooksData = [
     title: "Phillips' Science of Dental Materials",
     authors: "Kenneth J. Anusavice, Chiayi Shen, H. Ralph Rawls",
     description: "A classic textbook on the science and application of dental materials.",
-    imageUrl: "https://via.placeholder.com/150x220.png?text=Dental+Materials",
+    imageUrl: "https://m.media-amazon.com/images/I/71oHc6vPQYL._AC_UY436_FMwebp_QL65_.jpg",
     amazonLink: generateAmazonLink("Phillips' Science of Dental Materials", "Kenneth J. Anusavice"),
     topics: ["Dental Materials", "Reference"]
   },
@@ -248,7 +248,7 @@ const dentalBooksData = [
     title: "Wheeler's Dental Anatomy, Physiology and Occlusion",
     authors: "Stanley J. Nelson",
     description: "A foundational text on dental anatomy, physiology, and the principles of occlusion.",
-    imageUrl: "https://via.placeholder.com/150x220.png?text=Wheeler%27s+Anatomy",
+    imageUrl: "https://m.media-amazon.com/images/I/61Z1cfJJDcL._AC_UY436_FMwebp_QL65_.jpg",
     amazonLink: generateAmazonLink("Wheeler's Dental Anatomy, Physiology and Occlusion", "Stanley J. Nelson"),
     topics: ["Anatomy", "Physiology", "Occlusion", "Reference"]
   },
@@ -257,7 +257,7 @@ const dentalBooksData = [
     title: "Essentials of Dental Assisting",
     authors: "Debbie S. Robinson, Doni L. Bird",
     description: "A comprehensive guide for dental assisting students, covering clinical and administrative skills.",
-    imageUrl: "https://via.placeholder.com/150x220.png?text=Dental+Assisting",
+    imageUrl: "https://m.media-amazon.com/images/I/61hrgGxK2-L._AC_UY436_FMwebp_QL65_.jpg",
     amazonLink: generateAmazonLink("Essentials of Dental Assisting", "Debbie S. Robinson"),
     topics: ["Dental Assisting", "Clinical Practice"]
   },
@@ -266,7 +266,7 @@ const dentalBooksData = [
     title: "Darby's Comprehensive Review of Dental Hygiene",
     authors: "Christine M. Blue, Irene M. pepperoni",
     description: "A thorough review resource for dental hygiene students preparing for board examinations.",
-    imageUrl: "https://via.placeholder.com/150x220.png?text=Darby%27s+Review",
+    imageUrl: "https://m.media-amazon.com/images/I/61IQS7DOaiL._AC_UY436_FMwebp_QL65_.jpg",
     amazonLink: generateAmazonLink("Darby's Comprehensive Review of Dental Hygiene", "Christine M. Blue"),
     topics: ["Dental Hygiene", "Review", "Board Exams"]
   },
@@ -275,7 +275,7 @@ const dentalBooksData = [
     title: "Teeth: The Story of Beauty, Inequality, and the Struggle for Oral Health in America",
     authors: "Mary Otto",
     description: "Examines the social, economic, and historical aspects of oral health and inequality in America.",
-    imageUrl: "https://via.placeholder.com/150x220.png?text=Teeth+Mary+Otto",
+    imageUrl: "https://m.media-amazon.com/images/I/71aP3+s4OIL._AC_UY436_FMwebp_QL65_.jpg",
     amazonLink: generateAmazonLink("Teeth: The Story of Beauty, Inequality, and the Struggle for Oral Health in America", "Mary Otto"),
     topics: ["Public Health", "Social Issues", "History"]
   },
@@ -284,7 +284,7 @@ const dentalBooksData = [
     title: "If Your Mouth Could Talk: An In-Depth Guide to Oral Health and Its Impact on Your Entire Life",
     authors: "Dr. Kami Hoss",
     description: "A guide to understanding oral health and its profound connections to overall health.",
-    imageUrl: "https://via.placeholder.com/150x220.png?text=If+Your+Mouth+Could+Talk",
+    imageUrl: "https://m.media-amazon.com/images/I/71s0nG9HJXL._AC_UY436_FMwebp_QL65_.jpg",
     amazonLink: generateAmazonLink("If Your Mouth Could Talk", "Dr. Kami Hoss"),
     topics: ["General Public", "Wellness", "Prevention"]
   },
@@ -293,7 +293,7 @@ const dentalBooksData = [
     title: "Kiss Your Dentist Goodbye: A Consumer's Guide to Taking Control of Your Dental Health",
     authors: "Ellie Phillips",
     description: "Offers advice on preventive dental care and taking control of your oral health routine.",
-    imageUrl: "https://via.placeholder.com/150x220.png?text=Kiss+Your+Dentist",
+    imageUrl: "https://m.media-amazon.com/images/I/81Uv-jBn1IL._AC_UY436_FMwebp_QL65_.jpg",
     amazonLink: generateAmazonLink("Kiss Your Dentist Goodbye", "Ellie Phillips"),
     topics: ["General Public", "Prevention", "Wellness"]
   },
@@ -302,7 +302,7 @@ const dentalBooksData = [
     title: "Profit First for Dentists",
     authors: "Barbara Stackhouse, Drew Hinrichs",
     description: "Applies the Profit First methodology to dental practice management for financial success.",
-    imageUrl: "https://via.placeholder.com/150x220.png?text=Profit+First+Dentists",
+    imageUrl: "https://m.media-amazon.com/images/I/71WzNzeR5IS._AC_UY436_FMwebp_QL65_.jpg",
     amazonLink: generateAmazonLink("Profit First for Dentists", "Barbara Stackhouse"),
     topics: ["Practice Management", "Business"]
   },
@@ -311,7 +311,7 @@ const dentalBooksData = [
     title: "Everything Is Marketing: The Ultimate Strategy For Dental Practice Growth",
     authors: "Fred Joyal",
     description: "Focuses on marketing strategies and principles for growing a dental practice.",
-    imageUrl: "https://via.placeholder.com/150x220.png?text=Everything+Is+Marketing",
+    imageUrl: "https://m.media-amazon.com/images/I/81adZpWzXIL._AC_UY436_FMwebp_QL65_.jpg",
     amazonLink: generateAmazonLink("Everything Is Marketing", "Fred Joyal"),
     topics: ["Practice Management", "Marketing", "Business"]
   },
@@ -320,7 +320,7 @@ const dentalBooksData = [
     title: "The Berenstain Bears Visit the Dentist",
     authors: "Stan and Jan Berenstain",
     description: "A classic children's book that helps ease anxieties about visiting the dentist.",
-    imageUrl: "https://via.placeholder.com/150x220.png?text=Berenstain+Bears",
+    imageUrl: "https://m.media-amazon.com/images/I/91O2OOHmHLL._AC_UY436_FMwebp_QL65_.jpg",
     amazonLink: generateAmazonLink("The Berenstain Bears Visit the Dentist", "Stan and Jan Berenstain"),
     topics: ["Children's Books", "Pediatric Dentistry"]
   },
@@ -329,7 +329,7 @@ const dentalBooksData = [
     title: "The Tooth Book",
     authors: "Dr. Seuss (Theo. LeSieg)",
     description: "A fun and whimsical Dr. Seuss book about teeth, for young readers.",
-    imageUrl: "https://via.placeholder.com/150x220.png?text=The+Tooth+Book",
+    imageUrl: "https://m.media-amazon.com/images/I/813-38F9JeL._AC_UY436_FMwebp_QL65_.jpg",
     amazonLink: generateAmazonLink("The Tooth Book", "Dr. Seuss"),
     topics: ["Children's Books"]
   }
