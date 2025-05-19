@@ -434,8 +434,7 @@ function BookPage() {
         color={isDarkMode ? 'rgba(255,255,255,0.8)' : "text.secondary"} 
         sx={{ mb: 4, maxWidth: '700px', mx: 'auto' }}
       >
-        Explore our curated list of dental books. Click on any book to find it on Amazon. 
-        Note: Book covers and descriptions are placeholders.
+        Explore our curated list of dental books. Click on any book to find it on Amazon.
       </Typography>
 
       {filteredBooks.length > 0 ? (
