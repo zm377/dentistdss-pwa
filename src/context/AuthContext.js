@@ -29,7 +29,7 @@ export const AuthProvider = ({ children }) => {
         return userData.user;
       } else if (userData) {
         setCurrentUser(userData);
-        console.log('User details fetched and context updated (direct user object):', userData);
+        // console.log('User details fetched and context updated (direct user object):', userData);
         return userData;
       }
       else {
