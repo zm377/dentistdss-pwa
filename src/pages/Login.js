@@ -20,6 +20,7 @@ import LockIcon from '@mui/icons-material/Lock';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { GoogleLogin } from '@react-oauth/google';
+import { useMediaQuery } from '@mui/material';
 
 function Login() {
   const theme = useTheme();
@@ -77,6 +78,8 @@ function Login() {
     }
     setLoading(false);
   };
+
+  const isMobile = useMediaQuery('(max-width: 600px)');
 
   return (
     <Container component="main" maxWidth="xs">
@@ -282,6 +285,7 @@ function Login() {
                 <GoogleLogin
                   className="google-button"
                   size="large"
+                  width={isMobile ? '352px' : '334px'}
                   onSuccess={async (credentialResponse) => {
                     try {
                       setLoading(true);

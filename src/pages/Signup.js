@@ -21,6 +21,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { GoogleLogin } from '@react-oauth/google';
+import { useMediaQuery } from '@mui/material';
 // import FacebookIcon from '@mui/icons-material/Facebook'; // Example for other providers
 
 
@@ -37,7 +38,7 @@ const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate(); // Hook for navigation
-
+  const isMobile = useMediaQuery('(max-width: 600px)');
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
   };
@@ -405,6 +406,7 @@ const Signup = () => {
                 <GoogleLogin
                   className="google-button"
                   size="large"
+                  width={isMobile ? '352px' : '334px'}
                   onSuccess={async (credentialResponse) => {
                     try {
                       setLoading(true);
