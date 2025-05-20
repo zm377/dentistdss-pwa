@@ -389,27 +389,29 @@ const Signup = () => {
           </Divider>
           
           <Grid container spacing={2} justifyContent="center">
-            <Grid item xs={12}>
-              <GoogleLogin
-                onSuccess={async (credentialResponse) => {
-                  try {
-                    setLoading(true);
-                    await googleIdLogin(credentialResponse.credential);
-                    navigate('/dashboard');
-                  } catch (err) {
-                    console.error(err);
-                    setError(err.message || 'Google login failed');
-                  }
-                  setLoading(false);
-                }}
-                onError={() => setError('Google login failed')}
-                useOneTap={false}
-                text="continue_with"
-                type="standard"
-                shape="rectangular"
-                theme={theme.palette.mode === 'dark' ? 'filled_black' : 'filled_blue'}
-                logo_alignment="left"
-              />
+            <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'center' }}>
+              <Box sx={{ width: '100%' }}>
+                <GoogleLogin
+                  onSuccess={async (credentialResponse) => {
+                    try {
+                      setLoading(true);
+                      await googleIdLogin(credentialResponse.credential);
+                      navigate('/dashboard');
+                    } catch (err) {
+                      console.error(err);
+                      setError(err.message || 'Google login failed');
+                    }
+                    setLoading(false);
+                  }}
+                  onError={() => setError('Google login failed')}
+                  useOneTap={false}
+                  text="continue_with"
+                  type="standard"
+                  shape="rectangular"
+                  theme={theme.palette.mode === 'dark' ? 'filled_black' : 'filled_blue'}
+                  logo_alignment="left"
+                />
+              </Box>
             </Grid>
           </Grid>
           
