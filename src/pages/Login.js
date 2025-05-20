@@ -268,7 +268,6 @@ function Login() {
           <Grid container spacing={2} justifyContent="center">
             <Grid item xs={12}>
               <GoogleLogin
-                width="100%"
                 onSuccess={async (credentialResponse) => {
                   try {
                     setLoading(true);
