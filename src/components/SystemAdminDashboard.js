@@ -10,9 +10,9 @@ const mockPendingApprovals = [
 ];
 
 const mockSystemUsers = [
-  { id: 'user1', name: 'John Doe', role: 'Patient', email: 'john.doe@example.com', status: 'Active' },
-  { id: 'user2', name: 'Jane Smith', role: 'Dentist', email: 'jane.smith@example.com', clinic: 'Sunshine Dental', status: 'Active' },
-  { id: 'user3', name: 'Alice Brown', role: 'Clinic Administrator', email: 'alice.brown@example.com', clinic: 'Bright Smiles', status: 'Pending Approval' },
+  { id: 'user1', name: 'John Doe', role: 'PATIENT', email: 'john.doe@example.com', status: 'Active' },
+  { id: 'user2', name: 'Jane Smith', role: 'DENTIST', email: 'jane.smith@example.com', clinic: 'Sunshine Dental', status: 'Active' },
+  { id: 'user3', name: 'Alice Brown', role: 'CLINIC_ADMIN', email: 'alice.brown@example.com', clinic: 'Bright Smiles', status: 'Pending Approval' },
 ];
 
 function TabPanel(props) {

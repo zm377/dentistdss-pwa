@@ -15,18 +15,18 @@ import {
 } from '@mui/material';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import GoogleIcon from '@mui/icons-material/Google';
 import EmailIcon from '@mui/icons-material/Email';
 import LockIcon from '@mui/icons-material/Lock';
 import PersonIcon from '@mui/icons-material/Person';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import { GoogleLogin } from '@react-oauth/google';
 // import FacebookIcon from '@mui/icons-material/Facebook'; // Example for other providers
 
 
 const Signup = () => {
   const theme = useTheme();
-  const { signup, oauthLogin: authOauthLogin } = useAuth();
+  const { signup, googleIdLogin } = useAuth();
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -44,11 +44,6 @@ const Signup = () => {
 
   const handleClickShowConfirmPassword = () => {
     setShowConfirmPassword(!showConfirmPassword);
-  };
-
-  const handleOauthLogin = (provider) => {
-    // Call the actual OAuth login from context
-    authOauthLogin(provider);
   };
 
   const handleSubmit = async (event) => {
@@ -395,25 +390,27 @@ const Signup = () => {
           
           <Grid container spacing={2} justifyContent="center">
             <Grid item xs={12}>
-              <Button
-                fullWidth
-                variant="outlined"
-                startIcon={<GoogleIcon />}
-                onClick={() => handleOauthLogin('google')}
-                sx={{ 
-                  textTransform: 'none', 
-                  borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.15)' : theme.palette.divider,
-                  color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.9)' : theme.palette.text.primary,
-                  py: 1.2,
-                  '&:hover': {
-                    borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.25)' : undefined,
-                    backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : undefined
+              <GoogleLogin
+                width="100%"
+                onSuccess={async (credentialResponse) => {
+                  try {
+                    setLoading(true);
+                    await googleIdLogin(credentialResponse.credential);
+                    navigate('/dashboard');
+                  } catch (err) {
+                    console.error(err);
+                    setError(err.message || 'Google login failed');
                   }
+                  setLoading(false);
                 }}
-                disabled={loading}
-              >
-                Sign Up with Google
-              </Button>
+                onError={() => setError('Google login failed')}
+                useOneTap={false}
+                text="continue_with"
+                type="standard"
+                shape="rectangular"
+                theme={theme.palette.mode === 'dark' ? 'filled_black' : 'filled_blue'}
+                logo_alignment="left"
+              />
             </Grid>
           </Grid>
           

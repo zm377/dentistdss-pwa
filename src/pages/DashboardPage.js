@@ -85,22 +85,23 @@ const DashboardPage = () => {
   const navigate = useNavigate();
 
   // Redirect users whose account is still pending approval.
-  useEffect(() => {
-    if (currentUser?.approvalStatus === 'pending') {
-      navigate('/pending-approval', { replace: true });
-    }
-  }, [currentUser?.approvalStatus, navigate]);
+  // useEffect(() => {
+  //   if (currentUser?.approvalStatus === 'pending') {
+  //     navigate('/pending-approval', { replace: true });
+  //   }
+  // }, [currentUser?.approvalStatus, navigate]);
+  // Above logic removed as only approved users should be able to log in and reach the dashboard.
 
   // Ensure roles is always an array, even if currentUser or currentUser.roles is null/undefined
   const roles = Array.isArray(currentUser?.roles) ? currentUser.roles : (currentUser?.role ? [currentUser.role] : []);
 
   // Determine which sections to show based on roles
   // A user might have multiple roles, so we show all relevant sections
-  const showPatientSection = roles.includes('patient');
-  const showDentistSection = roles.includes('dentist');
-  const showClinicAdminSection = roles.includes('clinic_admin');
-  const showReceptionistSection = roles.includes('receptionist');
-  const showSystemAdminSection = roles.includes('system_admin');
+  const showPatientSection = roles.includes('PATIENT');
+  const showDentistSection = roles.includes('DENTIST');
+  const showClinicAdminSection = roles.includes('CLINIC_ADMIN');
+  const showReceptionistSection = roles.includes('RECEPTIONIST');
+  const showSystemAdminSection = roles.includes('SYSTEM_ADMIN');
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
@@ -115,27 +116,27 @@ const DashboardPage = () => {
         <Grid container spacing={3}>
           {/* Conditionally render sections based on user roles */} 
           {showPatientSection && (
-            <Grid item xs={12} sm={6} md={roles.filter(r => ['patient', 'dentist', 'clinic_admin', 'receptionist', 'system_admin'].includes(r)).length > 1 ? 6 : 12} lg={roles.filter(r => ['patient', 'dentist', 'clinic_admin', 'receptionist', 'system_admin'].includes(r)).length > 2 ? 4 : (roles.filter(r => ['patient', 'dentist', 'clinic_admin', 'receptionist', 'system_admin'].includes(r)).length > 1 ? 6 : 12)}>
+            <Grid item xs={12} sm={6} md={roles.filter(r => ['PATIENT', 'DENTIST', 'CLINIC_ADMIN', 'RECEPTIONIST', 'SYSTEM_ADMIN'].includes(r)).length > 1 ? 6 : 12} lg={roles.filter(r => ['PATIENT', 'DENTIST', 'CLINIC_ADMIN', 'RECEPTIONIST', 'SYSTEM_ADMIN'].includes(r)).length > 2 ? 4 : (roles.filter(r => ['PATIENT', 'DENTIST', 'CLINIC_ADMIN', 'RECEPTIONIST', 'SYSTEM_ADMIN'].includes(r)).length > 1 ? 6 : 12)}>
               <PatientSection />
             </Grid>
           )}
           {showDentistSection && (
-            <Grid item xs={12} sm={6} md={roles.filter(r => ['patient', 'dentist', 'clinic_admin', 'receptionist', 'system_admin'].includes(r)).length > 1 ? 6 : 12} lg={roles.filter(r => ['patient', 'dentist', 'clinic_admin', 'receptionist', 'system_admin'].includes(r)).length > 2 ? 4 : (roles.filter(r => ['patient', 'dentist', 'clinic_admin', 'receptionist', 'system_admin'].includes(r)).length > 1 ? 6 : 12)}>
+            <Grid item xs={12} sm={6} md={roles.filter(r => ['PATIENT', 'DENTIST', 'CLINIC_ADMIN', 'RECEPTIONIST', 'SYSTEM_ADMIN'].includes(r)).length > 1 ? 6 : 12} lg={roles.filter(r => ['PATIENT', 'DENTIST', 'CLINIC_ADMIN', 'RECEPTIONIST', 'SYSTEM_ADMIN'].includes(r)).length > 2 ? 4 : (roles.filter(r => ['PATIENT', 'DENTIST', 'CLINIC_ADMIN', 'RECEPTIONIST', 'SYSTEM_ADMIN'].includes(r)).length > 1 ? 6 : 12)}>
               <DentistSection />
             </Grid>
           )}
           {showClinicAdminSection && (
-            <Grid item xs={12} sm={6} md={roles.filter(r => ['patient', 'dentist', 'clinic_admin', 'receptionist', 'system_admin'].includes(r)).length > 1 ? 6 : 12} lg={roles.filter(r => ['patient', 'dentist', 'clinic_admin', 'receptionist', 'system_admin'].includes(r)).length > 2 ? 4 : (roles.filter(r => ['patient', 'dentist', 'clinic_admin', 'receptionist', 'system_admin'].includes(r)).length > 1 ? 6 : 12)}>
+            <Grid item xs={12} sm={6} md={roles.filter(r => ['PATIENT', 'DENTIST', 'CLINIC_ADMIN', 'RECEPTIONIST', 'SYSTEM_ADMIN'].includes(r)).length > 1 ? 6 : 12} lg={roles.filter(r => ['PATIENT', 'DENTIST', 'CLINIC_ADMIN', 'RECEPTIONIST', 'SYSTEM_ADMIN'].includes(r)).length > 2 ? 4 : (roles.filter(r => ['PATIENT', 'DENTIST', 'CLINIC_ADMIN', 'RECEPTIONIST', 'SYSTEM_ADMIN'].includes(r)).length > 1 ? 6 : 12)}>
               <ClinicAdminSection />
             </Grid>
           )}
           {showReceptionistSection && (
-            <Grid item xs={12} sm={6} md={roles.filter(r => ['patient', 'dentist', 'clinic_admin', 'receptionist', 'system_admin'].includes(r)).length > 1 ? 6 : 12} lg={roles.filter(r => ['patient', 'dentist', 'clinic_admin', 'receptionist', 'system_admin'].includes(r)).length > 2 ? 4 : (roles.filter(r => ['patient', 'dentist', 'clinic_admin', 'receptionist', 'system_admin'].includes(r)).length > 1 ? 6 : 12)}>
+            <Grid item xs={12} sm={6} md={roles.filter(r => ['PATIENT', 'DENTIST', 'CLINIC_ADMIN', 'RECEPTIONIST', 'SYSTEM_ADMIN'].includes(r)).length > 1 ? 6 : 12} lg={roles.filter(r => ['PATIENT', 'DENTIST', 'CLINIC_ADMIN', 'RECEPTIONIST', 'SYSTEM_ADMIN'].includes(r)).length > 2 ? 4 : (roles.filter(r => ['PATIENT', 'DENTIST', 'CLINIC_ADMIN', 'RECEPTIONIST', 'SYSTEM_ADMIN'].includes(r)).length > 1 ? 6 : 12)}>
               <ReceptionistSection />
             </Grid>
           )}
           {showSystemAdminSection && (
-            <Grid item xs={12} sm={6} md={roles.filter(r => ['patient', 'dentist', 'clinic_admin', 'receptionist', 'system_admin'].includes(r)).length > 1 ? 6 : 12} lg={roles.filter(r => ['patient', 'dentist', 'clinic_admin', 'receptionist', 'system_admin'].includes(r)).length > 2 ? 4 : (roles.filter(r => ['patient', 'dentist', 'clinic_admin', 'receptionist', 'system_admin'].includes(r)).length > 1 ? 6 : 12)}>
+            <Grid item xs={12} sm={6} md={roles.filter(r => ['PATIENT', 'DENTIST', 'CLINIC_ADMIN', 'RECEPTIONIST', 'SYSTEM_ADMIN'].includes(r)).length > 1 ? 6 : 12} lg={roles.filter(r => ['PATIENT', 'DENTIST', 'CLINIC_ADMIN', 'RECEPTIONIST', 'SYSTEM_ADMIN'].includes(r)).length > 2 ? 4 : (roles.filter(r => ['PATIENT', 'DENTIST', 'CLINIC_ADMIN', 'RECEPTIONIST', 'SYSTEM_ADMIN'].includes(r)).length > 1 ? 6 : 12)}>
               <SystemAdminSection />
             </Grid>
           )}
@@ -152,7 +153,7 @@ const DashboardPage = () => {
                 </Typography>
                 {currentUser && (
                   <Typography variant="caption" display="block" sx={{ textAlign: 'center', mt: 2, color: 'text.disabled' }}>
-                    (Detected roles: {roles.join(', ') || 'None'}) Your approval status: {currentUser.approvalStatus || 'Unknown'}
+                    (Detected roles: {roles.join(', ') || 'None'})
                   </Typography>
                 )}
               </Paper>
