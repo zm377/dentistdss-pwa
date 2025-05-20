@@ -261,7 +261,7 @@ function Login() {
                 color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.7)' : theme.palette.text.secondary 
               }}
             >
-              Or continue with
+              Or
             </Typography>
           </Divider>
           
