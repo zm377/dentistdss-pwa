@@ -25,7 +25,7 @@ export const AuthProvider = ({ children }) => {
       const userData = await api.auth.me(); // Fetch user details using the new token
       if (userData && userData.user) {
         setCurrentUser(userData.user);
-        console.log('User details fetched and context updated:', userData.user);
+        // console.log('User details fetched and context updated:', userData.user);
         return userData.user;
       } else if (userData) {
         setCurrentUser(userData);
@@ -158,10 +158,10 @@ export const AuthProvider = ({ children }) => {
           const userData = await api.auth.me();
           if (userData && userData.user) {
             setCurrentUser(userData.user);
-            console.log('Session verified, user set:', userData.user);
+            // console.log('Session verified, user set:', userData.user);
           } else if (userData) { 
              setCurrentUser(userData);
-             console.log('Session verified, user set (direct object):', userData);
+            //  console.log('Session verified, user set (direct object):', userData);
           } else {
              throw new Error("User data not found during initial auth check");
           }
