@@ -78,7 +78,7 @@ const authAPI = {
 
     // const authData = await api.post('/login/oauth2/code/google', { idToken });
     const authData = await api.post('/oauth2/token', { idToken });
-    console.log('authData', authData);
+    // console.log('authData', authData);
     // Persist token locally for future API calls – mirrors the behaviour of
     // the email/password login helper.
     storeToken(authData.accessToken, authData.tokenType);
