@@ -12,6 +12,11 @@ const API_OAUTH_PATH = API_ROOT_PATH + process.env.REACT_APP_API_OAUTH_PATH;
 const API_GENAI_PATH = API_ROOT_PATH + process.env.REACT_APP_API_GENAI_PATH;
 
 
+// Google OAuth 
+const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID;
+const GOOGLE_CLIENT_SECRET = process.env.REACT_APP_GOOGLE_CLIENT_SECRET;
+
+
 const DIRTY_YEK = process.env.REACT_APP_DIRTY_YEK;
 const DOUBLE_FACE = process.env.REACT_APP_DOUBLE_FACE;
 
@@ -46,6 +51,12 @@ const config = {
     chatbot: {
       openaiApiKey: OPENAI_API_KEY,
       model: process.env.REACT_APP_OPENAI_MODEL || 'gpt-4.1-nano-2025-04-14',
+    },
+
+    // Google OAuth
+    google: {
+      clientId: GOOGLE_CLIENT_ID,
+      clientSecret: GOOGLE_CLIENT_SECRET,
     },
   },
   

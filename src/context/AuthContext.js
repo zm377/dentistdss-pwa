@@ -1,6 +1,5 @@
 import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
 import api from '../api';
-import config from '../config';
 
 const AuthContext = createContext(null);
 
@@ -20,17 +19,15 @@ export const AuthProvider = ({ children }) => {
         api.axiosInstance.defaults.headers.common['Authorization'] = `${tokenType} ${token}`;
       } else {
         console.warn("Could not set Authorization header: api.axiosInstance or its defaults/headers are not defined.");
-        // Fallback or throw error if this structure is critical and unexpected
-        // For now, we proceed assuming it might be an optional setup or handled elsewhere if this path is not valid
       }
       
       console.log('Token stored, fetching user details...');
       const userData = await api.auth.me(); // Fetch user details using the new token
-      if (userData && userData.user) { // Assuming api.auth.me() returns { success: true, dataObject: { user: {...} } }
+      if (userData && userData.user) {
         setCurrentUser(userData.user);
         console.log('User details fetched and context updated:', userData.user);
         return userData.user;
-      } else if (userData) { // If userData is directly the user object
+      } else if (userData) {
         setCurrentUser(userData);
         console.log('User details fetched and context updated (direct user object):', userData);
         return userData;
@@ -42,7 +39,6 @@ export const AuthProvider = ({ children }) => {
       console.error('Failed to process auth token or fetch user:', error);
       localStorage.removeItem('authToken');
       localStorage.removeItem('tokenType');
-      // Assuming 'api.axiosInstance' is the actual Axios instance
       if (api.axiosInstance && api.axiosInstance.defaults && api.axiosInstance.defaults.headers && api.axiosInstance.defaults.headers.common) {
         delete api.axiosInstance.defaults.headers.common['Authorization'];
       } else {
@@ -60,9 +56,10 @@ export const AuthProvider = ({ children }) => {
       const authData = await api.auth.login(email, password);
 
       if (authData && authData.accessToken && authData.user) {
-        // The authData now directly contains accessToken and user from the successful response
-        await processAuthToken(authData.accessToken, authData.tokenType);
-        return authData.user;
+        // processAuthToken will be called with the token, and it will fetch the user
+        await processAuthToken(authData.accessToken, authData.tokenType || 'Bearer');
+        // The user object is returned for immediate use if needed, though context will update
+        return authData.user; 
       } else {
         const errorMessage = 'Login failed: Invalid data structure from API.';
         console.error(errorMessage, authData);
@@ -90,17 +87,12 @@ export const AuthProvider = ({ children }) => {
       if (clinicName) signupData.clinicName = clinicName;
       if (existingClinicId) signupData.existingClinicId = existingClinicId;
       
-      // Assuming api.auth.signup returns a message like { success: true, dataObject: "User registered..." }
-      // It does not log the user in directly.
       const responseMessage = await api.auth.signup(signupData); 
       
       console.log('Signup successful:', responseMessage);
-      // For patient role, verification is required.
-      // The UI will navigate to a pending verification page.
       return { ...signupData, emailVerificationPending: true, message: responseMessage };
     } catch (error) {
       console.error('Signup failed:', error);
-      // Error should already be formatted by the API interceptor
       throw error;
     }
   };
@@ -108,14 +100,12 @@ export const AuthProvider = ({ children }) => {
   const logout = useCallback(async () => {
     try {
       console.log('Logging out');
-      await api.auth.logout(); // Inform backend
+      await api.auth.logout(); 
     } catch (error) {
       console.error('Backend logout error (will proceed with client-side logout):', error);
     } finally {
-      // Always clear client-side session
       localStorage.removeItem('authToken');
       localStorage.removeItem('tokenType');
-      // Assuming 'api.axiosInstance' is the actual Axios instance
       if (api.axiosInstance && api.axiosInstance.defaults && api.axiosInstance.defaults.headers && api.axiosInstance.defaults.headers.common) {
         delete api.axiosInstance.defaults.headers.common['Authorization'];
       } else {
@@ -126,41 +116,28 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  // Function to initiate OAuth login flow
-  const oauthLogin = (provider) => {
-    console.log(`Initiating OAuth login with ${provider}`);
-    // Redirect to the backend's Spring Security standard authorization endpoint via API Gateway.
-    // The API gateway will route this to the oauth-service.
-    // Ensure REACT_APP_API_BASE_URL is configured in your .env file
-    const baseUrl = config.api.baseUrl; // Default to localhost:443 (api-gateway)
-    window.location.href = `${baseUrl}/oauth2/authorization/${provider.toLowerCase()}`;
-  };
+  // ---- GOOGLE OAUTH (ID-TOKEN POPUP FLOW) ----
+  // This helper receives the `credential` (ID token) generated by the
+  // Google Identity Services popup. It forwards the token to the backend,
+  // then stores & processes the internal JWT returned by our API.
 
-  // Function to handle the OAuth redirect, called from a dedicated redirect page/component
-  const handleOauthRedirect = useCallback(async () => {
-    console.log("Handling OAuth redirect...");
-    const queryParams = new URLSearchParams(window.location.search);
-    const token = queryParams.get('token');
-    const error = queryParams.get('error');
+  const googleIdLogin = useCallback(async (idToken) => {
+    try {
+      if (!idToken) throw new Error('Missing Google ID token');
 
-    if (error) {
-      console.error("OAuth Error:", error);
-      setLoading(false);
-      return;
-    }
+      console.log('Received Google ID token, sending to backend for verification…');
 
-    if (token) {
-      console.log("Token received from OAuth redirect:", token);
-      try {
-        await processAuthToken(token);
-      } catch (err) {
-        console.error("Error processing OAuth token:", err);
-      } finally {
-        setLoading(false);
+      const backendTokenData = await api.auth.loginWithGoogleIdToken(idToken);
+
+      if (backendTokenData && backendTokenData.accessToken) {
+        await processAuthToken(backendTokenData.accessToken, backendTokenData.tokenType || 'Bearer');
+        console.log('Google login successful – internal session established.');
+        return backendTokenData.user || null;
       }
-    } else {
-      console.log("No token found in OAuth redirect, navigating to login.");
-      setLoading(false);
+      throw new Error('Invalid response from backend after Google ID token exchange.');
+    } catch (error) {
+      console.error('Google ID-token login failed:', error);
+      throw error;
     }
   }, [processAuthToken]);
 
@@ -173,8 +150,6 @@ export const AuthProvider = ({ children }) => {
       if (token) {
         try {
           console.log('Token found, verifying session...');
-          // No need to call processAuthToken here, just set header and fetch user
-          // Assuming 'api.axiosInstance' is the actual Axios instance
           if (api.axiosInstance && api.axiosInstance.defaults && api.axiosInstance.defaults.headers) {
             api.axiosInstance.defaults.headers.common['Authorization'] = `${tokenType} ${token}`;
           } else {
@@ -184,7 +159,7 @@ export const AuthProvider = ({ children }) => {
           if (userData && userData.user) {
             setCurrentUser(userData.user);
             console.log('Session verified, user set:', userData.user);
-          } else if (userData) { // if userData is the user object directly
+          } else if (userData) { 
              setCurrentUser(userData);
              console.log('Session verified, user set (direct object):', userData);
           } else {
@@ -192,8 +167,7 @@ export const AuthProvider = ({ children }) => {
           }
         } catch (error) {
           console.error('Token verification failed during initial load:', error);
-          // If 'me' endpoint fails (e.g. token expired), logout
-          await logout(); // Use the new logout which clears state
+          await logout(); 
         }
       } else {
         console.log('No token found during initial load.');
@@ -202,7 +176,7 @@ export const AuthProvider = ({ children }) => {
     };
     
     checkAuth();
-  }, [logout]); // Added logout to dependency array
+  }, [logout, processAuthToken]); // Added processAuthToken to ensure it's stable if defined inside AuthProvider
 
   const value = {
     currentUser,
@@ -211,9 +185,8 @@ export const AuthProvider = ({ children }) => {
     login,
     signup,
     logout,
-    oauthLogin,
-    handleOauthRedirect, // Expose this function
-    processAuthToken // Expose this if needed elsewhere, e.g. for email verification link auto-login
+    googleIdLogin,
+    processAuthToken 
   };
 
   return (

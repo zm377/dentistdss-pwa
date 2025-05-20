@@ -114,40 +114,31 @@ const ClinicStaffSignup = () => {
     }
 
     try {
-      console.log('Submitting clinic staff signup:', formData);
-      // TODO: Implement actual signup logic
-      // await signup(formData.email, formData.password, formData.firstName, formData.lastName, formData.role, formData.clinicName, formData.existingClinicId);
-      // Mock success
-      // setTimeout(() => {
-      //   alert('Signup request submitted! Please check your email for verification and await administrator approval.');
-      //   navigate('/login'); // Or a pending approval page
-      // }, 1000);
-
       const result = await signup(
         formData.email,
         formData.password,
         formData.firstName,
         formData.lastName,
         formData.role,
-        formData.clinicName,
-        formData.existingClinicId
+        formData.clinicName || null, // Ensure null if empty
+        formData.existingClinicId || null // Ensure null if empty
       );
 
-      if (result && result.approvalStatus === 'pending') {
-        alert('Signup request submitted! Please check your email for verification and await administrator approval.');
-        navigate('/login'); // Or a specific page for pending approval
-      } else if (result && result.approvalStatus === 'approved'){
-        // This case should ideally not happen for staff roles directly from this form as per requirements
-        // but if it does, navigate to their dashboard
-        alert('Signup successful! You are now logged in.');
-        navigate('/dashboard'); 
+      // If signup call completes without error, it means it's pending verification/approval.
+      // The AuthContext signup function returns { emailVerificationPending: true, ... } on success.
+      alert('Signup request submitted! Please check your email for verification. Your account will also require administrator approval.');
+      
+      if (result && result.emailVerificationPending) {
+        navigate('/verify-email-pending', { state: { email: formData.email } });
       } else {
-        // Handle cases where signup might fail or return unexpected status
-        setError('An unexpected error occurred during signup. Please try again.');
+        // Fallback, though AuthContext's signup for patients sets emailVerificationPending.
+        // Assuming consistency or a generic next step.
+        navigate('/login'); 
       }
 
     } catch (err) {
       setError(err.message || 'Failed to sign up. Please try again.');
+    } finally {
       setLoading(false);
     }
   };
