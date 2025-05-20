@@ -267,8 +267,21 @@ function Login() {
           
           <Grid container spacing={2} justifyContent="center">
             <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'center' }}>
-              <Box sx={{ width: '100%' }}>
+              <Box sx={{ 
+                width: '100%', 
+                '.google-button': {
+                  width: '100% !important',
+                  marginInline: '0 !important',
+                  borderRadius: '4px',
+                  '& div[style]': {
+                    width: '100% !important',
+                    margin: '0 !important'
+                  }
+                }
+              }}>
                 <GoogleLogin
+                  className="google-button"
+                  size="large"
                   onSuccess={async (credentialResponse) => {
                     try {
                       setLoading(true);
