@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   Box, 
   Button, 
@@ -39,6 +39,28 @@ const Signup = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate(); // Hook for navigation
   const isMobile = useMediaQuery('(max-width: 600px)');
+  const containerRef = useRef(null);
+  const [googleButtonWidth, setGoogleButtonWidth] = useState(isMobile ? '352px' : '334px');
+  
+  useEffect(() => {
+    if (!containerRef.current) return;
+    
+    const resizeObserver = new ResizeObserver(entries => {
+      if (!entries || entries.length === 0) return;
+      
+      const { width } = entries[0].contentRect;
+      // Subtract some padding to account for the button's internal padding
+      const buttonWidth = Math.max(250, Math.floor(width) - 2);
+      setGoogleButtonWidth(`${buttonWidth}px`);
+    });
+    
+    resizeObserver.observe(containerRef.current);
+    
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [containerRef]);
+
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
   };
@@ -391,22 +413,25 @@ const Signup = () => {
           
           <Grid container spacing={2} justifyContent="center">
             <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'center' }}>
-              <Box sx={{ 
-                width: '100%', 
-                '.google-button': {
-                  width: '100% !important',
-                  marginInline: '0 !important',
-                  borderRadius: '4px',
-                  '& div[style]': {
+              <Box 
+                ref={containerRef}
+                sx={{ 
+                  width: '100%', 
+                  '.google-button': {
                     width: '100% !important',
-                    margin: '0 !important'
+                    marginInline: '0 !important',
+                    borderRadius: '4px',
+                    '& div[style]': {
+                      width: '100% !important',
+                      margin: '0 !important'
+                    }
                   }
-                }
-              }}>
+                }}
+              >
                 <GoogleLogin
                   className="google-button"
                   size="large"
-                  width={isMobile ? '352px' : '334px'}
+                  width={googleButtonWidth}
                   onSuccess={async (credentialResponse) => {
                     try {
                       setLoading(true);
