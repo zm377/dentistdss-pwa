@@ -51,14 +51,28 @@ const DentistDashboard = ({ activeSection = 'appointments' }) => {
   useEffect(() => {
     setLoading(true);
     setError('');
+
+    // Build dentist profile from authenticated user if available
+    let profileFromAuth = null;
+    if (currentUser) {
+      profileFromAuth = {
+        name: `${currentUser.title || ''} ${currentUser.firstName || ''} ${currentUser.lastName || ''}`.trim() || currentUser.name || currentUser.username || currentUser.email || 'User',
+        specialty: currentUser.specialty || 'General Dentistry',
+        clinicName: currentUser.clinicName || '',
+        email: currentUser.email,
+        phone: currentUser.phone || '',
+        avatarUrl: currentUser.avatarUrl || currentUser.photoURL || currentUser.profilePicture || '',
+      };
+    }
+
     // Simulate API calls for a specific dentist
     setTimeout(() => {
-      setDentistProfile(mockDentistProfile); // Assuming dentistId is used to fetch these
+      setDentistProfile(profileFromAuth || mockDentistProfile); // Assuming dentistId is used to fetch these
       setAppointments(mockAppointments); // Filter/fetch by dentistId
       setPatientRecords(mockPatientRecords); // Filter/fetch by dentistId
       setLoading(false);
-    }, 1000);
-  }, [dentistId]);
+    }, 500);
+  }, [dentistId, currentUser]);
 
   if (loading) {
     return <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}><CircularProgress /></Box>;

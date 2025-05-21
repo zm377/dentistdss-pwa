@@ -39,6 +39,7 @@ import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import LogoutIcon from '@mui/icons-material/Logout';
+import { useAuth } from '../context/AuthContext';
 
 // Adjusted drawer width to be slightly narrower
 const drawerWidth = 240;
@@ -73,6 +74,8 @@ const MultiRoleDashboardLayout = ({ rolesWithComponents }) => {
   const [activeSectionKey, setActiveSectionKey] = useState('overview');
   const [userMenuAnchorEl, setUserMenuAnchorEl] = useState(null);
 
+  const { currentUser } = useAuth();
+
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
@@ -92,6 +95,31 @@ const MultiRoleDashboardLayout = ({ rolesWithComponents }) => {
   const activeRoleSections = ActiveComponent?.navigationSections || [
     { key: 'overview', label: 'Overview', icon: <DashboardIcon /> }
   ];
+
+  // Helper to derive display name & initials
+  const getDisplayName = (user) => {
+    if (!user) return 'Guest';
+    if (user.firstName || user.lastName) {
+      return `${user.firstName || ''} ${user.lastName || ''}`.trim();
+    }
+    if (user.name) return user.name;
+    if (user.username) return user.username;
+    return user.email || 'User';
+  };
+
+  const getInitials = (user) => {
+    if (!user) return '?';
+    const first = user.firstName || user.name?.split(' ')[0] || '';
+    const last = user.lastName || user.name?.split(' ')[1] || '';
+    if (first && last) return `${first[0]}${last[0]}`.toUpperCase();
+    if (first) return first[0].toUpperCase();
+    if (user.email) return user.email[0].toUpperCase();
+    return '?';
+  };
+
+  const avatarSrc = currentUser?.avatarUrl || currentUser?.photoURL || currentUser?.profilePicture || '';
+  const displayName = getDisplayName(currentUser);
+  const displayInitials = getInitials(currentUser);
 
   const drawerContent = (
     <div>
@@ -128,12 +156,15 @@ const MultiRoleDashboardLayout = ({ rolesWithComponents }) => {
       
       {/* User profile section */}
       <Box sx={{ p: 2, display: 'flex', alignItems: 'center' }}>
-        <Avatar sx={{ width: 40, height: 40, mr: 2, bgcolor: 'primary.main' }}>
-          <PersonIcon />
+        <Avatar
+          src={avatarSrc}
+          sx={{ width: 40, height: 40, mr: 2, bgcolor: !avatarSrc ? 'primary.main' : 'transparent', color: !avatarSrc ? 'primary.contrastText' : 'inherit' }}
+        >
+          {!avatarSrc && displayInitials}
         </Avatar>
         <Box>
           <Typography variant="subtitle1" sx={{ fontWeight: 'medium' }}>
-            Admin User
+            {displayName}
           </Typography>
           <Typography variant="body2" color="text.secondary">
             {roleMeta[activeRoleKey]?.label || activeRoleKey}

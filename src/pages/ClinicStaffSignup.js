@@ -31,6 +31,7 @@ import BusinessIcon from '@mui/icons-material/Business';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import WorkIcon from '@mui/icons-material/Work';
+import api from '../api';
 
 const ClinicStaffSignup = () => {
   // const { signup } = useAuth(); // Or a specific signup function for clinic staff
@@ -61,18 +62,27 @@ const ClinicStaffSignup = () => {
     setShowConfirmPassword(!showConfirmPassword);
   };
 
-  // Mock fetch clinics - replace with actual API call
+  // Fetch clinics when role requires it
   React.useEffect(() => {
-    if (formData.role === 'dentist' || formData.role === 'receptionist') {
-      // Simulate fetching clinics
-      setTimeout(() => {
-        setClinics([
-          { id: 'clinic1', name: 'Sunshine Dental Clinic' },
-          { id: 'clinic2', name: 'Bright Smiles Dental Care' },
-          { id: 'clinic3', name: 'Community Dental Center' },
-        ]);
-      }, 500);
-    }
+    const fetchClinics = async () => {
+      if (formData.role === 'dentist' || formData.role === 'receptionist') {
+        try {
+          const clinicsData = await api.clinic.getClinics();
+          const formattedClinics = (clinicsData || []).map((c) => ({
+            id: c.id || c.clinicId || c._id || c.uuid || '',
+            name: c.name || c.clinicName || c.title || '',
+          })).filter(c => c.id && c.name);
+          setClinics(formattedClinics);
+        } catch (err) {
+          console.error('Failed to fetch clinics:', err);
+          setClinics([]);
+        }
+      } else {
+        setClinics([]);
+      }
+    };
+
+    fetchClinics();
   }, [formData.role]);
 
   const handleChange = (e) => {

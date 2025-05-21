@@ -5,3 +5,5 @@ const clinicAPI = {
         return api.get('/api/clinic/list/all');
     }
 }
+
+export default clinicAPI;

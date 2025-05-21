@@ -47,15 +47,28 @@ const PatientDashboard = ({ activeSection = 'appointments' }) => {
   useEffect(() => {
     setLoading(true);
     setError('');
-    // Simulate API calls for the logged-in patient
-    // const patientId = currentUser?.uid; // Or however patient ID is stored
+
+    // Build patient profile from authenticated user if available
+    let profileFromAuth = null;
+    if (currentUser) {
+      profileFromAuth = {
+        name: `${currentUser.firstName || ''} ${currentUser.lastName || ''}`.trim() || currentUser.name || currentUser.username || currentUser.email || 'User',
+        email: currentUser.email,
+        phone: currentUser.phone || '',
+        address: currentUser.address || '',
+        dateOfBirth: currentUser.dateOfBirth || '',
+        avatarUrl: currentUser.avatarUrl || currentUser.photoURL || currentUser.profilePicture || '',
+      };
+    }
+
+    // Simulate API calls or use mock data if not authenticated
     setTimeout(() => {
-      setPatientProfile(mockPatientProfile);
+      setPatientProfile(profileFromAuth || mockPatientProfile);
       setAppointments(mockAppointments);
       setMessages(mockMessages);
       setLoading(false);
-    }, 1000);
-  }, []); // Add currentUser to dependency array if used
+    }, 500);
+  }, [currentUser]);
 
   if (loading) {
     return <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}><CircularProgress /></Box>;

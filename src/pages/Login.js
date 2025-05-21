@@ -151,8 +151,8 @@ function Login() {
             value={email}
             onChange={handleEmailChange}
             onBlur={handleEmailBlur}
-            error={!!emailError || !!error}
-            helperText={emailError || (error && error.toLowerCase().includes('email') ? error : '')}
+            error={!!emailError}
+            helperText={emailError}
             disabled={loading}
             InputProps={{
               startAdornment: (
