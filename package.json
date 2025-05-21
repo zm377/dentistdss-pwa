@@ -1,7 +1,7 @@
 {
-  "name": "DentistDSS",
+  "name": "Dentabot",
   "version": "1.0.0",
-  "description": "DentistDSS project",
+  "description": "Dentabot project",
   "main": "src/index.js",
   "private": true,
   "dependencies": {

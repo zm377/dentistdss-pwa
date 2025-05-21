@@ -1,11 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Paper, Tabs, Tab, CircularProgress, Alert, List, ListItem, ListItemText, Avatar, Chip } from '@mui/material';
+import { Box, Typography, Paper, CircularProgress, Alert, List, ListItem, ListItemText, Avatar, Chip, Card, CardContent } from '@mui/material';
 import EventIcon from '@mui/icons-material/Event';
 import PersonIcon from '@mui/icons-material/Person';
 import NotesIcon from '@mui/icons-material/Notes';
-import MessageIcon from '@mui/icons-material/Message'; // Import MessageIcon
-import MessagePanel from './MessagePanel'; // Import MessagePanel
-import { useAuth } from '../context/AuthContext'; // Import useAuth
+import MessageIcon from '@mui/icons-material/Message';
+import MessagePanel from './MessagePanel';
+import { useAuth } from '../context/AuthContext';
+
+// Define navigation sections for the sidebar
+const navigationSections = [
+  { key: 'appointments', label: 'Appointments', icon: <EventIcon /> },
+  { key: 'patient-records', label: 'Patient Records', icon: <NotesIcon /> },
+  { key: 'profile', label: 'My Profile', icon: <PersonIcon /> },
+  { key: 'messages', label: 'Messages', icon: <MessageIcon /> },
+];
 
 // Mock data - replace with API calls
 const mockDentistProfile = {
@@ -29,27 +37,7 @@ const mockPatientRecords = [
   { id: 'patient2', name: 'Alice Brown', lastVisit: '2024-03-22', notes: 'Filling on tooth #14.' },
 ];
 
-function TabPanel(props) {
-  const { children, value, index, ...other } = props;
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`dentist-tabpanel-${index}`}
-      aria-labelledby={`dentist-tab-${index}`}
-      {...other}
-    >
-      {value === index && (
-        <Box sx={{ p: 3 }}>
-          {children}
-        </Box>
-      )}
-    </div>
-  );
-}
-
-const DentistDashboard = () => {
-  const [tabValue, setTabValue] = useState(0);
+const DentistDashboard = ({ activeSection = 'appointments' }) => {
   const [dentistProfile, setDentistProfile] = useState(null);
   const [appointments, setAppointments] = useState([]);
   const [patientRecords, setPatientRecords] = useState([]);
@@ -72,10 +60,6 @@ const DentistDashboard = () => {
     }, 1000);
   }, [dentistId]);
 
-  const handleTabChange = (event, newValue) => {
-    setTabValue(newValue);
-  };
-
   if (loading) {
     return <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}><CircularProgress /></Box>;
   }
@@ -88,84 +72,189 @@ const DentistDashboard = () => {
     return <Alert severity="warning" sx={{ mt: 2 }}>Dentist profile not found.</Alert>;
   }
 
+  const renderContent = () => {
+    switch (activeSection) {
+      case 'appointments':
+        return (
+          <Box>
+            <Typography variant="h5" gutterBottom fontWeight="medium">Today's & Upcoming Appointments</Typography>
+            <Card>
+              <CardContent>
+                {appointments.length === 0 ? (
+                  <Typography>No upcoming appointments.</Typography>
+                ) : (
+                  <List sx={{ 
+                    '& .MuiListItem-root': { 
+                      borderBottom: '1px solid',
+                      borderColor: 'divider',
+                      py: 1.5
+                    },
+                    '& .MuiListItem-root:last-child': {
+                      borderBottom: 'none'
+                    }
+                  }}>
+                    {appointments.map((appt) => (
+                      <ListItem key={appt.id}>
+                        <ListItemText 
+                          primary={
+                            <Typography variant="subtitle1" fontWeight="medium">
+                              {`${appt.patientName} - ${appt.type}`}
+                            </Typography>
+                          }
+                          secondary={
+                            <Box sx={{ mt: 0.5 }}>
+                              <Typography variant="body2">
+                                <strong>Date:</strong> {appt.date} | <strong>Time:</strong> {appt.time}
+                              </Typography>
+                            </Box>
+                          }
+                        />
+                        <Chip 
+                          label={appt.status} 
+                          color={appt.status === 'Confirmed' ? 'success' : 'warning'} 
+                          size="small" 
+                          sx={{ ml: 1 }}
+                        />
+                      </ListItem>
+                    ))}
+                  </List>
+                )}
+              </CardContent>
+            </Card>
+          </Box>
+        );
+        
+      case 'patient-records':
+        return (
+          <Box>
+            <Typography variant="h5" gutterBottom fontWeight="medium">Patient Records</Typography>
+            <Card>
+              <CardContent>
+                {patientRecords.length === 0 ? (
+                  <Typography>No patient records found.</Typography>
+                ) : (
+                  <List sx={{ 
+                    '& .MuiListItem-root': { 
+                      borderBottom: '1px solid',
+                      borderColor: 'divider',
+                      py: 1.5,
+                      cursor: 'pointer',
+                      '&:hover': {
+                        backgroundColor: 'action.hover'
+                      }
+                    },
+                    '& .MuiListItem-root:last-child': {
+                      borderBottom: 'none'
+                    }
+                  }}>
+                    {patientRecords.map((patient) => (
+                      <ListItem key={patient.id} onClick={() => alert(`Viewing record for ${patient.name}`)}>
+                        <ListItemText 
+                          primary={
+                            <Typography variant="subtitle1" fontWeight="medium">
+                              {patient.name}
+                            </Typography>
+                          }
+                          secondary={
+                            <Box sx={{ mt: 0.5 }}>
+                              <Typography variant="body2">
+                                <strong>Last Visit:</strong> {patient.lastVisit}
+                              </Typography>
+                              <Typography variant="body2">
+                                <strong>Notes:</strong> {patient.notes}
+                              </Typography>
+                            </Box>
+                          }
+                        />
+                      </ListItem>
+                    ))}
+                  </List>
+                )}
+              </CardContent>
+            </Card>
+          </Box>
+        );
+        
+      case 'profile':
+        return (
+          <Box>
+            <Typography variant="h5" gutterBottom fontWeight="medium">My Profile</Typography>
+            <Card>
+              <CardContent>
+                <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { sm: 'center' }, mb: 3 }}>
+                  <Avatar src={dentistProfile.avatarUrl} sx={{ width: 100, height: 100, mr: { sm: 3 }, mb: { xs: 2, sm: 0 } }}>
+                    {!dentistProfile.avatarUrl && <PersonIcon sx={{ fontSize: 60 }} />}
+                  </Avatar>
+                  <Box>
+                    <Typography variant="h5">{dentistProfile.name}</Typography>
+                    <Typography variant="subtitle1" color="text.secondary">
+                      {dentistProfile.specialty}
+                    </Typography>
+                  </Box>
+                </Box>
+                
+                <Box sx={{ mt: 2 }}>
+                  <Typography variant="body1" component="div" sx={{ mb: 1.5 }}>
+                    <strong>Email:</strong> {dentistProfile.email}
+                  </Typography>
+                  <Typography variant="body1" component="div" sx={{ mb: 1.5 }}>
+                    <strong>Phone:</strong> {dentistProfile.phone}
+                  </Typography>
+                  <Typography variant="body1" component="div" sx={{ mb: 1.5 }}>
+                    <strong>Clinic:</strong> {dentistProfile.clinicName}
+                  </Typography>
+                </Box>
+              </CardContent>
+            </Card>
+          </Box>
+        );
+        
+      case 'messages':
+        return (
+          <Box>
+            <Typography variant="h5" gutterBottom fontWeight="medium">Messages</Typography>
+            <Card>
+              <CardContent>
+                <MessagePanel userId={dentistId} />
+              </CardContent>
+            </Card>
+          </Box>
+        );
+        
+      default:
+        return (
+          <Alert severity="info">
+            Please select a section from the sidebar.
+          </Alert>
+        );
+    }
+  };
+
   return (
-    <Paper elevation={3} sx={{ p: { xs: 2, md: 3 }, mt: 2 }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-        <Avatar src={dentistProfile.avatarUrl} sx={{ width: 56, height: 56, mr: 2 }}>
-            {!dentistProfile.avatarUrl && <PersonIcon />}
+    <Box sx={{ 
+      pt: 2,
+      height: '100%',
+    }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+        <Avatar src={dentistProfile.avatarUrl} sx={{ width: 64, height: 64, mr: 2 }}>
+          {!dentistProfile.avatarUrl && <PersonIcon sx={{ fontSize: 42 }} />}
         </Avatar>
-        <div>
-            <Typography variant="h4" component="h1">
-                {dentistProfile.name}
-            </Typography>
-            <Typography variant="subtitle1" color="textSecondary">
-                {dentistProfile.specialty} - {dentistProfile.clinicName}
-            </Typography>
-        </div>
+        <Box>
+          <Typography variant="h4" component="h1">
+            {dentistProfile.name}
+          </Typography>
+          <Typography variant="subtitle1" color="text.secondary">
+            {dentistProfile.specialty} - {dentistProfile.clinicName}
+          </Typography>
+        </Box>
       </Box>
       
-      <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-        <Tabs value={tabValue} onChange={handleTabChange} aria-label="Dentist dashboard tabs">
-          <Tab label="Appointments" icon={<EventIcon />} id="dentist-tab-0" aria-controls="dentist-tabpanel-0" />
-          <Tab label="Patient Records" icon={<NotesIcon />} id="dentist-tab-1" aria-controls="dentist-tabpanel-1" />
-          <Tab label="Profile" icon={<PersonIcon />} id="dentist-tab-2" aria-controls="dentist-tabpanel-2" />
-          <Tab label="Messages" icon={<MessageIcon />} id="dentist-tab-3" aria-controls="dentist-tabpanel-3" /> {/* New Messages Tab */}
-        </Tabs>
-      </Box>
-
-      <TabPanel value={tabValue} index={0}>
-        <Typography variant="h6" gutterBottom>Today's & Upcoming Appointments</Typography>
-        {appointments.length === 0 ? (
-          <Typography>No upcoming appointments.</Typography>
-        ) : (
-          <List>
-            {appointments.map((appt) => (
-              <ListItem key={appt.id} divider>
-                <ListItemText 
-                  primary={`${appt.patientName} - ${appt.type}`}
-                  secondary={`${appt.date} at ${appt.time}`}
-                />
-                <Chip label={appt.status} color={appt.status === 'Confirmed' ? 'success' : 'warning'} size="small" />
-              </ListItem>
-            ))}
-          </List>
-        )}
-      </TabPanel>
-
-      <TabPanel value={tabValue} index={1}>
-        <Typography variant="h6" gutterBottom>Patient Records</Typography>
-        {/* Add search/filter for patients */} 
-        {patientRecords.length === 0 ? (
-            <Typography>No patient records found.</Typography>
-        ) : (
-            <List>
-                {patientRecords.map((patient) => (
-                <ListItem key={patient.id} divider button onClick={() => alert(`Viewing record for ${patient.name}`)}>
-                    <ListItemText 
-                    primary={patient.name}
-                    secondary={`Last Visit: ${patient.lastVisit} - Notes: ${patient.notes.substring(0,50)}...`}
-                    />
-                </ListItem>
-                ))}
-            </List>
-        )}
-      </TabPanel>
-
-      <TabPanel value={tabValue} index={2}>
-        <Typography variant="h6" gutterBottom>My Profile</Typography>
-        <Typography><strong>Name:</strong> {dentistProfile.name}</Typography>
-        <Typography><strong>Email:</strong> {dentistProfile.email}</Typography>
-        <Typography><strong>Phone:</strong> {dentistProfile.phone}</Typography>
-        <Typography><strong>Specialty:</strong> {dentistProfile.specialty}</Typography>
-        <Typography><strong>Clinic:</strong> {dentistProfile.clinicName}</Typography>
-        {/* Add button to edit profile */}
-      </TabPanel>
-
-      <TabPanel value={tabValue} index={3}> {/* New TabPanel for Messages */}
-        <MessagePanel userId={dentistId} />
-      </TabPanel>
-    </Paper>
+      {renderContent()}
+    </Box>
   );
 };
+
+// Expose navigationSections for the MultiRoleDashboardLayout
+DentistDashboard.navigationSections = navigationSections;
 
 export default DentistDashboard;

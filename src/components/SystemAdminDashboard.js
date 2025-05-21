@@ -1,7 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Paper, Tabs, Tab, CircularProgress, Alert, List, ListItem, ListItemText, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField } from '@mui/material';
-import MessagePanel from './MessagePanel'; // Import MessagePanel
-import { useAuth } from '../context/AuthContext'; // Import useAuth
+import { Box, Typography, CircularProgress, Alert, List, ListItem, ListItemText, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, Card, CardContent, Grid } from '@mui/material';
+import MessagePanel from './MessagePanel';
+import { useAuth } from '../context/AuthContext';
+
+// Icons
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import PendingActionsIcon from '@mui/icons-material/PendingActions';
+import PeopleIcon from '@mui/icons-material/People';
+import SettingsIcon from '@mui/icons-material/Settings';
+import MessageIcon from '@mui/icons-material/Message';
+
+// Define navigation sections for the sidebar
+const navigationSections = [
+  { key: 'approvals', label: 'Pending Approvals', icon: <PendingActionsIcon /> },
+  { key: 'users', label: 'User Management', icon: <PeopleIcon /> },
+  { key: 'settings', label: 'System Settings', icon: <SettingsIcon /> },
+  { key: 'messages', label: 'Messages', icon: <MessageIcon /> },
+];
 
 // Mock data - replace with API calls
 const mockPendingApprovals = [
@@ -15,27 +30,7 @@ const mockSystemUsers = [
   { id: 'user3', name: 'Alice Brown', role: 'CLINIC_ADMIN', email: 'alice.brown@example.com', clinic: 'Bright Smiles', status: 'Pending Approval' },
 ];
 
-function TabPanel(props) {
-  const { children, value, index, ...other } = props;
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`admin-tabpanel-${index}`}
-      aria-labelledby={`admin-tab-${index}`}
-      {...other}
-    >
-      {value === index && (
-        <Box sx={{ p: 3 }}>
-          {children}
-        </Box>
-      )}
-    </div>
-  );
-}
-
-const SystemAdminDashboard = () => {
-  const [tabValue, setTabValue] = useState(0);
+const SystemAdminDashboard = ({ activeSection = 'approvals' }) => {
   const [pendingApprovals, setPendingApprovals] = useState([]);
   const [systemUsers, setSystemUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -55,10 +50,6 @@ const SystemAdminDashboard = () => {
       setLoading(false);
     }, 1000);
   }, []);
-
-  const handleTabChange = (event, newValue) => {
-    setTabValue(newValue);
-  };
 
   const handleOpenDialog = (approval) => {
     setSelectedApproval(approval);
@@ -100,69 +91,217 @@ const SystemAdminDashboard = () => {
     return <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>;
   }
 
-  return (
-    <Paper elevation={3} sx={{ p: { xs: 2, md: 3 }, mt: 2 }}>
-      <Typography variant="h4" gutterBottom component="h1">
-        System Administrator Dashboard
-      </Typography>
-      <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-        <Tabs value={tabValue} onChange={handleTabChange} aria-label="System admin tabs">
-          <Tab label="Pending Approvals" id="admin-tab-0" aria-controls="admin-tabpanel-0" />
-          <Tab label="User Management" id="admin-tab-1" aria-controls="admin-tabpanel-1" />
-          <Tab label="System Settings" id="admin-tab-2" aria-controls="admin-tabpanel-2" />
-          <Tab label="Messages" id="admin-tab-3" aria-controls="admin-tabpanel-3" /> {/* New Messages Tab */}
-        </Tabs>
-      </Box>
-
-      <TabPanel value={tabValue} index={0}>
-        <Typography variant="h6" gutterBottom>Pending Approvals</Typography>
-        {pendingApprovals.length === 0 ? (
-          <Typography>No pending approvals.</Typography>
-        ) : (
-          <List>
-            {pendingApprovals.map((approval) => (
-              <ListItem key={approval.id} divider sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap' }}>
-                <ListItemText 
-                  primary={`${approval.type}: ${approval.userName} ${approval.clinicName ? '('+approval.clinicName+')' : ''}`}
-                  secondary={`Details: ${approval.details || 'N/A'} - Submitted: ${approval.date}`}
-                />
-                <Box sx={{ mt: { xs: 1, sm: 0 } }}>
-                  <Button variant="contained" color="success" size="small" onClick={() => handleOpenDialog(approval)} sx={{ mr: 1 }}>
-                    Review
-                  </Button>
+  const renderContent = () => {
+    switch (activeSection) {
+      case 'approvals':
+        return (
+          <Box>
+            <Typography variant="h5" gutterBottom fontWeight="medium">Pending Approvals</Typography>
+            <Card>
+              <CardContent>
+                {pendingApprovals.length === 0 ? (
+                  <Typography>No pending approvals.</Typography>
+                ) : (
+                  <List sx={{ 
+                    '& .MuiListItem-root': { 
+                      borderBottom: '1px solid',
+                      borderColor: 'divider',
+                      py: 1.5,
+                      display: 'flex', 
+                      justifyContent: 'space-between',
+                      alignItems: 'flex-start',
+                      flexWrap: 'wrap'
+                    },
+                    '& .MuiListItem-root:last-child': {
+                      borderBottom: 'none'
+                    }
+                  }}>
+                    {pendingApprovals.map((approval) => (
+                      <ListItem key={approval.id}>
+                        <ListItemText 
+                          primary={
+                            <Typography variant="subtitle1" fontWeight="medium">
+                              {`${approval.type}: ${approval.userName} ${approval.clinicName ? '('+approval.clinicName+')' : ''}`}
+                            </Typography>
+                          }
+                          secondary={
+                            <Box sx={{ mt: 0.5 }}>
+                              <Typography variant="body2">
+                                <strong>Details:</strong> {approval.details || 'N/A'}
+                              </Typography>
+                              <Typography variant="body2">
+                                <strong>Submitted:</strong> {approval.date}
+                              </Typography>
+                            </Box>
+                          }
+                          sx={{ mr: 2 }}
+                        />
+                        <Box sx={{ mt: { xs: 1, sm: 0 } }}>
+                          <Button 
+                            variant="contained" 
+                            color="primary" 
+                            size="small" 
+                            onClick={() => handleOpenDialog(approval)}
+                          >
+                            Review
+                          </Button>
+                        </Box>
+                      </ListItem>
+                    ))}
+                  </List>
+                )}
+              </CardContent>
+            </Card>
+          </Box>
+        );
+        
+      case 'users':
+        return (
+          <Box>
+            <Typography variant="h5" gutterBottom fontWeight="medium">User Management</Typography>
+            <Card>
+              <CardContent>
+                <Box sx={{ mb: 3 }}>
+                  <Button variant="contained" color="primary">Add New User</Button>
                 </Box>
-              </ListItem>
-            ))}
-          </List>
-        )}
-      </TabPanel>
+                <List sx={{ 
+                  '& .MuiListItem-root': { 
+                    borderBottom: '1px solid',
+                    borderColor: 'divider',
+                    py: 1.5
+                  },
+                  '& .MuiListItem-root:last-child': {
+                    borderBottom: 'none'
+                  }
+                }}>
+                  {systemUsers.map((user) => (
+                    <ListItem key={user.id}>
+                      <ListItemText 
+                        primary={
+                          <Typography variant="subtitle1" fontWeight="medium">
+                            {user.name} 
+                            <Typography component="span" color="primary.main" sx={{ ml: 1, fontWeight: 'medium' }}>
+                              ({user.role})
+                            </Typography>
+                          </Typography>
+                        }
+                        secondary={
+                          <Box sx={{ mt: 0.5 }}>
+                            <Typography variant="body2">
+                              <strong>Email:</strong> {user.email}
+                            </Typography>
+                            {user.clinic && (
+                              <Typography variant="body2">
+                                <strong>Clinic:</strong> {user.clinic}
+                              </Typography>
+                            )}
+                            <Typography variant="body2">
+                              <strong>Status:</strong> {user.status}
+                            </Typography>
+                          </Box>
+                        }
+                      />
+                      <Box>
+                        <Button size="small" variant="outlined" sx={{ mr: 1 }}>Edit</Button>
+                        <Button size="small" variant="outlined" color="error">Disable</Button>
+                      </Box>
+                    </ListItem>
+                  ))}
+                </List>
+              </CardContent>
+            </Card>
+          </Box>
+        );
+        
+      case 'settings':
+        return (
+          <Box>
+            <Typography variant="h5" gutterBottom fontWeight="medium">System Settings</Typography>
+            <Card>
+              <CardContent>
+                <Typography sx={{ mb: 2 }}>
+                  System configuration options. Configure API keys, feature flags, and general settings.
+                </Typography>
+                
+                <Grid container spacing={3}>
+                  <Grid item xs={12} md={6}>
+                    <Card variant="outlined" sx={{ height: '100%' }}>
+                      <CardContent>
+                        <Typography variant="h6" gutterBottom>General Settings</Typography>
+                        <List dense>
+                          <ListItem>
+                            <ListItemText primary="Maintenance Mode" secondary="Enable/disable system maintenance mode" />
+                            <Button size="small" variant="outlined">Configure</Button>
+                          </ListItem>
+                          <ListItem>
+                            <ListItemText primary="System Notifications" secondary="Configure global notification settings" />
+                            <Button size="small" variant="outlined">Configure</Button>
+                          </ListItem>
+                        </List>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                  
+                  <Grid item xs={12} md={6}>
+                    <Card variant="outlined" sx={{ height: '100%' }}>
+                      <CardContent>
+                        <Typography variant="h6" gutterBottom>API Settings</Typography>
+                        <List dense>
+                          <ListItem>
+                            <ListItemText primary="API Keys" secondary="Manage third-party API integrations" />
+                            <Button size="small" variant="outlined">Manage</Button>
+                          </ListItem>
+                          <ListItem>
+                            <ListItemText primary="Webhooks" secondary="Configure webhooks for external services" />
+                            <Button size="small" variant="outlined">Configure</Button>
+                          </ListItem>
+                        </List>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                </Grid>
+              </CardContent>
+            </Card>
+          </Box>
+        );
+        
+      case 'messages':
+        return (
+          <Box>
+            <Typography variant="h5" gutterBottom fontWeight="medium">Messages</Typography>
+            <Card>
+              <CardContent>
+                <MessagePanel userId={currentUser?.uid || 'systemAdminUser'} />
+              </CardContent>
+            </Card>
+          </Box>
+        );
+        
+      default:
+        return (
+          <Alert severity="info">
+            Please select a section from the sidebar.
+          </Alert>
+        );
+    }
+  };
 
-      <TabPanel value={tabValue} index={1}>
-        <Typography variant="h6" gutterBottom>User Management</Typography>
-        <List>
-          {systemUsers.map((user) => (
-            <ListItem key={user.id} divider>
-              <ListItemText 
-                primary={`${user.name} (${user.role})`}
-                secondary={`Email: ${user.email} - Clinic: ${user.clinic || 'N/A'} - Status: ${user.status}`}
-              />
-              {/* Add buttons for edit/delete/manage user roles */} 
-            </ListItem>
-          ))}
-        </List>
-      </TabPanel>
-
-      <TabPanel value={tabValue} index={2}>
-        <Typography variant="h6" gutterBottom>System Settings</Typography>
-        <Typography>
-          System configuration options will be available here. (e.g., API keys, feature flags, maintenance mode).
+  return (
+    <Box sx={{ 
+      pt: 2,
+      height: '100%',
+    }}>
+      <Box sx={{ mb: 3 }}>
+        <Typography variant="h4" component="h1" sx={{ display: 'flex', alignItems: 'center' }}>
+          <AdminPanelSettingsIcon sx={{ mr: 1, fontSize: 32 }} />
+          System Administrator
         </Typography>
-        {/* Placeholder for system settings form or components */}
-      </TabPanel>
-
-      <TabPanel value={tabValue} index={3}> {/* New TabPanel for Messages */}
-        <MessagePanel userId={currentUser?.uid || 'systemAdminUser'} />
-      </TabPanel>
+        <Typography variant="subtitle1" color="text.secondary">
+          Manage system-wide settings and user accounts
+        </Typography>
+      </Box>
+      
+      {renderContent()}
 
       {/* Approval Dialog */}
       <Dialog open={openDialog} onClose={handleCloseDialog}>
@@ -198,9 +337,11 @@ const SystemAdminDashboard = () => {
           <Button onClick={handleApprove} color="primary" variant="contained" disabled={!selectedApproval}>Approve</Button>
         </DialogActions>
       </Dialog>
-
-    </Paper>
+    </Box>
   );
 };
+
+// Expose navigationSections for the MultiRoleDashboardLayout
+SystemAdminDashboard.navigationSections = navigationSections;
 
 export default SystemAdminDashboard;

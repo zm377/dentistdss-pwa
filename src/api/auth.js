@@ -90,6 +90,20 @@ const authAPI = {
   verifySignupToken: (vtoken) => api.get(`/api/auth/signup/verify?vtoken=${vtoken}`),
   verifySignupWithCode: (email, code) => api.post('/api/auth/signup/verify/code', { email, code }),
   resendVerificationCode: (email) => api.post(`/api/auth/signup/verify/code/resend?email=${email}`),
+
+  async signupClinicAdmin(clinicAdminData) {
+    // Registers a new dental clinic together with its administrator account.
+    // Expects the backend to return a success message indicating that the
+    // verification email was sent and the registration is pending approval.
+    return api.post('/api/auth/signup/clinic/admin', clinicAdminData);
+  },
+
+  async signupClinicStaff(clinicStaffData) {
+    // Registers a new dental clinic staff member (dentist, receptionist, etc.)
+    // Expects the backend to return a success message indicating that the
+    // verification email was sent and the registration is pending approval.
+    return api.post('/api/auth/signup/clinic/staff', clinicStaffData);
+  },
 };
 
 export default authAPI;

@@ -212,7 +212,7 @@ const VerifyEmailPendingPage = () => {
             Welcome aboard, {firstName}!
           </Typography>
           <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-            You have successfully activated your DentistDSS account.
+            You have successfully activated your Dentabot account.
           </Typography>
           <Typography variant="body1" color="text.secondary">
             Redirecting to login in {countdown} second{countdown !== 1 ? 's' : ''}...

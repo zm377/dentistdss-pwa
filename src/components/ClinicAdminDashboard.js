@@ -1,7 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Paper, Tabs, Tab, CircularProgress, Alert, List, ListItem, ListItemText, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, Grid } from '@mui/material';
-import MessagePanel from './MessagePanel'; // Import MessagePanel
-import { useAuth } from '../context/AuthContext'; // Import useAuth
+import { Box, Typography, CircularProgress, Alert, List, ListItem, ListItemText, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, Grid, Card, CardContent } from '@mui/material';
+import MessagePanel from './MessagePanel';
+import { useAuth } from '../context/AuthContext';
+
+// Icons
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import PeopleIcon from '@mui/icons-material/People';
+import PendingActionsIcon from '@mui/icons-material/PendingActions';
+import SettingsIcon from '@mui/icons-material/Settings';
+import MessageIcon from '@mui/icons-material/Message';
+
+// Define navigation sections for the sidebar
+const navigationSections = [
+  { key: 'overview', label: 'Overview', icon: <DashboardIcon /> },
+  { key: 'staff', label: 'Staff Management', icon: <PeopleIcon /> },
+  { key: 'approvals', label: 'Pending Staff Approvals', icon: <PendingActionsIcon /> },
+  { key: 'settings', label: 'Clinic Settings', icon: <SettingsIcon /> },
+  { key: 'messages', label: 'Messages', icon: <MessageIcon /> },
+];
 
 // Mock data - replace with API calls
 const mockClinicDetails = {
@@ -23,27 +39,7 @@ const mockPendingStaffApprovals = [
   { id: 'approval4', type: 'Receptionist Signup', userName: 'Sarah Connor', date: new Date().toLocaleDateString() },
 ];
 
-function TabPanel(props) {
-  const { children, value, index, ...other } = props;
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`clinic-admin-tabpanel-${index}`}
-      aria-labelledby={`clinic-admin-tab-${index}`}
-      {...other}
-    >
-      {value === index && (
-        <Box sx={{ p: 3 }}>
-          {children}
-        </Box>
-      )}
-    </div>
-  );
-}
-
-const ClinicAdminDashboard = () => {
-  const [tabValue, setTabValue] = useState(0);
+const ClinicAdminDashboard = ({ activeSection = 'overview' }) => {
   const [clinicDetails, setClinicDetails] = useState(null);
   const [staff, setStaff] = useState([]);
   const [pendingApprovals, setPendingApprovals] = useState([]);
@@ -68,10 +64,6 @@ const ClinicAdminDashboard = () => {
       setLoading(false);
     }, 1000);
   }, [clinicId]);
-
-  const handleTabChange = (event, newValue) => {
-    setTabValue(newValue);
-  };
 
   const handleOpenApprovalDialog = (approval) => {
     setSelectedApproval(approval);
@@ -117,86 +109,314 @@ const ClinicAdminDashboard = () => {
     return <Alert severity="warning" sx={{ mt: 2 }}>Clinic details not found.</Alert>;
   }
 
+  const renderContent = () => {
+    switch (activeSection) {
+      case 'overview':
+        return (
+          <Box>
+            <Typography variant="h5" gutterBottom fontWeight="medium">Clinic Overview</Typography>
+            <Card sx={{ mb: 3 }}>
+              <CardContent>
+                <Grid container spacing={3}>
+                  <Grid item xs={12} md={6}>
+                    <Typography variant="subtitle1" sx={{ mb: 1 }}><strong>Address:</strong> {clinicDetails.address}</Typography>
+                    <Typography variant="subtitle1" sx={{ mb: 1 }}><strong>Phone:</strong> {clinicDetails.phone}</Typography>
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    <Typography variant="subtitle1" sx={{ mb: 1 }}><strong>Email:</strong> {clinicDetails.email}</Typography>
+                    <Typography variant="subtitle1" sx={{ mb: 1 }}><strong>Hours:</strong> {clinicDetails.operatingHours}</Typography>
+                  </Grid>
+                </Grid>
+              </CardContent>
+            </Card>
+            
+            <Grid container spacing={3}>
+              <Grid item xs={12} md={4}>
+                <Card sx={{ height: '100%' }}>
+                  <CardContent>
+                    <Typography variant="h6" gutterBottom color="primary">
+                      Staff Members
+                    </Typography>
+                    <Typography variant="h3" sx={{ mb: 1 }}>
+                      {staff.length}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Active staff members at your clinic
+                    </Typography>
+                    <Button variant="outlined" size="small" sx={{ mt: 2 }}>
+                      Manage Staff
+                    </Button>
+                  </CardContent>
+                </Card>
+              </Grid>
+              
+              <Grid item xs={12} md={4}>
+                <Card sx={{ height: '100%' }}>
+                  <CardContent>
+                    <Typography variant="h6" gutterBottom color="primary">
+                      Pending Approvals
+                    </Typography>
+                    <Typography variant="h3" sx={{ mb: 1 }}>
+                      {pendingApprovals.length}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Staff applications awaiting your approval
+                    </Typography>
+                    <Button variant="outlined" size="small" sx={{ mt: 2 }}>
+                      Review Approvals
+                    </Button>
+                  </CardContent>
+                </Card>
+              </Grid>
+              
+              <Grid item xs={12} md={4}>
+                <Card sx={{ height: '100%' }}>
+                  <CardContent>
+                    <Typography variant="h6" gutterBottom color="primary">
+                      Today's Appointments
+                    </Typography>
+                    <Typography variant="h3" sx={{ mb: 1 }}>
+                      14
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Scheduled appointments for today
+                    </Typography>
+                    <Button variant="outlined" size="small" sx={{ mt: 2 }}>
+                      View Schedule
+                    </Button>
+                  </CardContent>
+                </Card>
+              </Grid>
+            </Grid>
+          </Box>
+        );
+        
+      case 'staff':
+        return (
+          <Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+              <Typography variant="h5" fontWeight="medium">Staff Management</Typography>
+              <Button variant="contained">Add New Staff</Button>
+            </Box>
+            
+            <Card>
+              <CardContent>
+                <List sx={{ 
+                  '& .MuiListItem-root': { 
+                    borderBottom: '1px solid',
+                    borderColor: 'divider',
+                    py: 1.5
+                  },
+                  '& .MuiListItem-root:last-child': {
+                    borderBottom: 'none'
+                  }
+                }}>
+                  {staff.map((member) => (
+                    <ListItem key={member.id}>
+                      <ListItemText 
+                        primary={
+                          <Typography variant="subtitle1" fontWeight="medium">
+                            {member.name} 
+                            <Typography component="span" color="primary.main" sx={{ ml: 1, fontWeight: 'medium' }}>
+                              ({member.role})
+                            </Typography>
+                          </Typography>
+                        }
+                        secondary={
+                          <Box sx={{ mt: 0.5 }}>
+                            <Typography variant="body2">
+                              <strong>Email:</strong> {member.email}
+                            </Typography>
+                            <Typography variant="body2">
+                              <strong>Status:</strong> {member.status}
+                            </Typography>
+                          </Box>
+                        }
+                      />
+                      <Box>
+                        <Button size="small" variant="outlined" sx={{ mr: 1 }}>Edit</Button>
+                        <Button size="small" variant="outlined" color="error">Remove</Button>
+                      </Box>
+                    </ListItem>
+                  ))}
+                </List>
+              </CardContent>
+            </Card>
+          </Box>
+        );
+        
+      case 'approvals':
+        return (
+          <Box>
+            <Typography variant="h5" gutterBottom fontWeight="medium">Pending Staff Approvals</Typography>
+            <Card>
+              <CardContent>
+                {pendingApprovals.length === 0 ? (
+                  <Typography>No pending staff approvals.</Typography>
+                ) : (
+                  <List sx={{ 
+                    '& .MuiListItem-root': { 
+                      borderBottom: '1px solid',
+                      borderColor: 'divider',
+                      py: 1.5,
+                      display: 'flex', 
+                      justifyContent: 'space-between',
+                      alignItems: 'flex-start',
+                      flexWrap: 'wrap'
+                    },
+                    '& .MuiListItem-root:last-child': {
+                      borderBottom: 'none'
+                    }
+                  }}>
+                    {pendingApprovals.map((approval) => (
+                      <ListItem key={approval.id}>
+                        <ListItemText 
+                          primary={
+                            <Typography variant="subtitle1" fontWeight="medium">
+                              {approval.type}: {approval.userName}
+                            </Typography>
+                          }
+                          secondary={
+                            <Box sx={{ mt: 0.5 }}>
+                              <Typography variant="body2">
+                                <strong>Submitted:</strong> {approval.date}
+                              </Typography>
+                            </Box>
+                          }
+                          sx={{ mr: 2 }}
+                        />
+                        <Box sx={{ mt: { xs: 1, sm: 0 } }}>
+                          <Button 
+                            variant="contained" 
+                            color="primary" 
+                            size="small" 
+                            onClick={() => handleOpenApprovalDialog(approval)}
+                          >
+                            Review
+                          </Button>
+                        </Box>
+                      </ListItem>
+                    ))}
+                  </List>
+                )}
+              </CardContent>
+            </Card>
+          </Box>
+        );
+        
+      case 'settings':
+        return (
+          <Box>
+            <Typography variant="h5" gutterBottom fontWeight="medium">Clinic Settings</Typography>
+            <Card>
+              <CardContent>
+                <Grid container spacing={3}>
+                  <Grid item xs={12} md={6}>
+                    <Typography variant="h6" gutterBottom>Clinic Information</Typography>
+                    <TextField
+                      label="Clinic Name"
+                      defaultValue={clinicDetails.name}
+                      fullWidth
+                      margin="normal"
+                      variant="outlined"
+                    />
+                    <TextField
+                      label="Address"
+                      defaultValue={clinicDetails.address}
+                      fullWidth
+                      margin="normal"
+                      variant="outlined"
+                      multiline
+                      rows={2}
+                    />
+                    <TextField
+                      label="Phone Number"
+                      defaultValue={clinicDetails.phone}
+                      fullWidth
+                      margin="normal"
+                      variant="outlined"
+                    />
+                    <TextField
+                      label="Email"
+                      defaultValue={clinicDetails.email}
+                      fullWidth
+                      margin="normal"
+                      variant="outlined"
+                    />
+                  </Grid>
+                  
+                  <Grid item xs={12} md={6}>
+                    <Typography variant="h6" gutterBottom>Operating Hours</Typography>
+                    <TextField
+                      label="Operating Hours"
+                      defaultValue={clinicDetails.operatingHours}
+                      fullWidth
+                      margin="normal"
+                      variant="outlined"
+                      multiline
+                      rows={4}
+                    />
+                    <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>Services Offered</Typography>
+                    <TextField
+                      label="Services"
+                      defaultValue="General Dentistry, Cosmetic Dentistry, Orthodontics"
+                      fullWidth
+                      margin="normal"
+                      variant="outlined"
+                      multiline
+                      rows={2}
+                    />
+                  </Grid>
+                  
+                  <Grid item xs={12}>
+                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+                      <Button variant="contained" color="primary">
+                        Save Changes
+                      </Button>
+                    </Box>
+                  </Grid>
+                </Grid>
+              </CardContent>
+            </Card>
+          </Box>
+        );
+        
+      case 'messages':
+        return (
+          <Box>
+            <Typography variant="h5" gutterBottom fontWeight="medium">Messages</Typography>
+            <Card>
+              <CardContent>
+                <MessagePanel userId={currentUser?.uid || 'clinicAdminUser'} />
+              </CardContent>
+            </Card>
+          </Box>
+        );
+        
+      default:
+        return (
+          <Alert severity="info">
+            Please select a section from the sidebar.
+          </Alert>
+        );
+    }
+  };
+
   return (
-    <Paper elevation={3} sx={{ p: { xs: 2, md: 3 }, mt: 2 }}>
-      <Typography variant="h4" gutterBottom component="h1">
-        {clinicDetails.name} - Admin Dashboard
-      </Typography>
-      <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-        <Tabs value={tabValue} onChange={handleTabChange} aria-label="Clinic admin tabs">
-          <Tab label="Overview" id="clinic-admin-tab-0" aria-controls="clinic-admin-tabpanel-0" />
-          <Tab label="Staff Management" id="clinic-admin-tab-1" aria-controls="clinic-admin-tabpanel-1" />
-          <Tab label="Pending Staff Approvals" id="clinic-admin-tab-2" aria-controls="clinic-admin-tabpanel-2" />
-          <Tab label="Clinic Settings" id="clinic-admin-tab-3" aria-controls="clinic-admin-tabpanel-3" />
-          <Tab label="Messages" id="clinic-admin-tab-4" aria-controls="clinic-admin-tabpanel-4" /> {/* New Messages Tab */}
-        </Tabs>
-      </Box>
-
-      <TabPanel value={tabValue} index={0}>
-        <Typography variant="h6" gutterBottom>Clinic Overview</Typography>
-        <Grid container spacing={2}>
-            <Grid item xs={12} md={6}>
-                <Typography variant="subtitle1"><strong>Address:</strong> {clinicDetails.address}</Typography>
-                <Typography variant="subtitle1"><strong>Phone:</strong> {clinicDetails.phone}</Typography>
-            </Grid>
-            <Grid item xs={12} md={6}>
-                <Typography variant="subtitle1"><strong>Email:</strong> {clinicDetails.email}</Typography>
-                <Typography variant="subtitle1"><strong>Hours:</strong> {clinicDetails.operatingHours}</Typography>
-            </Grid>
-        </Grid>
-        {/* Add more overview components like appointments summary, patient stats etc. */}
-      </TabPanel>
-
-      <TabPanel value={tabValue} index={1}>
-        <Typography variant="h6" gutterBottom>Staff Management</Typography>
-        <List>
-          {staff.map((member) => (
-            <ListItem key={member.id} divider>
-              <ListItemText 
-                primary={`${member.name} (${member.role})`}
-                secondary={`Email: ${member.email} - Status: ${member.status}`}
-              />
-              {/* Add buttons for edit/remove staff, view schedule etc. */}
-            </ListItem>
-          ))}
-        </List>
-        <Button variant="contained" sx={{mt: 2}}>Add New Staff</Button> {/* This might link to a form or invite system */}
-      </TabPanel>
-
-      <TabPanel value={tabValue} index={2}>
-        <Typography variant="h6" gutterBottom>Pending Staff Approvals</Typography>
-        {pendingApprovals.length === 0 ? (
-          <Typography>No pending staff approvals.</Typography>
-        ) : (
-          <List>
-            {pendingApprovals.map((approval) => (
-              <ListItem key={approval.id} divider sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap' }}>
-                <ListItemText 
-                  primary={`${approval.type}: ${approval.userName}`}
-                  secondary={`Submitted: ${approval.date}`}
-                />
-                <Box sx={{ mt: { xs: 1, sm: 0 } }}>
-                  <Button variant="contained" color="primary" size="small" onClick={() => handleOpenApprovalDialog(approval)} sx={{ mr: 1 }}>
-                    Review
-                  </Button>
-                </Box>
-              </ListItem>
-            ))}
-          </List>
-        )}
-      </TabPanel>
-
-      <TabPanel value={tabValue} index={3}>
-        <Typography variant="h6" gutterBottom>Clinic Settings</Typography>
-        <Typography>
-          Edit clinic information, operating hours, services offered, etc.
+    <Box sx={{ 
+      pt: 2,
+      height: '100%',
+    }}>
+      <Box sx={{ mb: 3 }}>
+        <Typography variant="h4" component="h1">
+          {clinicDetails.name} - Administration
         </Typography>
-        {/* Placeholder for clinic settings form */}
-      </TabPanel>
-
-      <TabPanel value={tabValue} index={4}> {/* New TabPanel for Messages */}
-        <MessagePanel userId={currentUser?.uid || 'clinicAdminUser'} />
-      </TabPanel>
+        <Typography variant="subtitle1" color="text.secondary">
+          Manage your clinic's staff and settings
+        </Typography>
+      </Box>
+      
+      {renderContent()}
 
       {/* Staff Approval Dialog */}
       <Dialog open={openApprovalDialog} onClose={handleCloseApprovalDialog}>
@@ -230,9 +450,11 @@ const ClinicAdminDashboard = () => {
           <Button onClick={handleApproveStaff} color="primary" variant="contained" disabled={!selectedApproval}>Approve</Button>
         </DialogActions>
       </Dialog>
-
-    </Paper>
+    </Box>
   );
 };
+
+// Expose navigationSections for the MultiRoleDashboardLayout
+ClinicAdminDashboard.navigationSections = navigationSections;
 
 export default ClinicAdminDashboard;

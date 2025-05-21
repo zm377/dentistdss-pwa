@@ -394,6 +394,13 @@ const Signup = () => {
             {loading ? 'Signing Up...' : 'Sign Up'}
           </Button>
           
+          <Typography variant="body2" sx={{ textAlign: 'center', mt: 1 }}>
+            By clicking Sign Up, you agree to our{' '}
+            <MuiLink component={RouterLink} to="/terms" target="_blank" rel="noopener" sx={{ fontWeight: 500 }}>
+              Terms &amp; Conditions
+            </MuiLink>
+          </Typography>
+          
           <Divider sx={{ 
             my: 3, 
             '&::before, &::after': {

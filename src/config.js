@@ -62,7 +62,7 @@ const config = {
   
   // Application settings
   app: {
-    name: 'DentistDSS',
+    name: 'Dentabot',
     version: '1.0.0',
   }
 };

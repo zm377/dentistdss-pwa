@@ -1,6 +1,6 @@
 // This is the service worker with the Cache-first network
 
-const CACHE = "dentistdss-v1";
+const CACHE = "Dentabot-v1";
 const precacheFiles = [
   '/',
   '/index.html',
