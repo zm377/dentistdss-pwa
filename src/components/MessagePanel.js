@@ -6,7 +6,7 @@ import SortIcon from '@mui/icons-material/Sort'; // Placeholder for sorting opti
 
 // Mock data - replace with API calls
 const mockUserMessages = [
-  { id: 'msg1', subject: 'Welcome to DentistDSS!', content: 'We are excited to have you on board. Explore our features and let us know if you have questions.', date: new Date(Date.now() - 86400000).toISOString(), read: false, sender: 'System Admin' },
+  { id: 'msg1', subject: 'Welcome to Dentabot!', content: 'We are excited to have you on board. Explore our features and let us know if you have questions.', date: new Date(Date.now() - 86400000).toISOString(), read: false, sender: 'System Admin' },
   { id: 'msg2', subject: 'Your recent inquiry about teeth whitening', content: 'Please find attached information regarding teeth whitening options available at our clinic...', date: new Date(Date.now() - 172800000).toISOString(), read: true, sender: 'Sunshine Dental Clinic' },
   { id: 'msg3', subject: 'Upcoming Appointment Reminder', content: 'This is a reminder for your appointment on July 30th at 10:00 AM.', date: new Date().toISOString(), read: false, sender: 'Bright Smiles Dental Care' },
   { id: 'msg4', subject: 'Password Reset Confirmation', content: 'Your password has been successfully reset. If you did not request this, please contact support immediately.', date: new Date(Date.now() - 3600000).toISOString(), read: true, sender: 'Security Team' },

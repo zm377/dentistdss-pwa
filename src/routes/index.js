@@ -8,13 +8,15 @@ import Welcome from '../pages/Welcome';
 import Book from '../pages/Book';
 import Learn from '../pages/Learn';
 import ClinicStaffSignup from '../pages/ClinicStaffSignup';
-import VerifyEmailPendingPage from '../pages/VerifyEmailPendingPage';
-import VerifyEmailPage from '../pages/VerifyEmailPage';
+import VerifyEmailPendingPage from '../pages/VerifyEmailWithCodePage';
+import VerifyEmailPage from '../pages/VerifyEmailWithTokenPage';
 import DashboardPage from '../pages/DashboardPage';
 import QuizPage from '../pages/Quiz';
 import FindAClinic from '../pages/FindAClinic';
+import ClinicAdminSignup from '../pages/ClinicAdminSignup';
 import { useAuth } from '../context/AuthContext';
 import config from '../config';
+import TermsAndConditions from '../pages/TermsAndConditions';
 
 function AppRoutes() {
   const { isAuthenticated, currentUser } = useAuth();
@@ -92,6 +94,14 @@ function AppRoutes() {
       <Route
         path="/find-a-clinic"
         element={<FindAClinic />}
+      />
+      <Route 
+        path="/signup/clinic-admin" 
+        element={!isAuthenticated ? <ClinicAdminSignup /> : <Navigate to="/dashboard" replace />} 
+      />
+      <Route 
+        path="/terms" 
+        element={<TermsAndConditions />} 
       />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

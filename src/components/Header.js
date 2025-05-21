@@ -114,7 +114,7 @@ const Header = ({ darkMode, toggleDarkMode }) => {
               transition: 'font-size 0.3s ease',
             }}
           >
-            DentistDSS
+            Dentabot
           </Typography>
         </Box>
 

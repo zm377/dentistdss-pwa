@@ -34,7 +34,7 @@ import WorkIcon from '@mui/icons-material/Work';
 
 const ClinicStaffSignup = () => {
   // const { signup } = useAuth(); // Or a specific signup function for clinic staff
-  const { signup } = useAuth();
+  const { signupClinicStaff } = useAuth();
   const navigate = useNavigate();
   const theme = useTheme();
   const [formData, setFormData] = useState({
@@ -101,12 +101,6 @@ const ClinicStaffSignup = () => {
         return;
     }
 
-    if (formData.role === 'clinic_admin' && !formData.clinicName) {
-        setError('Clinic name is required for Clinic Administrators.');
-        setLoading(false);
-        return;
-    }
-
     if ((formData.role === 'dentist' || formData.role === 'receptionist') && !formData.existingClinicId) {
         setError('Please select a clinic.');
         setLoading(false);
@@ -114,7 +108,7 @@ const ClinicStaffSignup = () => {
     }
 
     try {
-      const result = await signup(
+      const result = await signupClinicStaff(
         formData.email,
         formData.password,
         formData.firstName,
@@ -126,7 +120,7 @@ const ClinicStaffSignup = () => {
 
       // If signup call completes without error, it means it's pending verification/approval.
       // The AuthContext signup function returns { emailVerificationPending: true, ... } on success.
-      alert('Signup request submitted! Please check your email for verification. Your account will also require administrator approval.');
+      alert('Signup request submitted! Please check your email for verification. Your account will also require administrator approval by your clinic administrator.');
       
       if (result && result.emailVerificationPending) {
         navigate('/verify-email-pending', { state: { email: formData.email } });
@@ -357,35 +351,11 @@ const ClinicStaffSignup = () => {
                   value={formData.role}
                   onChange={handleChange}
                 >
-                  <FormControlLabel value="clinic_admin" control={<Radio color="primary" />} label="Dental Clinic Administrator" />
                   <FormControlLabel value="dentist" control={<Radio color="primary" />} label="Dentist" />
                   <FormControlLabel value="receptionist" control={<Radio color="primary" />} label="Receptionist" />
                 </RadioGroup>
               </FormControl>
             </Grid>
-
-            {formData.role === 'clinic_admin' && (
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  name="clinicName"
-                  label="New Clinic Name"
-                  id="clinicName"
-                  value={formData.clinicName}
-                  onChange={handleChange}
-                  helperText="If your clinic is new, enter its name here."
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <BusinessIcon color={theme.palette.mode === 'dark' ? 'primary' : 'action'} />
-                      </InputAdornment>
-                    ),
-                  }}
-                  sx={textFieldSx}
-                />
-              </Grid>
-            )}
 
             {(formData.role === 'dentist' || formData.role === 'receptionist') && (
               <Grid item xs={12}>
@@ -476,6 +446,13 @@ const ClinicStaffSignup = () => {
             {loading ? 'Signing Up...' : 'Sign Up'}
           </Button>
           
+          <Typography variant="body2" sx={{ textAlign: 'center', mt: 1 }}>
+            By clicking Create Account, you agree to our{' '}
+            <MuiLink component={RouterLink} to="/terms" target="_blank" rel="noopener" sx={{ fontWeight: 500 }}>
+              Terms &amp; Conditions
+            </MuiLink>
+          </Typography>
+          
           <Grid container spacing={1} sx={{ mt: 2 }}>
             <Grid item xs={12} sm={6}>
               <MuiLink 
@@ -491,13 +468,13 @@ const ClinicStaffSignup = () => {
                   }
                 }}
               >
-                Are you a patient? Sign up here
+                No a staff? Sign up here
               </MuiLink>
             </Grid>
             <Grid item xs={12} sm={6} sx={{ textAlign: { sm: 'right' } }}>
               <MuiLink 
                 component={RouterLink} 
-                to="/login" 
+                to="/signup/clinic-admin" 
                 variant="body2"
                 sx={{ 
                   color: theme.palette.mode === 'dark' ? theme.palette.primary.light : theme.palette.primary.main,
@@ -508,7 +485,7 @@ const ClinicStaffSignup = () => {
                   }
                 }}
               >
-                Already have an account? Sign in
+                Signup as Clinic Admin
               </MuiLink>
             </Grid>
           </Grid>
