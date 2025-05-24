@@ -1,5 +1,6 @@
 import axios from 'axios';
 import config from '../config';
+import { getHttpErrorMessage } from '../utils/httpErrorMessages';
 
 // Set the base URL based on environment
 const baseURL = config.api.baseUrl;
@@ -56,12 +57,13 @@ api.interceptors.response.use(
   },
   (error) => {
     const originalRequest = error.config;
+    let userMessage = 'An unexpected error occurred.';
     
-    // Handle different error statuses
     if (error.response) {
       // The request was made and the server responded with a status code
       // that falls out of the range of 2xx
       console.error('API Error Response:', error.response.status, error.response.data);
+      userMessage = getHttpErrorMessage(error.response.status);
       
       // Handle authentication errors
       if (error.response.status === 401 && !originalRequest._retry) {
@@ -72,11 +74,22 @@ api.interceptors.response.use(
     } else if (error.request) {
       // The request was made but no response was received
       console.error('API Error Request:', error.request);
+      userMessage = 'No response from server. Please check your connection.';
     } else {
       // Something happened in setting up the request that triggered an Error
       console.error('API Error:', error.message);
+      userMessage = error.message || userMessage;
     }
-    
+
+    // Dispatch a custom event to show the Snackbar
+    const event = new CustomEvent('show-snackbar', {
+      detail: {
+        message: userMessage,
+        severity: 'error',
+      },
+    });
+    window.dispatchEvent(event);
+
     return Promise.reject(error);
   }
 );
