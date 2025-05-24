@@ -51,7 +51,7 @@ const TermsAndConditions = () => {
             We may update these Terms from time to time.  Continued use of the service after such changes constitutes acceptance of the new Terms.
           </Typography>
           <Typography variant="body2" paragraph sx={{ mt: 4 }}>
-            If you have any questions about these Terms, please contact us at support@dentistdss.com.
+            If you have any questions about these Terms, please contact us at dentistdss@gmail.com.
           </Typography>
         </Box>
       </Paper>

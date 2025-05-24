@@ -9,7 +9,7 @@ import {
   useMediaQuery,
 } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
-import api from '../api';
+import api from '../services';
 import MessageBubble from '../components/MessageBubble';
 
 const INITIAL_MESSAGE = {
