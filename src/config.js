@@ -57,6 +57,7 @@ const config = {
     google: {
       clientId: GOOGLE_CLIENT_ID,
       clientSecret: GOOGLE_CLIENT_SECRET,
+      mapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
     },
   },
   

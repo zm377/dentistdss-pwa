@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { 
   Container, 
   TextField, 
@@ -18,37 +18,10 @@ import {
   Divider
 } from '@mui/material';
 import { Search as SearchIcon, LocationOn as LocationIcon, Directions as DirectionsIcon } from '@mui/icons-material';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
+import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
 import api from '../services';
 import { geocodeAddress } from '../utils/geocode';
-
-// Fix for default Leaflet marker icons
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
-  iconUrl: require('leaflet/dist/images/marker-icon.png'),
-  shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
-});
-
-// Component to handle map view updates and popup management
-function ChangeMapView({ center, zoom, selectedClinic }) {
-  const map = useMap();
-  
-  useEffect(() => {
-    map.setView(center, zoom);
-  }, [center, zoom, map]);
-
-  useEffect(() => {
-    // Close all popups when a new clinic is selected
-    if (selectedClinic) {
-      map.closePopup();
-    }
-  }, [selectedClinic, map]);
-
-  return null;
-}
+import config from '../config';
 
 // Utility to detect PWA and platform, and open maps
 function openDirections({ latitude, longitude, name }) {
@@ -80,19 +53,27 @@ function FindAClinic() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [selectedClinic, setSelectedClinic] = useState(null);
-  const [mapCenter, setMapCenter] = useState([43.6532, -79.3832]); // Default to Toronto
+  const [mapCenter, setMapCenter] = useState({ lat: 43.6532, lng: -79.3832 }); // Default to Toronto
   const [mapZoom, setMapZoom] = useState(11);
   const [debouncedSearchKeywords, setDebouncedSearchKeywords] = useState('');
   const [clinicsWithCoords, setClinicsWithCoords] = useState([]);
   const [geocoding, setGeocoding] = useState(false);
   const geocodeCache = React.useRef({});
+  const [map, setMap] = useState(null);
+  const [infoWindowOpen, setInfoWindowOpen] = useState(false);
+
+  // Google Maps container style
+  const mapContainerStyle = {
+    width: '100%',
+    height: '100%'
+  };
 
   // Get user's current location
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          setMapCenter([position.coords.latitude, position.coords.longitude]);
+          setMapCenter({ lat: position.coords.latitude, lng: position.coords.longitude });
         },
         (error) => {
           console.error('Error getting location:', error);
@@ -163,12 +144,12 @@ function FindAClinic() {
   useEffect(() => {
     if (clinicsWithCoords.length > 0) {
       const first = clinicsWithCoords.find(c => c.latitude && c.longitude);
-      if (first) {
-        setMapCenter([first.latitude, first.longitude]);
+      if (first && map) {
+        setMapCenter({ lat: first.latitude, lng: first.longitude });
         setMapZoom(13);
       }
     }
-  }, [clinicsWithCoords]);
+  }, [clinicsWithCoords, map]);
 
   const performSearch = async (keywords) => {
     if (!keywords.trim()) {
@@ -211,11 +192,25 @@ function FindAClinic() {
 
   const handleClinicSelect = (clinic) => {
     setSelectedClinic(clinic);
-    if (clinic.latitude && clinic.longitude) {
-      setMapCenter([clinic.latitude, clinic.longitude]);
+    setInfoWindowOpen(false);
+    if (clinic.latitude && clinic.longitude && map) {
+      map.panTo({ lat: clinic.latitude, lng: clinic.longitude });
       setMapZoom(15);
     }
   };
+
+  const handleMarkerClick = (clinic) => {
+    setSelectedClinic(clinic);
+    setInfoWindowOpen(true);
+  };
+
+  const onLoad = useCallback((map) => {
+    setMap(map);
+  }, []);
+
+  const onUnmount = useCallback(() => {
+    setMap(null);
+  }, []);
 
   return (
     <Container maxWidth="xl" sx={{ py: 3 }}>
@@ -247,11 +242,11 @@ function FindAClinic() {
               disabled={loading}
               sx={{ minWidth: 120, height: 56 }}
             >
-              Search
+              Search Now
             </Button>
           </Box>
           <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
-            Search happens automatically after you stop typing. Click "Search" to search immediately.
+            Search happens automatically after you stop typing. Click "Search Now" to search immediately.
           </Typography>
         </Box>
       </Paper>
@@ -266,74 +261,92 @@ function FindAClinic() {
         {/* Map Section */}
         <Grid item xs={12} md={8}>
           <Paper elevation={3} sx={{ height: '600px', position: 'relative' }}>
-            <MapContainer
-              center={mapCenter}
-              zoom={mapZoom}
-              style={{ height: '100%', width: '100%' }}
-            >
-              <ChangeMapView center={mapCenter} zoom={mapZoom} selectedClinic={selectedClinic} />
-              <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              />
-              {(geocoding || loading) && (
-                <Box sx={{ position: 'absolute', top: 16, right: 16, zIndex: 1000 }}>
-                  <CircularProgress size={32} />
-                </Box>
-              )}
-              {clinicsWithCoords.map((clinic, index) => (
-                clinic.latitude && clinic.longitude ? (
-                  <Marker
-                    key={clinic.id || index}
-                    position={[clinic.latitude, clinic.longitude]}
-                    eventHandlers={{
-                      click: () => handleClinicSelect(clinic),
+            {(geocoding || loading) && (
+              <Box sx={{ position: 'absolute', top: 16, right: 16, zIndex: 1000 }}>
+                <CircularProgress size={32} />
+              </Box>
+            )}
+            <LoadScript googleMapsApiKey={config.api.google.mapsApiKey}>
+              <GoogleMap
+                mapContainerStyle={mapContainerStyle}
+                center={mapCenter}
+                zoom={mapZoom}
+                onLoad={onLoad}
+                onUnmount={onUnmount}
+                options={{
+                  disableDefaultUI: false,
+                  zoomControl: true,
+                  mapTypeControl: true,
+                  scaleControl: true,
+                  streetViewControl: true,
+                  rotateControl: true,
+                  fullscreenControl: true
+                }}
+              >
+                {clinicsWithCoords.map((clinic, index) => (
+                  clinic.latitude && clinic.longitude && (
+                    <Marker
+                      key={clinic.id || index}
+                      position={{ lat: clinic.latitude, lng: clinic.longitude }}
+                      onClick={() => handleMarkerClick(clinic)}
+                    />
+                  )
+                ))}
+                
+                {selectedClinic && infoWindowOpen && selectedClinic.latitude && selectedClinic.longitude && (
+                  <InfoWindow
+                    position={{ lat: selectedClinic.latitude, lng: selectedClinic.longitude }}
+                    onCloseClick={() => {
+                      setInfoWindowOpen(false);
+                      setSelectedClinic(null);
                     }}
                   >
-                    <Popup>
-                      <Box sx={{ minWidth: 200 }}>
-                        <Typography variant="subtitle1" fontWeight="bold">
-                          {clinic.name}
+                    <Box sx={{ minWidth: 200, p: 1 }}>
+                      <Typography variant="subtitle1" fontWeight="bold">
+                        {selectedClinic.name}
+                      </Typography>
+                      {selectedClinic.address && (
+                        <Typography variant="body2" sx={{ mt: 1 }}>
+                          <LocationIcon sx={{ fontSize: 16, verticalAlign: 'middle', mr: 0.5 }} />
+                          {selectedClinic.address}
                         </Typography>
-                        {clinic.address && (
-                          <Typography variant="body2" sx={{ mt: 1 }}>
-                            <LocationIcon sx={{ fontSize: 16, verticalAlign: 'middle', mr: 0.5 }} />
-                            {clinic.address}
-                          </Typography>
-                        )}
-                        {clinic.phoneNumber && (
-                          <Typography variant="body2">
-                            Phone: {clinic.phoneNumber}
-                          </Typography>
-                        )}
-                        {clinic.email && (
-                          <Typography variant="body2">
-                            Email: {clinic.email}
-                          </Typography>
-                        )}
-                        {clinic.website && (
-                          <Typography variant="body2">
-                            Website: <a href={clinic.website} target="_blank" rel="noopener noreferrer">{clinic.website}</a>
-                          </Typography>
-                        )}
-                        {clinic.latitude && clinic.longitude && (
-                          <Button
-                            variant="outlined"
-                            size="small"
-                            startIcon={<DirectionsIcon />}
-                            sx={{ mt: 2 }}
-                            onClick={() => openDirections({ latitude: clinic.latitude, longitude: clinic.longitude, name: clinic.name })}
-                            fullWidth
-                          >
-                            Directions
-                          </Button>
-                        )}
-                      </Box>
-                    </Popup>
-                  </Marker>
-                ) : null
-              ))}
-            </MapContainer>
+                      )}
+                      {selectedClinic.phoneNumber && (
+                        <Typography variant="body2">
+                          Phone: {selectedClinic.phoneNumber}
+                        </Typography>
+                      )}
+                      {selectedClinic.email && (
+                        <Typography variant="body2">
+                          Email: {selectedClinic.email}
+                        </Typography>
+                      )}
+                      {selectedClinic.website && (
+                        <Typography variant="body2">
+                          Website: <a href={selectedClinic.website} target="_blank" rel="noopener noreferrer">{selectedClinic.website}</a>
+                        </Typography>
+                      )}
+                      {selectedClinic.latitude && selectedClinic.longitude && (
+                        <Button
+                          variant="outlined"
+                          size="small"
+                          startIcon={<DirectionsIcon />}
+                          sx={{ mt: 2 }}
+                          onClick={() => openDirections({ 
+                            latitude: selectedClinic.latitude, 
+                            longitude: selectedClinic.longitude, 
+                            name: selectedClinic.name 
+                          })}
+                          fullWidth
+                        >
+                          Directions
+                        </Button>
+                      )}
+                    </Box>
+                  </InfoWindow>
+                )}
+              </GoogleMap>
+            </LoadScript>
           </Paper>
         </Grid>
 
@@ -402,7 +415,11 @@ function FindAClinic() {
                             sx={{ mt: 2 }}
                             onClick={(event) => {
                               event.stopPropagation();
-                              openDirections({ latitude: clinic.latitude, longitude: clinic.longitude, name: clinic.name });
+                              openDirections({ 
+                                latitude: clinic.latitude, 
+                                longitude: clinic.longitude, 
+                                name: clinic.name 
+                              });
                             }}
                             fullWidth
                           >
