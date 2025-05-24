@@ -18,7 +18,7 @@ import { Link as RouterLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import Divider from '@mui/material/Divider';
-import api from '../api';
+import api from '../services';
 
 // Import images from assets
 import dentalQuestionImg from '../assets/d2.jpg';

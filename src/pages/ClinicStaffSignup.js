@@ -31,11 +31,11 @@ import BusinessIcon from '@mui/icons-material/Business';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import WorkIcon from '@mui/icons-material/Work';
-import api from '../api';
+import api from '../services';
+import PasswordStrengthIndicator from '../components/PasswordStrengthIndicator';
+import { isPasswordStrong } from '../utils/passwordStrength';
 
 const ClinicStaffSignup = () => {
-  // const { signup } = useAuth(); // Or a specific signup function for clinic staff
-  const { signupClinicStaff } = useAuth();
   const navigate = useNavigate();
   const theme = useTheme();
   const [formData, setFormData] = useState({
@@ -45,12 +45,12 @@ const ClinicStaffSignup = () => {
     firstName: '',
     lastName: '',
     role: '', // 'clinic_admin', 'dentist', 'receptionist'
-    clinicName: '', // For new clinic admins
-    existingClinicId: '', // For dentists and receptionists
+    clinicName: '', // Will hold the human-readable clinic name after selection
+    clinicId: '', // Selected clinic ID (for dentists and receptionists)
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [clinics, setClinics] = useState([]); // Mock data, replace with API call
+  const [clinics, setClinics] = useState([]); // Populated via API
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -86,10 +86,16 @@ const ClinicStaffSignup = () => {
   }, [formData.role]);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-    if (e.target.name === 'role') {
+    if (e.target.name === 'clinicId') {
+      // Also store the selected clinic name for convenience
+      const selectedClinic = clinics.find(c => c.id === e.target.value);
+      setFormData({ ...formData, clinicId: e.target.value, clinicName: selectedClinic?.name || '' });
+    } else {
+      setFormData({ ...formData, [e.target.name]: e.target.value });
+      if (e.target.name === 'role') {
         // Reset clinic fields when role changes
-        setFormData(prev => ({ ...prev, clinicName: '', existingClinicId: ''}));
+        setFormData(prev => ({ ...prev, clinicName: '', clinicId: '' }));
+      }
     }
   };
 
@@ -103,6 +109,13 @@ const ClinicStaffSignup = () => {
       setLoading(false);
       return;
     }
+    
+    // Check password strength
+    if (!isPasswordStrong(formData.password)) {
+      setError('Please create a strong password with at least 8 characters, including uppercase, lowercase, numbers, and special characters');
+      setLoading(false);
+      return;
+    }
 
     // Basic validation
     if (!formData.email || !formData.password || !formData.firstName || !formData.lastName || !formData.role) {
@@ -111,34 +124,31 @@ const ClinicStaffSignup = () => {
         return;
     }
 
-    if ((formData.role === 'dentist' || formData.role === 'receptionist') && !formData.existingClinicId) {
+    if ((formData.role === 'dentist' || formData.role === 'receptionist') && !formData.clinicId) {
         setError('Please select a clinic.');
         setLoading(false);
         return;
     }
 
     try {
-      const result = await signupClinicStaff(
-        formData.email,
-        formData.password,
-        formData.firstName,
-        formData.lastName,
-        formData.role,
-        formData.clinicName || null, // Ensure null if empty
-        formData.existingClinicId || null // Ensure null if empty
+      const result = await api.auth.signupClinicStaff(
+        {
+          email: formData.email,
+          password: formData.password,
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          role: formData.role,
+          clinicName: formData.clinicName || null,
+          clinicId: formData.clinicId || null,
+        }
       );
 
       // If signup call completes without error, it means it's pending verification/approval.
       // The AuthContext signup function returns { emailVerificationPending: true, ... } on success.
       alert('Signup request submitted! Please check your email for verification. Your account will also require administrator approval by your clinic administrator.');
       
-      if (result && result.emailVerificationPending) {
-        navigate('/verify-email-pending', { state: { email: formData.email } });
-      } else {
-        // Fallback, though AuthContext's signup for patients sets emailVerificationPending.
-        // Assuming consistency or a generic next step.
-        navigate('/login'); 
-      }
+      // Redirect to the email verification page and pass along the user email and firstName for a personalized experience.
+      navigate('/verify-email-code', { state: { email: formData.email, firstName: formData.firstName } });
 
     } catch (err) {
       setError(err.message || 'Failed to sign up. Please try again.');
@@ -301,6 +311,9 @@ const ClinicStaffSignup = () => {
                 }}
                 sx={textFieldSx}
               />
+              
+              {/* Password Strength Indicator */}
+              <PasswordStrengthIndicator password={formData.password} theme={theme} />
             </Grid>
             <Grid item xs={12}>
               <TextField
@@ -390,12 +403,12 @@ const ClinicStaffSignup = () => {
                     },
                   }}
                 >
-                  <InputLabel id="existing-clinic-label">Select Clinic</InputLabel>
+                  <InputLabel id="clinic-label">Select Clinic</InputLabel>
                   <Select
-                    labelId="existing-clinic-label"
-                    id="existingClinicId"
-                    name="existingClinicId"
-                    value={formData.existingClinicId}
+                    labelId="clinic-label"
+                    id="clinicId"
+                    name="clinicId"
+                    value={formData.clinicId}
                     label="Select Clinic"
                     onChange={handleChange}
                     startAdornment={

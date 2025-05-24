@@ -14,13 +14,13 @@ import {
 import EmailIcon from '@mui/icons-material/Email';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
-import authAPI from '../api/auth'; // Assuming apiService is correctly set up
+import authAPI from '../services/auth'; // Assuming apiService is correctly set up
 
 const MAX_RESEND_ATTEMPTS = 3;
 const RESEND_WINDOW_SECONDS = 90;
 const LOCAL_STORAGE_RESEND_KEY = 'resendVerificationStatus';
 
-const VerifyEmailPendingPage = () => {
+const VerifyEmailWithCodePage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { email: initialEmail, firstName: initialFirstName } = location.state || {};
@@ -291,4 +291,4 @@ const VerifyEmailPendingPage = () => {
   );
 };
 
-export default VerifyEmailPendingPage;
+export default VerifyEmailWithCodePage;

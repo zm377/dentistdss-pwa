@@ -14,7 +14,7 @@ import {
 import EmailIcon from '@mui/icons-material/Email';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
-import authAPI from '../api/auth';
+import authAPI from '../services/auth';
 import { useAuth } from '../context/AuthContext';
 
 const VerifyEmailPage = () => {

@@ -36,7 +36,7 @@ function AppRoutes() {
         element={!isAuthenticated ? <ClinicStaffSignup /> : <Navigate to="/dashboard" replace />}
       />
       <Route 
-        path="/verify-email-pending"
+        path="/verify-email-code"
         element={<VerifyEmailPendingPage />}
       />
       <Route 

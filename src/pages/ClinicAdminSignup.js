@@ -23,7 +23,9 @@ import PublicIcon from '@mui/icons-material/Public';
 import LocalPhoneIcon from '@mui/icons-material/LocalPhone';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import api from '../api';
+import api from '../services';
+import PasswordStrengthIndicator from '../components/PasswordStrengthIndicator';
+import { isPasswordStrong } from '../utils/passwordStrength';
 
 const ClinicAdminSignup = () => {
   const theme = useTheme();
@@ -64,6 +66,11 @@ const ClinicAdminSignup = () => {
     if (formData.password !== formData.confirmPassword) {
       return setError('Passwords do not match');
     }
+    
+    // Check password strength
+    if (!isPasswordStrong(formData.password)) {
+      return setError('Please create a strong password with at least 8 characters, including uppercase, lowercase, numbers, and special characters');
+    }
 
     // Basic validation – ensure required fields (simple check, can be expanded)
     const requiredFields = [
@@ -97,7 +104,7 @@ const ClinicAdminSignup = () => {
       await api.auth.signupClinicAdmin(payload);
 
       alert('Signup request submitted! Please check your email for verification. Your clinic registration is pending approval by the DentistDSS team.');
-      navigate('/verify-email-pending', { state: { email: formData.email, firstName: formData.firstName } });
+      navigate('/verify-email-code', { state: { email: formData.email, firstName: formData.firstName } });
     } catch (err) {
       console.error(err);
       setError(err.message || 'Failed to sign up. Please try again.');
@@ -268,6 +275,9 @@ const ClinicAdminSignup = () => {
                 }}
                 sx={textFieldSx}
               />
+              
+              {/* Password Strength Indicator */}
+              <PasswordStrengthIndicator password={formData.password} theme={theme} />
             </Grid>
             <Grid item xs={12} sm={6}>
               <TextField

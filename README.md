@@ -1,6 +1,57 @@
 # Dentabot
 
-A web application that utilizes OpenAI's API for... (describe what the app does).
+Dentabot is a modern Progressive Web Application (PWA) that leverages artificial intelligence to provide comprehensive dental health support and education. Built with React and powered by OpenAI's advanced language models, Dentabot serves as your personal dental assistant, offering professional advice, educational resources, and dental care guidance.
+
+Try on our website: [https://dentist.mizhifei.press/](https://dentist.mizhifei.press/)
+
+This project codebase is managed by git on GitHub: [https://github.com/zm377/dentistdss-pwa](https://github.com/zm377/dentistdss-pwa)
+
+## Key Features
+
+### 🤖 AI-Powered Dental Assistant
+- **Professional Dental Chatbot**: Get instant answers to your dental questions from an AI trained on dental health knowledge
+- **Personalized Responses**: Receive tailored advice based on your specific dental concerns and queries
+- **Real-time Consultation**: Interactive chat interface with immediate responses to help address dental issues
+
+### 📚 Educational Resources
+- **Comprehensive Learning Center**: Access a library of dental health articles covering topics from cavity prevention to oral cancer awareness
+- **Interactive Content**: Filter articles by topics like Prevention, Treatment, Oral Care, and Dental Procedures
+- **Visual Learning**: Each article includes relevant images and detailed explanations to enhance understanding
+
+### 📝 Interactive Quiz System
+- **Knowledge Assessment**: Test your dental health knowledge with interactive quizzes
+- **Educational Feedback**: Learn from quiz results to improve your understanding of oral health
+
+### 🏥 Dental Practice Integration
+- **Find a Clinic**: Locate dental clinics in your area (feature in development)
+- **Appointment Booking**: Schedule dental appointments directly through the app
+- **Multi-role Support**: Separate interfaces for patients, clinic staff, and administrators
+
+### 👤 User Management
+- **Secure Authentication**: Google OAuth integration for quick and secure sign-in
+- **Role-based Access**: Different features and permissions for patients, dental staff, and clinic administrators
+- **Email Verification**: Secure account creation with email verification system
+
+### 🎨 Modern User Experience
+- **Responsive Design**: Fully responsive interface that works seamlessly on desktop, tablet, and mobile devices
+- **Dark Mode Support**: Toggle between light and dark themes for comfortable viewing
+- **Material UI Design**: Clean and intuitive interface built with Material-UI components
+- **PWA Capabilities**: Install as a native-like app on any device for offline access
+
+## Technology Stack
+
+- **Frontend**: React 19, Material-UI 6, React Router 7
+- **AI Integration**: OpenAI API (GPT-4)
+- **Authentication**: Google OAuth 2.0
+- **Styling**: Material-UI, Styled Components, Emotion
+- **PWA**: Service Worker enabled for offline functionality
+- **Build Tools**: Create React App, React Scripts
+
+## Use Cases
+
+1. **For Patients**: Get immediate answers to dental concerns, learn about oral health, and find professional dental care
+2. **For Dental Clinics**: Manage appointments, connect with patients, and provide digital health resources
+3. **For Dental Education**: Access reliable dental health information and test knowledge through interactive quizzes
 
 ## Configuration
 
@@ -21,7 +72,6 @@ You may also see any lint errors in the console.
 ### `npm test`
 
 Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
 ### `npm run build`
 
@@ -31,7 +81,6 @@ It correctly bundles React in production mode and optimizes the build for the be
 The build is minified and the filenames include the hashes.\
 Your app is ready to be deployed!
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
 ### `npm run eject`
 
@@ -43,32 +92,3 @@ Instead, it will copy all the configuration files and the transitive dependencie
 
 You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
 
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)

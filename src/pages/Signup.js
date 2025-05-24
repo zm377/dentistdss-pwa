@@ -22,6 +22,8 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { GoogleLogin } from '@react-oauth/google';
 import { useMediaQuery } from '@mui/material';
+import PasswordStrengthIndicator from '../components/PasswordStrengthIndicator';
+import { isPasswordStrong } from '../utils/passwordStrength';
 // import FacebookIcon from '@mui/icons-material/Facebook'; // Example for other providers
 
 
@@ -79,6 +81,11 @@ const Signup = () => {
     if (!firstName || !lastName) {
       return setError('First name and last name are required');
     }
+    
+    // Check password strength
+    if (!isPasswordStrong(password)) {
+      return setError('Please create a strong password with at least 8 characters, including uppercase, lowercase, numbers, and special characters');
+    }
 
     setLoading(true);
     try {
@@ -91,7 +98,7 @@ const Signup = () => {
       // or that the API call itself was successful and email verification is the next step.
       // If signup in AuthContext still auto-logs in, this logic will need adjustment there.
       // For now, proceed to pending verification page.
-      navigate('/verify-email-pending', { state: { email: email, firstName: firstName } });
+      navigate('/verify-email-code', { state: { email: email, firstName: firstName } });
 
     } catch (err) { 
       console.error('Signup failed:', err);
@@ -303,6 +310,10 @@ const Signup = () => {
               },
             }}
           />
+          
+          {/* Password Strength Indicator */}
+          <PasswordStrengthIndicator password={password} theme={theme} />
+          
           <TextField
             margin="normal"
             required
