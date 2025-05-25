@@ -242,11 +242,11 @@ function FindAClinic() {
               disabled={loading}
               sx={{ minWidth: 120, height: 56 }}
             >
-              Search Now
+              Search
             </Button>
           </Box>
           <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
-            Search happens automatically after you stop typing. Click "Search Now" to search immediately.
+            Search happens automatically after you stop typing.
           </Typography>
         </Box>
       </Paper>
