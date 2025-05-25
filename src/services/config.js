@@ -33,16 +33,28 @@ api.interceptors.response.use(
     // Check if the response data and success field exist
     if (response.data && typeof response.data.success !== 'undefined') {
       if (response.data.success) {
-        return response.data.dataObject;
+        // If there's a success message, optionally show it
+        if (response.data.message) {
+          const event = new CustomEvent('show-snackbar', {
+            detail: {
+              message: response.data.message,
+              severity: 'success',
+            },
+          });
+          window.dispatchEvent(event);
+        }
+        
+        // Return the data object if it exists, otherwise return the whole response data
+        return response.data.dataObject !== undefined ? response.data.dataObject : response.data;
       } else {
-        // If success is false, extract the message and dispatch an event
-        const errorMessage = response.data.dataObject || 'An unknown error occurred.';
+        // If success is false, use the message field for error
+        const errorMessage = response.data.message || response.data.dataObject || 'An unknown error occurred.';
         
         // Dispatch a custom event to show the Snackbar
         const event = new CustomEvent('show-snackbar', {
           detail: {
             message: errorMessage,
-            severity: 'error', // Or 'warning', 'info', 'success'
+            severity: 'error',
           },
         });
         window.dispatchEvent(event);
@@ -51,8 +63,7 @@ api.interceptors.response.use(
         return Promise.reject(new Error(errorMessage));
       }
     }
-    // If the response doesn't match the expected structure, return it as is or handle as an error
-    // For now, returning the original response if not conforming to the expected structure
+    // If the response doesn't match the expected structure, return it as is
     return response;
   },
   (error) => {
