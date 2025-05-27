@@ -20,7 +20,7 @@ export const AuthProvider = ({ children }) => {
       } else {
         console.warn("Could not set Authorization header: api.axiosInstance or its defaults/headers are not defined.");
       }
-      
+
       console.log('Token stored, fetching user details...');
       const userData = await api.auth.me(); // Fetch user details using the new token
       if (userData && userData.user) {
@@ -59,7 +59,7 @@ export const AuthProvider = ({ children }) => {
         // processAuthToken will be called with the token, and it will fetch the user
         await processAuthToken(authData.accessToken, authData.tokenType || 'Bearer');
         // The user object is returned for immediate use if needed, though context will update
-        return authData.user; 
+        return authData.user;
       } else {
         const errorMessage = 'Login failed: Invalid data structure from API.';
         console.error(errorMessage, authData);
@@ -74,10 +74,10 @@ export const AuthProvider = ({ children }) => {
   const signup = async (email, password, firstName, lastName, role = 'patient', clinicName = null, existingClinicId = null) => {
     try {
       console.log(`Attempting signup for ${email}`);
-      
-      const signupData = { 
-        email, 
-        password, 
+
+      const signupData = {
+        email,
+        password,
         firstName,
         lastName,
         role
@@ -86,9 +86,9 @@ export const AuthProvider = ({ children }) => {
 
       if (clinicName) signupData.clinicName = clinicName;
       if (existingClinicId) signupData.existingClinicId = existingClinicId;
-      
-      const responseMessage = await api.auth.signup(signupData); 
-      
+
+      const responseMessage = await api.auth.signup(signupData);
+
       console.log('Signup successful:', responseMessage);
       return { ...signupData, emailVerificationPending: true, message: responseMessage };
     } catch (error) {
@@ -100,7 +100,7 @@ export const AuthProvider = ({ children }) => {
   const logout = useCallback(async () => {
     try {
       console.log('Logging out');
-      await api.auth.logout(); 
+      await api.auth.logout();
     } catch (error) {
       console.error('Backend logout error (will proceed with client-side logout):', error);
     } finally {
@@ -159,22 +159,22 @@ export const AuthProvider = ({ children }) => {
           if (userData && userData.user) {
             setCurrentUser(userData.user);
             // console.log('Session verified, user set:', userData.user);
-          } else if (userData) { 
-             setCurrentUser(userData);
+          } else if (userData) {
+            setCurrentUser(userData);
             //  console.log('Session verified, user set (direct object):', userData);
           } else {
-             throw new Error("User data not found during initial auth check");
+            throw new Error("User data not found during initial auth check");
           }
         } catch (error) {
           console.error('Token verification failed during initial load:', error);
-          await logout(); 
+          await logout();
         }
       } else {
         console.log('No token found during initial load.');
       }
       setLoading(false);
     };
-    
+
     checkAuth();
   }, [logout, processAuthToken]); // Added processAuthToken to ensure it's stable if defined inside AuthProvider
 
@@ -186,7 +186,7 @@ export const AuthProvider = ({ children }) => {
     signup,
     logout,
     googleIdLogin,
-    processAuthToken 
+    processAuthToken
   };
 
   return (

@@ -30,6 +30,7 @@ api.interceptors.request.use(
 // Response interceptor for API calls
 api.interceptors.response.use(
   (response) => {
+    console.log(response);
     // Check if the response data and success field exist
     if (response.data && typeof response.data.success !== 'undefined') {
       if (response.data.success) {

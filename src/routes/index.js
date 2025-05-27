@@ -1,22 +1,23 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { Typography } from '@mui/material';
-import ChatInterface from '../pages/ChatBotDentist';
-import Login from '../pages/Login';
-import Signup from '../pages/Signup';
-import Welcome from '../pages/Welcome';
-import Book from '../pages/Book';
-import Learn from '../pages/Learn';
-import ClinicStaffSignup from '../pages/ClinicStaffSignup';
-import VerifyEmailPendingPage from '../pages/VerifyEmailWithCodePage';
-import VerifyEmailPage from '../pages/VerifyEmailWithTokenPage';
-import DashboardPage from '../pages/DashboardPage';
-import QuizPage from '../pages/Quiz';
-import FindAClinic from '../pages/FindAClinic';
-import ClinicAdminSignup from '../pages/ClinicAdminSignup';
+import ChatInterface from '../pages/Dashboard/ChatBotDentist';
+import Login from '../pages/Home/Login';
+import Signup from '../pages/Home/Signup';
+import Welcome from '../pages/Home/Welcome';
+import Book from '../pages/Home/Book';
+import Learn from '../pages/Home/Learn';
+import ClinicStaffSignup from '../pages/Home/Signup/ClinicStaff';
+import VerifyEmailPendingPage from '../pages/VerifyEmail/Code';
+import VerifyEmailPage from '../pages/VerifyEmail/Token';
+import Dashboard from '../pages/Dashboard';
+import QuizPage from '../pages/Home/Quiz';
+import FindAClinic from '../pages/Home/FindAClinic';
+import ClinicAdminSignup from '../pages/Home/Signup/ClinicAdmin';
 import { useAuth } from '../context/AuthContext';
 import config from '../config';
 import TermsAndConditions from '../pages/TermsAndConditions';
+import Home from '../pages/Home';
 
 function AppRoutes() {
   const { isAuthenticated, currentUser } = useAuth();
@@ -32,7 +33,7 @@ function AppRoutes() {
         element={!isAuthenticated ? <Signup /> : <Navigate to="/dashboard" replace />}
       />
       <Route 
-        path="/clinic-staff-signup"
+        path="/signup/clinic-staff"
         element={!isAuthenticated ? <ClinicStaffSignup /> : <Navigate to="/dashboard" replace />}
       />
       <Route 
@@ -85,7 +86,7 @@ function AppRoutes() {
       />
       <Route
         path="/dashboard"
-        element={isAuthenticated ? <DashboardPage /> : <Navigate to="/login" replace />}
+        element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" replace />}
       />
       <Route 
         path="/pending-approval"

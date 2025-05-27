@@ -1,100 +1,156 @@
-import OpenAI from 'openai';
-import config from '../config';
+// Removed OpenAI import and config import as they were for OpenAI specific settings.
+// import OpenAI from 'openai';
+// import config from '../config';
 
-// Internal cache so we do not create a new SDK instance for every request
-const clientCache = new Map(); // key -> OpenAI instance
+// If session IDs are to be generated client-side by this service as a fallback,
+// you might need a UUID library. Example:
+// import { v4 as uuidv4 } from 'uuid';
 
+// Core function to call the backend streaming API
+async function streamApiCall(endpoint, prompt, sessionId, onTokenReceived, authToken = null) {
+  const headers = {
+    'Content-Type': 'text/plain', // Backend API expects plain text for the prompt
+    // 'Accept': 'text/event-stream', // Usually set automatically by the browser for fetch with streaming
+  };
 
-const getClient = (apiKeyParam) => {
-  const apiKey = config?.api?.chatbot?.openaiApiKey;
+  if (sessionId) {
+    headers['X-Session-Id'] = sessionId;
+  }
+  // Note: If no sessionId is provided, the backend will generate one.
+  // It's generally better for the client (UI component) to manage the sessionId's lifecycle.
 
-  if (!apiKey) {
-    throw new Error('No OpenAI API key available. Provide one as a parameter, set REACT_APP_OPENAI_API_KEY, or configure it in config.');
+  if (authToken) {
+    headers['Authorization'] = `Bearer ${authToken}`; // Assuming Bearer token authentication
   }
 
-  if (!clientCache.has(apiKey)) {
-    clientCache.set(apiKey, new OpenAI({ apiKey, dangerouslyAllowBrowser: true }));
-  }
-
-  return clientCache.get(apiKey);
-};
-
-// New streaming logic (ported from former services/chatbot.js)
-async function callChatBot(messages, onTokenReceived, apiKeyParam) {
-  // apiKeyParam is optional; if provided, override default config key retrieval
-  const client = getClient(apiKeyParam);
+  // Assuming the PWA and backend are served from the same origin, so relative URLs are used.
+  // Change this if your API is hosted on a different domain/port.
+  const fullUrl = `/api/genai/chatbot${endpoint}`; // e.g., endpoint is '/help' or '/aidentist'
 
   try {
-    const stream = await client.chat.completions.create({
-      model: config?.api?.chatbot?.model,
-      messages: messages.map(({ role, content }) => ({ role, content })),
-      stream: true,
+    const response = await fetch(fullUrl, {
+      method: 'POST',
+      headers: headers,
+      body: prompt,
     });
 
-    let fullResponse = '';
+    if (!response.ok) {
+      let errorText = `API call to ${fullUrl} failed with status ${response.status}`;
+      try {
+        const text = await response.text();
+        errorText = text || errorText; // Use backend error message if available
+      } catch (e) {
+        // Ignore if can't read text
+      }
+      console.error(errorText);
+      // Pass error to callback as if it's a message from the bot
+      if (typeof onTokenReceived === 'function') {
+        onTokenReceived(errorText, errorText);
+      }
+      throw new Error(errorText);
+    }
 
-    for await (const chunk of stream) {
-      const token = chunk.choices?.[0]?.delta?.content || '';
-      if (token) {
-        fullResponse += token;
-        if (typeof onTokenReceived === 'function') onTokenReceived(token, fullResponse);
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder('utf-8');
+    let buffer = '';
+    let cumulativeResponse = '';
+
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) {
+        // Process any remaining data in the buffer if the stream ended abruptly
+        // This is a fallback; well-formed SSE streams usually end cleanly.
+        if (buffer.length > 0) {
+            const lines = buffer.split('\\n'); // Split remaining buffer by newline
+            for (const line of lines) {
+                if (line.startsWith('data:')) {
+                    const token = line.slice('data:'.length).trim();
+                    if (token) {
+                         cumulativeResponse += token;
+                         if (typeof onTokenReceived === 'function') onTokenReceived(token, cumulativeResponse);
+                    }
+                }
+            }
+        }
+        break;
+      }
+
+      buffer += decoder.decode(value, { stream: true });
+      
+      let position;
+      // Process complete SSE messages (terminated by double newline)
+      while ((position = buffer.indexOf('\\n\\n')) >= 0) {
+        const rawEventsBlock = buffer.slice(0, position);
+        buffer = buffer.slice(position + 2); // Move past the '\\n\\n'
+
+        const lines = rawEventsBlock.split('\\n');
+        for (const line of lines) {
+          if (line.startsWith('data:')) {
+            const token = line.slice('data:'.length).trim();
+            if (token) { // Ensure token is not empty
+                cumulativeResponse += token;
+                // The rate limit message from backend ("You have reached the maximal inquiries...")
+                // will also arrive here as a token.
+                if (typeof onTokenReceived === 'function') {
+                  onTokenReceived(token, cumulativeResponse);
+                }
+            }
+          }
+          // Other SSE lines like 'event:', 'id:', 'retry:' could be handled here if needed.
+        }
       }
     }
-
-    return fullResponse;
+    return cumulativeResponse;
   } catch (error) {
-    console.error('Error calling ChatBot via OpenAI SDK:', error);
-
-    if (error?.response?.data?.error?.message) {
-      throw new Error(error.response.data.error.message);
+    console.error('Error in streamApiCall:', error);
+    if (typeof onTokenReceived === 'function') {
+      const errorMessage = (error.message && error.message.includes("maximal inquiries"))
+        ? error.message // Use the specific rate limit message if it caused an error throw
+        : 'Sorry, I encountered an error processing your request. Please try again.';
+      onTokenReceived(errorMessage, errorMessage);
     }
-    throw error;
+    throw error; // Re-throw so the caller can also handle it if needed
   }
 }
 
-// Higher-level helper that mirrors the simple chat logic used on the Welcome page.
-// It converts that page's message format ( { sender, text } ) into OpenAI chat messages
-// and prepends a system prompt so callers don't have to.
-function botAssistant(previousMessages = [], userInput, onTokenReceived, apiKeyParam) {
-  const systemMessage = {
-    role: 'system',
-    content: 'You are a helpful dental assistant chatbot. Provide concise, accurate information about dental care, procedures, and oral health.'
-  };
-
-  const openAIMessages = [
-    systemMessage,
-    ...previousMessages.map((msg) => ({
-      role: msg.sender === 'user' ? 'user' : 'assistant',
-      content: msg.text,
-    })),
-    { role: 'user', content: userInput },
-  ];
-
-  return callChatBot(openAIMessages, onTokenReceived, apiKeyParam);
+// `botAssistant` calls the '/help' endpoint.
+// No authentication required for this endpoint.
+// `userInput`: The text from the user.
+// `sessionId`: A unique identifier for the chat session (caller should manage this).
+// `onTokenReceived`: Callback function (token, fullResponse) => void.
+function botAssistant(userInput, sessionId, onTokenReceived) {
+  return streamApiCall('/help', userInput, sessionId, onTokenReceived, null);
 }
 
-// -----------------------------------------------------------------------------
-// Dentist-specific helper that works with the role/content message structure used
-// in the ChatBotDentist page. It prepends a professional-dentist system prompt
-// and normalises previous messages so they only contain the valid OpenAI roles
-// ("user" and "assistant").
-function botDentist(previousMessages = [], userInput, onTokenReceived, apiKeyParam) {
-  const systemMessage = {
-    role: 'system',
-    content: 'You are a professional dentist AI assistant. Answer questions with clear, accurate, and practical dental advice. Keep responses empathetic, easy to understand, and, where appropriate, include brief preventive tips. If consultation with a real dentist is necessary, politely advise the user to seek professional care.'
-  };
-
-  const openAIMessages = [
-    systemMessage,
-    ...previousMessages.map((msg) => ({
-      // Treat any previous message sent by user as 'user', otherwise as 'assistant'
-      role: msg.role === 'user' ? 'user' : 'assistant',
-      content: msg.content,
-    })),
-    { role: 'user', content: userInput },
-  ];
-
-  return callChatBot(openAIMessages, onTokenReceived, apiKeyParam);
+// `botDentist` calls the '/aidentist' endpoint.
+// Requires authentication.
+// `authToken`: The JWT or other token for authentication.
+function botDentist(userInput, sessionId, onTokenReceived, authToken) {
+  if (!authToken) {
+    const authErrorMsg = 'Authentication required to access the AI Dentist. Please log in.';
+    console.error(authErrorMsg);
+    if (typeof onTokenReceived === 'function') {
+      onTokenReceived(authErrorMsg, authErrorMsg);
+    }
+    return Promise.reject(new Error(authErrorMsg));
+  }
+  return streamApiCall('/aidentist', userInput, sessionId, onTokenReceived, authToken);
 }
 
-export default { callChatBot, botAssistant, botDentist };
+// TODO for the developer integrating this service:
+// 1. Session ID Management: Ensure that `sessionId` is generated (e.g., using `uuid` library)
+//    by the calling UI component at the start of a new chat session and passed consistently.
+// 2. Authentication Token: For `botDentist`, ensure `authToken` is correctly retrieved
+//    from your application's auth state (e.g., localStorage, Auth Context) and passed.
+// 3. UI Updates: Adapt UI components to provide `sessionId` and `authToken` where necessary.
+//    The `onTokenReceived` callback behavior (receiving individual tokens and the cumulative response)
+//    is maintained, so UI rendering of streamed text should largely remain compatible.
+// 4. Rate Limiting: The backend's rate limit message ("You have reached the maximal inquiries...")
+//    will be passed through `onTokenReceived`. The UI should display this message appropriately.
+// 5. Additional Endpoints: If you need to use other chat agents from your backend
+//    (e.g., /receptionist, /triage, /documentation/summarize), add new functions similar to
+//    `botAssistant` or `botDentist`, calling the appropriate endpoint and handling auth if required.
+// 6. If you use `uuid` for session IDs, make sure to install it: `npm install uuid` or `yarn add uuid`.
+
+export default { botAssistant, botDentist };
