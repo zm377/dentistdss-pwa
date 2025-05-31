@@ -74,7 +74,7 @@ const Quiz = () => {
                 } else {
                     setShowResults(true);
                 }
-            }, 700); // Auto-advance after 0.7 seconds
+            }, 200); // Auto-advance after 0.7 seconds
         }
     };
 
@@ -199,7 +199,7 @@ const Quiz = () => {
                     </Typography>
                 </Box>
 
-                <FormControl component="fieldset" fullWidth sx={{ mb: 3 }}>
+                <FormControl component="fieldset" fullWidth sx={{ mb: 3, minHeight: isMobile ? 'auto' : '200px' }}>
                     <RadioGroup
                         aria-label={currentQuestion.question}
                         name={`question-${currentQuestion.id}`}

@@ -345,7 +345,7 @@ const DentistDashboardContent = ({ activeSection = 'appointments' }) => {
         primary={<Typography variant="subtitle1" fontWeight="medium">{`${appt.patientName} - ${appt.type}`}</Typography>}
         secondary={<Box sx={{ mt: 0.5 }}><Typography variant="body2"><strong>Date:</strong> {appt.date} | <strong>Time:</strong> {appt.time}</Typography></Box>}
       />
-      <Chip label={appt.status} color={appt.status === 'Confirmed' ? 'success' : 'warning'} size="small" sx={{ ml: 1 }}/>
+      <Chip label={appt.status} color={appt.status === 'Confirmed' ? 'success' : 'warning'} size="small" sx={{ ml: 1 }} />
     </ListItem>
   );
 
@@ -481,7 +481,7 @@ const ClinicAdminDashboardContent = ({ activeSection = 'overview' }) => {
       <Box sx={{ mt: { xs: 1, sm: 0 } }}><Button variant="contained" color="primary" size="small" onClick={() => handleOpenApprovalDialog(approval)}>Review</Button></Box>
     </ListItem>
   );
-  
+
   const approvalDialogDetailsRenderer = (item) => (
     <DialogContentText>
       <strong>Type:</strong> {item.type}<br />
@@ -519,8 +519,8 @@ const ClinicAdminDashboardContent = ({ activeSection = 'overview' }) => {
         return (
           <Box>
             <Card><CardContent><Grid container spacing={3}>
-              <Grid item xs={12} md={6}><Typography variant="h6" gutterBottom>Clinic Information</Typography><TextField label="Clinic Name" defaultValue={clinicDetails.name} fullWidth margin="normal" variant="outlined"/><TextField label="Address" defaultValue={clinicDetails.address} fullWidth margin="normal" variant="outlined" multiline rows={2}/><TextField label="Phone Number" defaultValue={clinicDetails.phone} fullWidth margin="normal" variant="outlined"/><TextField label="Email" defaultValue={clinicDetails.email} fullWidth margin="normal" variant="outlined"/></Grid>
-              <Grid item xs={12} md={6}><Typography variant="h6" gutterBottom>Operating Hours</Typography><TextField label="Operating Hours" defaultValue={clinicDetails.operatingHours} fullWidth margin="normal" variant="outlined" multiline rows={4}/><Typography variant="h6" gutterBottom sx={{ mt: 2 }}>Services Offered</Typography><TextField label="Services" defaultValue="General Dentistry, Cosmetic Dentistry, Orthodontics" fullWidth margin="normal" variant="outlined" multiline rows={2}/></Grid>
+              <Grid item xs={12} md={6}><Typography variant="h6" gutterBottom>Clinic Information</Typography><TextField label="Clinic Name" defaultValue={clinicDetails.name} fullWidth margin="normal" variant="outlined" /><TextField label="Address" defaultValue={clinicDetails.address} fullWidth margin="normal" variant="outlined" multiline rows={2} /><TextField label="Phone Number" defaultValue={clinicDetails.phone} fullWidth margin="normal" variant="outlined" /><TextField label="Email" defaultValue={clinicDetails.email} fullWidth margin="normal" variant="outlined" /></Grid>
+              <Grid item xs={12} md={6}><Typography variant="h6" gutterBottom>Operating Hours</Typography><TextField label="Operating Hours" defaultValue={clinicDetails.operatingHours} fullWidth margin="normal" variant="outlined" multiline rows={4} /><Typography variant="h6" gutterBottom sx={{ mt: 2 }}>Services Offered</Typography><TextField label="Services" defaultValue="General Dentistry, Cosmetic Dentistry, Orthodontics" fullWidth margin="normal" variant="outlined" multiline rows={2} /></Grid>
               <Grid item xs={12}><Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}><Button variant="contained" color="primary">Save Changes</Button></Box></Grid>
             </Grid></CardContent></Card>
           </Box>
@@ -604,7 +604,7 @@ const ReceptionistDashboardContent = ({ activeSection = 'appointments' }) => {
       <ListItemText
         primary={<Typography variant="subtitle1" fontWeight="medium">{appt.patientName}</Typography>}
         secondary={<Box sx={{ mt: 0.5 }}><Typography variant="body2"><strong>With:</strong> {appt.dentist} | <strong>Type:</strong> {appt.type}</Typography></Box>} />
-      <Box sx={{ display: 'flex', alignItems: 'center' }}><Chip label={appt.status} color={getStatusColor(appt.status)} size="small" sx={{ mr: 1 }}/><Button size="small" variant="outlined">Manage</Button></Box>
+      <Box sx={{ display: 'flex', alignItems: 'center' }}><Chip label={appt.status} color={getStatusColor(appt.status)} size="small" sx={{ mr: 1 }} /><Button size="small" variant="outlined">Manage</Button></Box>
     </ListItem>
   );
 
@@ -623,7 +623,7 @@ const ReceptionistDashboardContent = ({ activeSection = 'appointments' }) => {
         return (
           <Box>
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', mb: 3 }}><Button variant="contained">Schedule New Appointment</Button></Box>
-            <TextField fullWidth placeholder="Search appointments..." variant="outlined" size="small" value={searchTerm} onChange={handleSearchChange} sx={{ mb: 3 }} InputProps={{startAdornment: (<InputAdornment position="start"><SearchIcon /></InputAdornment>),}}/>
+            <TextField fullWidth placeholder="Search appointments..." variant="outlined" size="small" value={searchTerm} onChange={handleSearchChange} sx={{ mb: 3 }} InputProps={{ startAdornment: (<InputAdornment position="start"><SearchIcon /></InputAdornment>), }} />
             <GenericListCard items={filteredAppointments} renderItem={renderAppointmentItem} emptyMessage="No appointments matching your search or for today." />
           </Box>
         );
@@ -631,14 +631,14 @@ const ReceptionistDashboardContent = ({ activeSection = 'appointments' }) => {
         return (
           <Box>
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', mb: 3 }}><Button variant="contained">Register New Patient</Button></Box>
-            <TextField fullWidth placeholder="Search patients by name or phone..." variant="outlined" size="small" value={searchTerm} onChange={handleSearchChange} sx={{ mb: 3 }} InputProps={{startAdornment: (<InputAdornment position="start"><SearchIcon /></InputAdornment>),}}/>
+            <TextField fullWidth placeholder="Search patients by name or phone..." variant="outlined" size="small" value={searchTerm} onChange={handleSearchChange} sx={{ mb: 3 }} InputProps={{ startAdornment: (<InputAdornment position="start"><SearchIcon /></InputAdornment>), }} />
             <GenericListCard items={filteredPatients} renderItem={renderPatientItem} emptyMessage="No patients matching your search." listSx={{ '& .MuiListItem-root:hover': { backgroundColor: 'action.hover' } }} />
           </Box>
         );
       case 'communication':
         return (
           <Box>
-            <Card><CardContent><Alert severity="info">This feature allows you to log calls, emails, and direct communications with patients. It's currently being developed and will be available soon.</Alert><Box sx={{ mt: 3 }}><Typography variant="h6" gutterBottom>Planned Features</Typography><List><ListItem><ListItemText primary="Call Logging" secondary="Record incoming and outgoing calls with patients, including call details and action items"/></ListItem><ListItem><ListItemText primary="Email Tracking" secondary="Track email communications sent to patients for appointment confirmations and reminders"/></ListItem><ListItem><ListItemText primary="SMS Notifications" secondary="Log and manage text message notifications sent to patients"/></ListItem></List></Box></CardContent></Card>
+            <Card><CardContent><Alert severity="info">This feature allows you to log calls, emails, and direct communications with patients. It's currently being developed and will be available soon.</Alert><Box sx={{ mt: 3 }}><Typography variant="h6" gutterBottom>Planned Features</Typography><List><ListItem><ListItemText primary="Call Logging" secondary="Record incoming and outgoing calls with patients, including call details and action items" /></ListItem><ListItem><ListItemText primary="Email Tracking" secondary="Track email communications sent to patients for appointment confirmations and reminders" /></ListItem><ListItem><ListItemText primary="SMS Notifications" secondary="Log and manage text message notifications sent to patients" /></ListItem></List></Box></CardContent></Card>
           </Box>
         );
       case 'messages':
@@ -702,7 +702,7 @@ const SystemAdminDashboardContent = ({ activeSection = 'approvals' }) => {
 
   if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}><CircularProgress /></Box>;
   if (error) return <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>;
-  
+
   const approvalDialogDetailsRenderer = (item) => (
     <DialogContentText>
       <strong>Type:</strong> {item.type}<br />
@@ -714,9 +714,9 @@ const SystemAdminDashboardContent = ({ activeSection = 'approvals' }) => {
   );
 
   const renderApprovalItem = (approval) => (
-     <ListItem key={approval.id} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+    <ListItem key={approval.id} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap' }}>
       <ListItemText
-        primary={<Typography variant="subtitle1" fontWeight="medium">{`${approval.type}: ${approval.userName} ${approval.clinicName ? '('+approval.clinicName+')' : ''}`}</Typography>}
+        primary={<Typography variant="subtitle1" fontWeight="medium">{`${approval.type}: ${approval.userName} ${approval.clinicName ? '(' + approval.clinicName + ')' : ''}`}</Typography>}
         secondary={<Box sx={{ mt: 0.5 }}><Typography variant="body2"><strong>Details:</strong> {approval.details || 'N/A'}</Typography><Typography variant="body2"><strong>Submitted:</strong> {approval.date}</Typography></Box>}
         sx={{ mr: 2 }} />
       <Box sx={{ mt: { xs: 1, sm: 0 } }}><Button variant="contained" color="primary" size="small" onClick={() => handleOpenDialog(approval)}>Review</Button></Box>
@@ -747,8 +747,8 @@ const SystemAdminDashboardContent = ({ activeSection = 'approvals' }) => {
         return (
           <Box>
             <Card><CardContent><Typography sx={{ mb: 2 }}>System configuration options. Configure API keys, feature flags, and general settings.</Typography><Grid container spacing={3}>
-              <Grid item xs={12} md={6}><Card variant="outlined" sx={{ height: '100%' }}><CardContent><Typography variant="h6" gutterBottom>General Settings</Typography><List dense><ListItem><ListItemText primary="Maintenance Mode" secondary="Enable/disable system maintenance mode"/><Button size="small" variant="outlined">Configure</Button></ListItem><ListItem><ListItemText primary="System Notifications" secondary="Configure global notification settings"/><Button size="small" variant="outlined">Configure</Button></ListItem></List></CardContent></Card></Grid>
-              <Grid item xs={12} md={6}><Card variant="outlined" sx={{ height: '100%' }}><CardContent><Typography variant="h6" gutterBottom>API Settings</Typography><List dense><ListItem><ListItemText primary="API Keys" secondary="Manage third-party API integrations"/><Button size="small" variant="outlined">Manage</Button></ListItem><ListItem><ListItemText primary="Webhooks" secondary="Configure webhooks for external services"/><Button size="small" variant="outlined">Configure</Button></ListItem></List></CardContent></Card></Grid>
+              <Grid item xs={12} md={6}><Card variant="outlined" sx={{ height: '100%' }}><CardContent><Typography variant="h6" gutterBottom>General Settings</Typography><List dense><ListItem><ListItemText primary="Maintenance Mode" secondary="Enable/disable system maintenance mode" /><Button size="small" variant="outlined">Configure</Button></ListItem><ListItem><ListItemText primary="System Notifications" secondary="Configure global notification settings" /><Button size="small" variant="outlined">Configure</Button></ListItem></List></CardContent></Card></Grid>
+              <Grid item xs={12} md={6}><Card variant="outlined" sx={{ height: '100%' }}><CardContent><Typography variant="h6" gutterBottom>API Settings</Typography><List dense><ListItem><ListItemText primary="API Keys" secondary="Manage third-party API integrations" /><Button size="small" variant="outlined">Manage</Button></ListItem><ListItem><ListItemText primary="Webhooks" secondary="Configure webhooks for external services" /><Button size="small" variant="outlined">Configure</Button></ListItem></List></CardContent></Card></Grid>
             </Grid></CardContent></Card>
           </Box>
         );
@@ -780,7 +780,7 @@ const SystemAdminDashboardContent = ({ activeSection = 'approvals' }) => {
 };
 SystemAdminDashboardContent.navigationSections = systemAdminNavigationSections;
 
-const DashboardLayout = ({ rolesWithComponents: rolesWithComponentsProp = null, roles: rolesProp = null }) => {
+const DashboardLayout = ({ rolesWithComponents: rolesWithComponentsProp = null, roles: rolesProp = null, logout }) => {
   const roleComponentsMap = {
     PATIENT: PatientDashboardContent,
     DENTIST: DentistDashboardContent,
@@ -816,12 +816,12 @@ const DashboardLayout = ({ rolesWithComponents: rolesWithComponentsProp = null, 
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [userMenuAnchorEl, setUserMenuAnchorEl] = useState(null);
-  
+
   const firstValidRoleKey = rolesWithComponents[0]?.key || null;
   const [activeRoleKey, setActiveRoleKey] = useState(
     rolesWithComponents.some(r => r.key === firstValidRoleKey) ? firstValidRoleKey : null
   );
-  
+
   useEffect(() => {
     if (rolesWithComponents.length > 0 && !rolesWithComponents.some(r => r.key === activeRoleKey)) {
       setActiveRoleKey(rolesWithComponents[0]?.key);
@@ -846,7 +846,7 @@ const DashboardLayout = ({ rolesWithComponents: rolesWithComponentsProp = null, 
 
   const activeRoleWithComponent = rolesWithComponents.find(r => r.key === activeRoleKey) || null;
   const ActiveComponent = activeRoleWithComponent?.component || null;
-  
+
   const activeRoleSections = ActiveComponent?.navigationSections || [
     { key: 'overview', label: 'Overview', icon: <DashboardIcon /> }
   ];
@@ -883,7 +883,7 @@ const DashboardLayout = ({ rolesWithComponents: rolesWithComponentsProp = null, 
         {!isSmUp && (<IconButton edge="end" color="inherit" onClick={handleDrawerToggle} sx={{ ml: 1 }}><ChevronLeftIcon /></IconButton>)}
       </Toolbar>
       <Divider />
-      
+
       <Box sx={{ p: 2, display: 'flex', alignItems: 'center' }}>
         <Avatar src={avatarSrc} sx={{ width: 40, height: 40, mr: 2, bgcolor: !avatarSrc ? 'primary.main' : 'transparent', color: !avatarSrc ? 'primary.contrastText' : 'inherit' }}>
           {!avatarSrc && displayInitials}
@@ -929,7 +929,7 @@ const DashboardLayout = ({ rolesWithComponents: rolesWithComponentsProp = null, 
                 setActiveSectionKey(section.key);
                 if (!isSmUp) setMobileOpen(false);
               }}
-              sx={{ borderRadius: 1, py: 1, '&.Mui-selected': { backgroundColor: theme.palette.mode === 'light' ? 'rgba(0, 0, 0, 0.08)' : 'rgba(255, 255, 255, 0.16)', '&:hover': { backgroundColor: theme.palette.mode === 'light' ? 'rgba(0, 0, 0, 0.12)' : 'rgba(255, 255, 255, 0.24)'}}, '&:hover': { backgroundColor: theme.palette.mode === 'light' ? 'rgba(0, 0, 0, 0.04)' : 'rgba(255, 255, 255, 0.08)'}, my: 0.5 }}
+              sx={{ borderRadius: 1, py: 1, '&.Mui-selected': { backgroundColor: theme.palette.mode === 'light' ? 'rgba(0, 0, 0, 0.08)' : 'rgba(255, 255, 255, 0.16)', '&:hover': { backgroundColor: theme.palette.mode === 'light' ? 'rgba(0, 0, 0, 0.12)' : 'rgba(255, 255, 255, 0.24)' } }, '&:hover': { backgroundColor: theme.palette.mode === 'light' ? 'rgba(0, 0, 0, 0.04)' : 'rgba(255, 255, 255, 0.08)' }, my: 0.5 }}
             >
               <ListItemIcon sx={{ color: section.key === activeSectionKey ? 'primary.main' : 'text.secondary', minWidth: '36px' }}>{section.icon}</ListItemIcon>
               <ListItemText primary={section.label} primaryTypographyProps={{ fontWeight: section.key === activeSectionKey ? 'medium' : 'regular', fontSize: '0.9rem' }} />
@@ -981,7 +981,7 @@ const DashboardLayout = ({ rolesWithComponents: rolesWithComponentsProp = null, 
             <MenuItem onClick={handleUserMenuClose}>Profile</MenuItem>
             <MenuItem onClick={handleUserMenuClose}>Settings</MenuItem>
             <Divider />
-            <MenuItem onClick={() => { handleUserMenuClose(); alert('Logout from menu clicked'); }}>Logout</MenuItem>
+            <MenuItem onClick={() => { handleUserMenuClose(); logout(); }}>Logout</MenuItem>
           </Menu>
         </Toolbar>
       </AppBar>
@@ -998,8 +998,8 @@ const DashboardLayout = ({ rolesWithComponents: rolesWithComponentsProp = null, 
 
       <Box component="main" sx={{ flexGrow: 1, width: { sm: `calc(100% - ${drawerWidth}px)` }, minHeight: '100vh', overflow: 'auto', backgroundColor: theme.palette.mode === 'light' ? '#F4F6F8' : '#121212', p: { xs: 2, md: 3 } }}>
         <Toolbar />
-        <Container maxWidth={false} sx={{ px: { xs: 1, sm: 2, md: 3 }}}>
-          { ActiveComponent ? <ActiveComponent activeSection={activeSectionKey} /> : 
+        <Container maxWidth={false} sx={{ px: { xs: 1, sm: 2, md: 3 } }}>
+          {ActiveComponent ? <ActiveComponent activeSection={activeSectionKey} /> :
             (rolesWithComponents.length > 0 ? <Alert severity="warning">Dashboard content not available for {activeRoleKey}.</Alert> : <Alert severity="info">No roles available or selected.</Alert>)
           }
         </Container>

@@ -13,7 +13,7 @@ import AppRoutes from './routes';
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);
-  const { loading } = useAuth();
+  const { loading, logout } = useAuth();
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
   const [initialThemeSet, setInitialThemeSet] = useState(false);
 
@@ -42,6 +42,7 @@ function App() {
           <AppShell
             darkMode={darkMode}
             toggleDarkMode={toggleDarkMode}
+            logout={logout}
           >
             <AppRoutes />
           </AppShell>

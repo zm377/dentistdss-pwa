@@ -15,6 +15,7 @@ const AppShell = ({
   children,
   darkMode,
   toggleDarkMode,
+  logout,
 }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -30,7 +31,7 @@ const AppShell = ({
           {children}
         </Home>
       ) : (
-        <Dashboard isMobile={isMobile} darkMode={darkMode} toggleDarkMode={toggleDarkMode}>
+        <Dashboard isMobile={isMobile} darkMode={darkMode} toggleDarkMode={toggleDarkMode} logout={logout}>
           {children}
         </Dashboard>
       )}

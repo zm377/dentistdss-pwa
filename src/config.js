@@ -15,8 +15,6 @@ const API_GENAI_PATH = API_ROOT_PATH + process.env.REACT_APP_API_GENAI_PATH;
 // Google OAuth 
 const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 
-console.log(isProduction ? `${API_HOST}` : `${API_HOST}:${API_PORT}`);
-
 const config = {
   // Environment info
   environment: {
