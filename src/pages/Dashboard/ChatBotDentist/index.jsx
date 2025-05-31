@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import React, {useState, useRef, useEffect, useCallback, useMemo} from 'react';
 import {
   Box,
   TextField,
@@ -40,13 +40,13 @@ const ChatInterface = () => {
 
   const scrollToBottom = useCallback(() => {
     if (isAtBottom) {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      messagesEndRef.current?.scrollIntoView({behavior: 'smooth'});
     }
   }, [isAtBottom]);
 
   const handleScroll = useCallback(() => {
     if (messageContainerRef.current) {
-      const { scrollTop, scrollHeight, clientHeight } = messageContainerRef.current;
+      const {scrollTop, scrollHeight, clientHeight} = messageContainerRef.current;
       // Consider the user at bottom if they're within 30px of the bottom
       const bottomThreshold = 30;
       setIsAtBottom(scrollHeight - scrollTop - clientHeight <= bottomThreshold);
@@ -97,7 +97,7 @@ const ChatInterface = () => {
       return {
         updatedMessages: [
           ...updatedMessages.slice(0, -1),
-          { role: 'assistant', content: fullText, isStreaming: true }
+          {role: 'assistant', content: fullText, isStreaming: true}
         ],
         shouldShowThinking: false
       };
@@ -146,8 +146,8 @@ const ChatInterface = () => {
     e.preventDefault();
     if (!input.trim()) return;
 
-    const userMessage = { role: 'user', content: input };
-    setMessages(prev => [...prev, userMessage, { role: 'assistant', content: '', thinking: null, isStreaming: true }]);
+    const userMessage = {role: 'user', content: input};
+    setMessages(prev => [...prev, userMessage, {role: 'assistant', content: '', thinking: null, isStreaming: true}]);
     setInput('');
     setThinking('');
     setShowThinking(true);
@@ -155,15 +155,15 @@ const ChatInterface = () => {
 
     try {
       await api.chatbot.botDentist(
-        messages,
-        input,
-        (token, fullText) => {
-          setMessages(prevMessages => {
-            const { updatedMessages } = processThinkingContent(fullText, prevMessages);
+          messages,
+          input,
+          (token, fullText) => {
+            setMessages(prevMessages => {
+              const {updatedMessages} = processThinkingContent(fullText, prevMessages);
 
-            return updatedMessages;
-          });
-        }
+              return updatedMessages;
+            });
+          }
       );
     } catch (error) {
       console.error('Error calling ChatBot:', error);
@@ -199,68 +199,68 @@ const ChatInterface = () => {
   const isLastMessage = useCallback((index) => index === messages.length - 1, [messages.length]);
 
   return (
-    <Box sx={{
-      display: 'flex',
-      flexDirection: 'column',
-      height: isMobile ? 'calc(100vh - 120px)' : '70vh',
-      maxWidth: '100%'
-    }}>
-      <Paper elevation={3} sx={paperStyles} ref={messageContainerRef}>
-        {messages.map((message, index) => (
-          <MessageBubble
-            key={index}
-            message={message}
-            showThinking={(showThinking || isThinkingClosing) && isLastMessage(index) && message.thinking}
-            onToggleThinking={toggleThinking}
-            isThinkingClosing={isThinkingClosing && isLastMessage(index)}
-            animationDots={isLastMessage(index) && message.isStreaming ? dots : ''}
-            isMobile={isMobile}
-          />
-        ))}
-        <div ref={messagesEndRef} />
-      </Paper>
+      <Box sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        height: isMobile ? 'calc(100vh - 120px)' : '70vh',
+        maxWidth: '100%'
+      }}>
+        <Paper elevation={3} sx={paperStyles} ref={messageContainerRef}>
+          {messages.map((message, index) => (
+              <MessageBubble
+                  key={index}
+                  message={message}
+                  showThinking={(showThinking || isThinkingClosing) && isLastMessage(index) && message.thinking}
+                  onToggleThinking={toggleThinking}
+                  isThinkingClosing={isThinkingClosing && isLastMessage(index)}
+                  animationDots={isLastMessage(index) && message.isStreaming ? dots : ''}
+                  isMobile={isMobile}
+              />
+          ))}
+          <div ref={messagesEndRef}/>
+        </Paper>
 
-      <form onSubmit={handleSendMessage} style={{ display: 'flex' }}>
-        <TextField
-          fullWidth
-          variant="outlined"
-          placeholder={isMobile ? "Ask a dental question..." : "Ask about dental care, procedures, or concerns..."}
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          disabled={loading}
-          multiline
-          maxRows={isMobile ? 3 : 4}
-          minRows={input.includes('\n') ? (isMobile ? 2 : 3) : 1}
-          size={isMobile ? "small" : "medium"}
-          sx={{
-            '& .MuiOutlinedInput-root': {
-              borderRadius: isMobile ? '12px' : '16px',
-              fontSize: isMobile ? '0.875rem' : '1rem',
-            }
-          }}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton
-                  type="submit"
-                  disabled={!input.trim() || loading}
-                  color="primary"
-                  size={isMobile ? "small" : "medium"}
-                >
-                  <SendIcon fontSize={isMobile ? "small" : "medium"} />
-                </IconButton>
-              </InputAdornment>
-            ),
-          }}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-              e.preventDefault();
-              if (input.trim()) handleSendMessage(e);
-            }
-          }}
-        />
-      </form>
-    </Box>
+        <form onSubmit={handleSendMessage} style={{display: 'flex'}}>
+          <TextField
+              fullWidth
+              variant="outlined"
+              placeholder={isMobile ? "Ask a dental question..." : "Ask about dental care, procedures, or concerns..."}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              disabled={loading}
+              multiline
+              maxRows={isMobile ? 3 : 4}
+              minRows={input.includes('\n') ? (isMobile ? 2 : 3) : 1}
+              size={isMobile ? "small" : "medium"}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: isMobile ? '12px' : '16px',
+                  fontSize: isMobile ? '0.875rem' : '1rem',
+                }
+              }}
+              InputProps={{
+                endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                          type="submit"
+                          disabled={!input.trim() || loading}
+                          color="primary"
+                          size={isMobile ? "small" : "medium"}
+                      >
+                        <SendIcon fontSize={isMobile ? "small" : "medium"}/>
+                      </IconButton>
+                    </InputAdornment>
+                ),
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  if (input.trim()) handleSendMessage(e);
+                }
+              }}
+          />
+        </form>
+      </Box>
   );
 };
 

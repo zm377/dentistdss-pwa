@@ -22,7 +22,7 @@ const config = {
     isTest: isTest,
     isProd: isProduction,
   },
-  
+
   api: {
     baseUrl: isProduction ? `${API_HOST}` : `${API_HOST}:${API_PORT}`,
     authPath: API_AUTH_PATH,
@@ -40,7 +40,7 @@ const config = {
       mapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
     },
   },
-  
+
   // Application settings
   app: {
     name: 'Dentabot',

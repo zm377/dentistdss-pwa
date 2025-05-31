@@ -1,32 +1,20 @@
-import React, { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { ThemeProvider } from '@mui/material/styles';
-import { CssBaseline, useMediaQuery } from '@mui/material';
-import { useAuth } from './context/AuthContext';
+import { CssBaseline } from '@mui/material';
+import { useAuth } from './context/auth';
+import useDarkMode from './hooks/useDarkMode';
 import './styles/App.css';
 import GlobalSnackbar from './components/GlobalSnackbar';
 import AppShell from './components/AppShell';
 import { NotificationProvider } from './components/NotificationSystem';
-import theme from './theme';
+import { AppProvider } from '@toolpad/core/AppProvider';
+import theme from './context/theme';
 
 import AppRoutes from './routes';
 
 function App() {
-  const [darkMode, setDarkMode] = useState(false);
   const { loading, logout } = useAuth();
-  const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
-  const [initialThemeSet, setInitialThemeSet] = useState(false);
-
-  React.useEffect(() => {
-    if (!initialThemeSet) {
-      setDarkMode(prefersDarkMode);
-      setInitialThemeSet(true);
-    }
-  }, [prefersDarkMode, initialThemeSet]);
-
-  const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-  };
+  const { darkMode, toggleDarkMode } = useDarkMode();
 
   const appTheme = useMemo(() => theme(darkMode ? 'dark' : 'light'), [darkMode]);
 
@@ -35,7 +23,9 @@ function App() {
   }
 
   return (
-    <ThemeProvider theme={appTheme}>
+    <AppProvider
+      theme={appTheme}
+    >
       <CssBaseline />
       <NotificationProvider>
         <Router>
@@ -46,10 +36,10 @@ function App() {
           >
             <AppRoutes />
           </AppShell>
+          <GlobalSnackbar />
         </Router>
-        <GlobalSnackbar />
       </NotificationProvider>
-    </ThemeProvider>
+    </AppProvider>
   );
 }
 

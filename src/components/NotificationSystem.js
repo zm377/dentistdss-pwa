@@ -1,4 +1,4 @@
-import React, { useState, useEffect, createContext, useContext, useCallback } from 'react';
+import React, {useState, useEffect, createContext, useContext, useCallback} from 'react';
 import {
   Snackbar,
   Alert,
@@ -8,7 +8,6 @@ import {
   List,
   ListItem,
   ListItemIcon,
-  ListItemText,
   ListItemSecondaryAction,
   Typography,
   Box,
@@ -73,7 +72,7 @@ export const useNotifications = () => {
 };
 
 // Notification Provider Component
-export const NotificationProvider = ({ children }) => {
+export const NotificationProvider = ({children}) => {
   const [notifications, setNotifications] = useState([]);
   const [snackbars, setSnackbars] = useState([]);
   const [settings, setSettings] = useState({
@@ -116,9 +115,9 @@ export const NotificationProvider = ({ children }) => {
     const now = new Date();
     const currentTime = now.getHours() * 60 + now.getMinutes();
     const startTime = parseInt(settings.quietHours.start.split(':')[0]) * 60 +
-                     parseInt(settings.quietHours.start.split(':')[1]);
+        parseInt(settings.quietHours.start.split(':')[1]);
     const endTime = parseInt(settings.quietHours.end.split(':')[0]) * 60 +
-                   parseInt(settings.quietHours.end.split(':')[1]);
+        parseInt(settings.quietHours.end.split(':')[1]);
 
     if (startTime <= endTime) {
       return currentTime >= startTime && currentTime <= endTime;
@@ -205,8 +204,8 @@ export const NotificationProvider = ({ children }) => {
       addSnackbar({
         message: notification.title,
         severity: notification.type === 'error' ? 'error' :
-                 notification.type === 'warning' ? 'warning' :
-                 notification.type === 'success' ? 'success' : 'info',
+            notification.type === 'warning' ? 'warning' :
+                notification.type === 'success' ? 'success' : 'info',
         autoHideDuration: notification.urgent ? 8000 : 6000,
       });
     }
@@ -227,15 +226,15 @@ export const NotificationProvider = ({ children }) => {
 
   const markAsRead = useCallback((id) => {
     setNotifications(prev =>
-      prev.map(notification =>
-        notification.id === id ? { ...notification, read: true } : notification
-      )
+        prev.map(notification =>
+            notification.id === id ? {...notification, read: true} : notification
+        )
     );
   }, []);
 
   const markAllAsRead = useCallback(() => {
     setNotifications(prev =>
-      prev.map(notification => ({ ...notification, read: true }))
+        prev.map(notification => ({...notification, read: true}))
     );
   }, []);
 
@@ -248,7 +247,7 @@ export const NotificationProvider = ({ children }) => {
   }, []);
 
   const updateSettings = useCallback((newSettings) => {
-    setSettings(prev => ({ ...prev, ...newSettings }));
+    setSettings(prev => ({...prev, ...newSettings}));
   }, []);
 
   const getNotificationsByCategory = useCallback((category) => {
@@ -282,91 +281,91 @@ export const NotificationProvider = ({ children }) => {
   };
 
   return (
-    <NotificationContext.Provider value={value}>
-      {children}
-      <SnackbarContainer />
-    </NotificationContext.Provider>
+      <NotificationContext.Provider value={value}>
+        {children}
+        <SnackbarContainer/>
+      </NotificationContext.Provider>
   );
 };
 
 // Snackbar Container Component
 const SnackbarContainer = () => {
-  const { snackbars, removeSnackbar } = useNotifications();
+  const {snackbars, removeSnackbar} = useNotifications();
 
   return (
-    <>
-      {snackbars.map((snackbar, index) => (
-        <Snackbar
-          key={snackbar.id}
-          open={true}
-          autoHideDuration={snackbar.autoHideDuration}
-          onClose={() => removeSnackbar(snackbar.id)}
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-          sx={{
-            bottom: { xs: 90 + (index * 70), sm: 24 + (index * 70) },
-            zIndex: 1400 + index,
-          }}
-        >
-          <Alert
-            severity={snackbar.severity}
-            onClose={() => removeSnackbar(snackbar.id)}
-            variant="filled"
-          >
-            {snackbar.message}
-          </Alert>
-        </Snackbar>
-      ))}
-    </>
+      <>
+        {snackbars.map((snackbar, index) => (
+            <Snackbar
+                key={snackbar.id}
+                open={true}
+                autoHideDuration={snackbar.autoHideDuration}
+                onClose={() => removeSnackbar(snackbar.id)}
+                anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}
+                sx={{
+                  bottom: {xs: 90 + (index * 70), sm: 24 + (index * 70)},
+                  zIndex: 1400 + index,
+                }}
+            >
+              <Alert
+                  severity={snackbar.severity}
+                  onClose={() => removeSnackbar(snackbar.id)}
+                  variant="filled"
+              >
+                {snackbar.message}
+              </Alert>
+            </Snackbar>
+        ))}
+      </>
   );
 };
 
 // Notification Bell Component
 export const NotificationBell = () => {
-  const { notifications, unreadCount, urgentCount, settings } = useNotifications();
+  const {notifications, unreadCount, urgentCount, settings} = useNotifications();
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   return (
-    <>
-      <Tooltip title={`${unreadCount} unread notifications${urgentCount > 0 ? ` (${urgentCount} urgent)` : ''}`}>
-        <IconButton
-          color="inherit"
-          onClick={() => setDrawerOpen(true)}
-          sx={{
-            position: 'relative',
-            '&::after': urgentCount > 0 ? {
-              content: '""',
-              position: 'absolute',
-              top: 8,
-              right: 8,
-              width: 8,
-              height: 8,
-              borderRadius: '50%',
-              backgroundColor: 'error.main',
-              animation: 'pulse 2s infinite',
-            } : {},
-          }}
-        >
-          <Badge
-            badgeContent={unreadCount}
-            color="error"
-            max={99}
+      <>
+        <Tooltip title={`${unreadCount} unread notifications${urgentCount > 0 ? ` (${urgentCount} urgent)` : ''}`}>
+          <IconButton
+              color="inherit"
+              onClick={() => setDrawerOpen(true)}
+              sx={{
+                position: 'relative',
+                '&::after': urgentCount > 0 ? {
+                  content: '""',
+                  position: 'absolute',
+                  top: 8,
+                  right: 8,
+                  width: 8,
+                  height: 8,
+                  borderRadius: '50%',
+                  backgroundColor: 'error.main',
+                  animation: 'pulse 2s infinite',
+                } : {},
+              }}
           >
-            {settings.enabled ? <NotificationsIcon /> : <NotificationsOffIcon />}
-          </Badge>
-        </IconButton>
-      </Tooltip>
+            <Badge
+                badgeContent={unreadCount}
+                color="error"
+                max={99}
+            >
+              {settings.enabled ? <NotificationsIcon/> : <NotificationsOffIcon/>}
+            </Badge>
+          </IconButton>
+        </Tooltip>
 
-      <NotificationDrawer
-        open={drawerOpen}
-        onClose={() => setDrawerOpen(false)}
-        notifications={notifications}
-      />
-    </>
+        <NotificationDrawer
+            open={drawerOpen}
+            onClose={() => setDrawerOpen(false)}
+            notifications={notifications}
+        />
+      </>
   );
 };
 
 // Notification Drawer Component
-const NotificationDrawer = ({ open, onClose, notifications }) => {
+const NotificationDrawer = ({open, onClose, notifications}) => {
   const {
     markAsRead,
     markAllAsRead,
@@ -383,31 +382,51 @@ const NotificationDrawer = ({ open, onClose, notifications }) => {
 
   const getNotificationIcon = (type) => {
     switch (type) {
-      case 'appointment': return <EventIcon />;
-      case 'medical': return <MedicalServicesIcon />;
-      case 'patient': return <PersonIcon />;
-      case 'system': return <SettingsIcon />;
-      case 'payment': return <PaymentIcon />;
-      case 'security': return <SecurityIcon />;
-      case 'warning': return <WarningIcon />;
-      case 'error': return <ErrorIcon />;
-      case 'success': return <CheckCircleIcon />;
-      default: return <InfoIcon />;
+      case 'appointment':
+        return <EventIcon/>;
+      case 'medical':
+        return <MedicalServicesIcon/>;
+      case 'patient':
+        return <PersonIcon/>;
+      case 'system':
+        return <SettingsIcon/>;
+      case 'payment':
+        return <PaymentIcon/>;
+      case 'security':
+        return <SecurityIcon/>;
+      case 'warning':
+        return <WarningIcon/>;
+      case 'error':
+        return <ErrorIcon/>;
+      case 'success':
+        return <CheckCircleIcon/>;
+      default:
+        return <InfoIcon/>;
     }
   };
 
   const getNotificationColor = (type) => {
     switch (type) {
-      case 'appointment': return 'primary';
-      case 'medical': return 'secondary';
-      case 'patient': return 'info';
-      case 'system': return 'default';
-      case 'payment': return 'success';
-      case 'security': return 'error';
-      case 'warning': return 'warning';
-      case 'error': return 'error';
-      case 'success': return 'success';
-      default: return 'info';
+      case 'appointment':
+        return 'primary';
+      case 'medical':
+        return 'secondary';
+      case 'patient':
+        return 'info';
+      case 'system':
+        return 'default';
+      case 'payment':
+        return 'success';
+      case 'security':
+        return 'error';
+      case 'warning':
+        return 'warning';
+      case 'error':
+        return 'error';
+      case 'success':
+        return 'success';
+      default:
+        return 'info';
     }
   };
 
@@ -432,7 +451,7 @@ const NotificationDrawer = ({ open, onClose, notifications }) => {
   });
 
   const handleSettingsChange = (key, value) => {
-    updateSettings({ [key]: value });
+    updateSettings({[key]: value});
   };
 
   const handleTypeSettingChange = (type, enabled) => {
@@ -454,347 +473,343 @@ const NotificationDrawer = ({ open, onClose, notifications }) => {
   };
 
   const renderNotificationsList = () => (
-    <Box sx={{ flex: 1, overflow: 'auto' }}>
-      {/* Filter Controls */}
-      <Box sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
-        <FormControl size="small" sx={{ minWidth: 120 }}>
-          <InputLabel>Filter</InputLabel>
-          <Select
-            value={filterType}
-            label="Filter"
-            onChange={(e) => setFilterType(e.target.value)}
-          >
-            <MenuItem value="all">All</MenuItem>
-            <MenuItem value="unread">Unread</MenuItem>
-            <MenuItem value="urgent">Urgent</MenuItem>
-            <MenuItem value="appointment">Appointments</MenuItem>
-            <MenuItem value="medical">Medical</MenuItem>
-            <MenuItem value="patient">Patients</MenuItem>
-            <MenuItem value="system">System</MenuItem>
-          </Select>
-        </FormControl>
-      </Box>
-
-      {filteredNotifications.length === 0 ? (
-        <Box sx={{ textAlign: 'center', py: 4 }}>
-          <NotificationsIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
-          <Typography variant="body1" color="text.secondary">
-            {filterType === 'all' ? 'No notifications yet' : `No ${filterType} notifications`}
-          </Typography>
+      <Box sx={{flex: 1, overflow: 'auto'}}>
+        {/* Filter Controls */}
+        <Box sx={{p: 2, borderBottom: '1px solid', borderColor: 'divider'}}>
+          <FormControl size="small" sx={{minWidth: 120}}>
+            <InputLabel>Filter</InputLabel>
+            <Select
+                value={filterType}
+                label="Filter"
+                onChange={(e) => setFilterType(e.target.value)}
+            >
+              <MenuItem value="all">All</MenuItem>
+              <MenuItem value="unread">Unread</MenuItem>
+              <MenuItem value="urgent">Urgent</MenuItem>
+              <MenuItem value="appointment">Appointments</MenuItem>
+              <MenuItem value="medical">Medical</MenuItem>
+              <MenuItem value="patient">Patients</MenuItem>
+              <MenuItem value="system">System</MenuItem>
+            </Select>
+          </FormControl>
         </Box>
-      ) : (
-        <List sx={{ p: 0 }}>
-          {filteredNotifications.map((notification, index) => (
-            <Fade in timeout={300} key={notification.id}>
-              <ListItem
-                sx={{
-                  bgcolor: notification.read ? 'transparent' : 'action.hover',
-                  borderLeft: notification.urgent ? '4px solid' : 'none',
-                  borderColor: 'error.main',
-                  cursor: 'pointer',
-                  '&:hover': {
-                    bgcolor: 'action.selected',
-                  },
-                }}
-                onClick={() => !notification.read && markAsRead(notification.id)}
-              >
-                <ListItemIcon>
-                  <Avatar
-                    sx={{
-                      bgcolor: `${getNotificationColor(notification.type)}.main`,
-                      width: 32,
-                      height: 32,
-                    }}
-                  >
-                    {getNotificationIcon(notification.type)}
-                  </Avatar>
-                </ListItemIcon>
 
-                <ListItemText
-                  primary={
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Typography
-                        variant="subtitle2"
+        {filteredNotifications.length === 0 ? (
+            <Box sx={{textAlign: 'center', py: 4}}>
+              <NotificationsIcon sx={{fontSize: 48, color: 'text.secondary', mb: 2}}/>
+              <Typography variant="body1" color="text.secondary">
+                {filterType === 'all' ? 'No notifications yet' : `No ${filterType} notifications`}
+              </Typography>
+            </Box>
+        ) : (
+            <List sx={{p: 0}}>
+              {filteredNotifications.map((notification, index) => (
+                  <Fade in timeout={300} key={notification.id}>
+                    <ListItem
                         sx={{
-                          fontWeight: notification.read ? 'normal' : 'bold',
-                          flexGrow: 1,
+                          bgcolor: notification.read ? 'transparent' : 'action.hover',
+                          borderLeft: notification.urgent ? '4px solid' : 'none',
+                          borderColor: 'error.main',
+                          cursor: 'pointer',
+                          '&:hover': {
+                            bgcolor: 'action.selected',
+                          },
                         }}
-                      >
-                        {notification.title}
-                      </Typography>
-                      {notification.urgent && (
-                        <Chip label="Urgent" color="error" size="small" />
-                      )}
-                      {notification.priority === 'high' && !notification.urgent && (
-                        <Chip label="High" color="warning" size="small" />
-                      )}
-                    </Box>
-                  }
-                  secondary={
-                    <Box>
-                      <Typography variant="body2" color="text.secondary">
-                        {notification.message}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {formatTimeAgo(notification.timestamp)}
-                      </Typography>
-                    </Box>
-                  }
-                />
+                        onClick={() => !notification.read && markAsRead(notification.id)}
+                    >
+                      <ListItemIcon>
+                        <Avatar
+                            sx={{
+                              bgcolor: `${getNotificationColor(notification.type)}.main`,
+                              width: 32,
+                              height: 32,
+                            }}
+                        >
+                          {getNotificationIcon(notification.type)}
+                        </Avatar>
+                      </ListItemIcon>
 
-                <ListItemSecondaryAction>
-                  <IconButton
-                    size="small"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      deleteNotification(notification.id);
-                    }}
-                  >
-                    <DeleteIcon fontSize="small" />
-                  </IconButton>
-                </ListItemSecondaryAction>
-              </ListItem>
-            </Fade>
-          ))}
-        </List>
-      )}
-    </Box>
+                      <Box sx={{ flex: 1 }}>
+                        <Box sx={{display: 'flex', alignItems: 'center', gap: 1, mb: 1}}>
+                          <Typography
+                              variant="subtitle2"
+                              sx={{
+                                fontWeight: notification.read ? 'normal' : 'bold',
+                                flexGrow: 1,
+                              }}
+                          >
+                            {notification.title}
+                          </Typography>
+                          {notification.urgent && (
+                              <Chip label="Urgent" color="error" size="small"/>
+                          )}
+                          {notification.priority === 'high' && !notification.urgent && (
+                              <Chip label="High" color="warning" size="small"/>
+                          )}
+                        </Box>
+                        <Box>
+                          <Typography variant="body2" color="text.secondary">
+                            {notification.message}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {formatTimeAgo(notification.timestamp)}
+                          </Typography>
+                        </Box>
+                      </Box>
+
+                      <ListItemSecondaryAction>
+                        <IconButton
+                            size="small"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              deleteNotification(notification.id);
+                            }}
+                        >
+                          <DeleteIcon fontSize="small"/>
+                        </IconButton>
+                      </ListItemSecondaryAction>
+                    </ListItem>
+                  </Fade>
+              ))}
+            </List>
+        )}
+      </Box>
   );
 
   const renderSettingsPanel = () => (
-    <Box sx={{ p: 2 }}>
-      <Typography variant="h6" gutterBottom>
-        Notification Settings
-      </Typography>
+      <Box sx={{p: 2}}>
+        <Typography variant="h6" gutterBottom>
+          Notification Settings
+        </Typography>
 
-      {/* General Settings */}
-      <Card sx={{ mb: 2 }}>
-        <CardContent>
-          <Typography variant="subtitle1" gutterBottom>
-            General
-          </Typography>
+        {/* General Settings */}
+        <Card sx={{mb: 2}}>
+          <CardContent>
+            <Typography variant="subtitle1" gutterBottom>
+              General
+            </Typography>
 
-          <FormControlLabel
-            control={
-              <Switch
-                checked={settings.enabled}
-                onChange={(e) => handleSettingsChange('enabled', e.target.checked)}
-              />
-            }
-            label="Enable notifications"
-          />
-
-          <FormControlLabel
-            control={
-              <Switch
-                checked={settings.sound}
-                onChange={(e) => handleSettingsChange('sound', e.target.checked)}
-                disabled={!settings.enabled}
-              />
-            }
-            label={
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                {settings.sound ? <VolumeUpIcon /> : <VolumeOffIcon />}
-                Sound alerts
-              </Box>
-            }
-          />
-
-          <FormControlLabel
-            control={
-              <Switch
-                checked={settings.desktop}
-                onChange={(e) => {
-                  handleSettingsChange('desktop', e.target.checked);
-                  if (e.target.checked) {
-                    requestDesktopPermission();
-                  }
-                }}
-                disabled={!settings.enabled}
-              />
-            }
-            label="Desktop notifications"
-          />
-
-          <FormControlLabel
-            control={
-              <Switch
-                checked={settings.email}
-                onChange={(e) => handleSettingsChange('email', e.target.checked)}
-                disabled={!settings.enabled}
-              />
-            }
-            label={
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <MailOutlineIcon />
-                Email notifications
-              </Box>
-            }
-          />
-
-          <FormControlLabel
-            control={
-              <Switch
-                checked={settings.sms}
-                onChange={(e) => handleSettingsChange('sms', e.target.checked)}
-                disabled={!settings.enabled}
-              />
-            }
-            label={
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <SmsIcon />
-                SMS notifications
-              </Box>
-            }
-          />
-        </CardContent>
-      </Card>
-
-      {/* Notification Types */}
-      <Card sx={{ mb: 2 }}>
-        <CardContent>
-          <Typography variant="subtitle1" gutterBottom>
-            Notification Types
-          </Typography>
-
-          {Object.entries(settings.types).map(([type, enabled]) => (
             <FormControlLabel
-              key={type}
-              control={
-                <Switch
-                  checked={enabled}
-                  onChange={(e) => handleTypeSettingChange(type, e.target.checked)}
-                  disabled={!settings.enabled}
-                />
-              }
-              label={
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  {getNotificationIcon(type)}
-                  {type.charAt(0).toUpperCase() + type.slice(1)}
-                </Box>
-              }
+                control={
+                  <Switch
+                      checked={settings.enabled}
+                      onChange={(e) => handleSettingsChange('enabled', e.target.checked)}
+                  />
+                }
+                label="Enable notifications"
             />
-          ))}
-        </CardContent>
-      </Card>
 
-      {/* Quiet Hours */}
-      <Card>
-        <CardContent>
-          <Typography variant="subtitle1" gutterBottom>
-            Quiet Hours
-          </Typography>
+            <FormControlLabel
+                control={
+                  <Switch
+                      checked={settings.sound}
+                      onChange={(e) => handleSettingsChange('sound', e.target.checked)}
+                      disabled={!settings.enabled}
+                  />
+                }
+                label={
+                  <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
+                    {settings.sound ? <VolumeUpIcon/> : <VolumeOffIcon/>}
+                    Sound alerts
+                  </Box>
+                }
+            />
 
-          <FormControlLabel
-            control={
-              <Switch
-                checked={settings.quietHours.enabled}
-                onChange={(e) => handleQuietHoursChange('enabled', e.target.checked)}
-                disabled={!settings.enabled}
-              />
-            }
-            label="Enable quiet hours"
-          />
+            <FormControlLabel
+                control={
+                  <Switch
+                      checked={settings.desktop}
+                      onChange={(e) => {
+                        handleSettingsChange('desktop', e.target.checked);
+                        if (e.target.checked) {
+                          requestDesktopPermission();
+                        }
+                      }}
+                      disabled={!settings.enabled}
+                  />
+                }
+                label="Desktop notifications"
+            />
 
-          {settings.quietHours.enabled && (
-            <Box sx={{ mt: 2, display: 'flex', gap: 2 }}>
-              <TextField
-                label="Start time"
-                type="time"
-                value={settings.quietHours.start}
-                onChange={(e) => handleQuietHoursChange('start', e.target.value)}
-                size="small"
-                InputLabelProps={{ shrink: true }}
-              />
-              <TextField
-                label="End time"
-                type="time"
-                value={settings.quietHours.end}
-                onChange={(e) => handleQuietHoursChange('end', e.target.value)}
-                size="small"
-                InputLabelProps={{ shrink: true }}
-              />
-            </Box>
-          )}
-        </CardContent>
-      </Card>
-    </Box>
+            <FormControlLabel
+                control={
+                  <Switch
+                      checked={settings.email}
+                      onChange={(e) => handleSettingsChange('email', e.target.checked)}
+                      disabled={!settings.enabled}
+                  />
+                }
+                label={
+                  <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
+                    <MailOutlineIcon/>
+                    Email notifications
+                  </Box>
+                }
+            />
+
+            <FormControlLabel
+                control={
+                  <Switch
+                      checked={settings.sms}
+                      onChange={(e) => handleSettingsChange('sms', e.target.checked)}
+                      disabled={!settings.enabled}
+                  />
+                }
+                label={
+                  <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
+                    <SmsIcon/>
+                    SMS notifications
+                  </Box>
+                }
+            />
+          </CardContent>
+        </Card>
+
+        {/* Notification Types */}
+        <Card sx={{mb: 2}}>
+          <CardContent>
+            <Typography variant="subtitle1" gutterBottom>
+              Notification Types
+            </Typography>
+
+            {Object.entries(settings.types).map(([type, enabled]) => (
+                <FormControlLabel
+                    key={type}
+                    control={
+                      <Switch
+                          checked={enabled}
+                          onChange={(e) => handleTypeSettingChange(type, e.target.checked)}
+                          disabled={!settings.enabled}
+                      />
+                    }
+                    label={
+                      <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
+                        {getNotificationIcon(type)}
+                        {type.charAt(0).toUpperCase() + type.slice(1)}
+                      </Box>
+                    }
+                />
+            ))}
+          </CardContent>
+        </Card>
+
+        {/* Quiet Hours */}
+        <Card>
+          <CardContent>
+            <Typography variant="subtitle1" gutterBottom>
+              Quiet Hours
+            </Typography>
+
+            <FormControlLabel
+                control={
+                  <Switch
+                      checked={settings.quietHours.enabled}
+                      onChange={(e) => handleQuietHoursChange('enabled', e.target.checked)}
+                      disabled={!settings.enabled}
+                  />
+                }
+                label="Enable quiet hours"
+            />
+
+            {settings.quietHours.enabled && (
+                <Box sx={{mt: 2, display: 'flex', gap: 2}}>
+                  <TextField
+                      label="Start time"
+                      type="time"
+                      value={settings.quietHours.start}
+                      onChange={(e) => handleQuietHoursChange('start', e.target.value)}
+                      size="small"
+                      InputLabelProps={{shrink: true}}
+                  />
+                  <TextField
+                      label="End time"
+                      type="time"
+                      value={settings.quietHours.end}
+                      onChange={(e) => handleQuietHoursChange('end', e.target.value)}
+                      size="small"
+                      InputLabelProps={{shrink: true}}
+                  />
+                </Box>
+            )}
+          </CardContent>
+        </Card>
+      </Box>
   );
 
   return (
-    <Drawer
-      anchor="right"
-      open={open}
-      onClose={onClose}
-      PaperProps={{
-        sx: { width: { xs: '100%', sm: 400 }, display: 'flex', flexDirection: 'column' }
-      }}
-    >
-      {/* Header */}
-      <Box sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Typography variant="h6">
-            Notifications
-          </Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Tooltip title="Settings">
-              <IconButton
-                onClick={() => setShowSettings(!showSettings)}
-                color={showSettings ? 'primary' : 'default'}
-              >
-                <SettingsIcon />
+      <Drawer
+          anchor="right"
+          open={open}
+          onClose={onClose}
+          PaperProps={{
+            sx: {width: {xs: '100%', sm: 400}, display: 'flex', flexDirection: 'column'}
+          }}
+      >
+        {/* Header */}
+        <Box sx={{p: 2, borderBottom: '1px solid', borderColor: 'divider'}}>
+          <Box sx={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
+            <Typography variant="h6">
+              Notifications
+            </Typography>
+            <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
+              <Tooltip title="Settings">
+                <IconButton
+                    onClick={() => setShowSettings(!showSettings)}
+                    color={showSettings ? 'primary' : 'default'}
+                >
+                  <SettingsIcon/>
+                </IconButton>
+              </Tooltip>
+              <IconButton onClick={onClose}>
+                <CloseIcon/>
               </IconButton>
-            </Tooltip>
-            <IconButton onClick={onClose}>
-              <CloseIcon />
-            </IconButton>
+            </Box>
           </Box>
+
+          {/* Tabs */}
+          <Tabs
+              value={activeTab}
+              onChange={(e, newValue) => setActiveTab(newValue)}
+              sx={{mt: 1}}
+          >
+            <Tab label="All"/>
+            <Tab label="Unread"/>
+            <Tab label="Urgent"/>
+          </Tabs>
+
+          {/* Action Buttons */}
+          {!showSettings && notifications.length > 0 && (
+              <Box sx={{display: 'flex', gap: 1, mt: 2}}>
+                <Button
+                    size="small"
+                    startIcon={<MarkEmailReadIcon/>}
+                    onClick={markAllAsRead}
+                    variant="outlined"
+                >
+                  Mark all read
+                </Button>
+                <Button
+                    size="small"
+                    color="error"
+                    startIcon={<DeleteIcon/>}
+                    onClick={clearAllNotifications}
+                    variant="outlined"
+                >
+                  Clear all
+                </Button>
+              </Box>
+          )}
         </Box>
 
-        {/* Tabs */}
-        <Tabs
-          value={activeTab}
-          onChange={(e, newValue) => setActiveTab(newValue)}
-          sx={{ mt: 1 }}
-        >
-          <Tab label="All" />
-          <Tab label="Unread" />
-          <Tab label="Urgent" />
-        </Tabs>
-
-        {/* Action Buttons */}
-        {!showSettings && notifications.length > 0 && (
-          <Box sx={{ display: 'flex', gap: 1, mt: 2 }}>
-            <Button
-              size="small"
-              startIcon={<MarkEmailReadIcon />}
-              onClick={markAllAsRead}
-              variant="outlined"
-            >
-              Mark all read
-            </Button>
-            <Button
-              size="small"
-              color="error"
-              startIcon={<DeleteIcon />}
-              onClick={clearAllNotifications}
-              variant="outlined"
-            >
-              Clear all
-            </Button>
-          </Box>
-        )}
-      </Box>
-
-      {/* Content */}
-      {showSettings ? renderSettingsPanel() : renderNotificationsList()}
-    </Drawer>
+        {/* Content */}
+        {showSettings ? renderSettingsPanel() : renderNotificationsList()}
+      </Drawer>
   );
 };
 
 // Hook for simulating real-time notifications (for demo purposes)
 export const useRealtimeNotifications = (userRole = 'patient') => {
-  const { addNotification } = useNotifications();
+  const {addNotification} = useNotifications();
 
   useEffect(() => {
     // Different notification types based on user role
@@ -892,8 +907,8 @@ export const useRealtimeNotifications = (userRole = 'patient') => {
       // Randomly send a notification (15% chance every 45 seconds)
       if (Math.random() < 0.15) {
         const randomNotification = notificationTypes[
-          Math.floor(Math.random() * notificationTypes.length)
-        ];
+            Math.floor(Math.random() * notificationTypes.length)
+            ];
         addNotification({
           ...randomNotification,
           category: userRole,
@@ -907,11 +922,11 @@ export const useRealtimeNotifications = (userRole = 'patient') => {
 
 // Notification Toast Component for quick messages
 export const NotificationToast = ({
-  message,
-  severity = 'info',
-  duration = 4000,
-  onClose
-}) => {
+                                    message,
+                                    severity = 'info',
+                                    duration = 4000,
+                                    onClose
+                                  }) => {
   const [open, setOpen] = useState(true);
 
   const handleClose = (event, reason) => {
@@ -923,88 +938,88 @@ export const NotificationToast = ({
   };
 
   return (
-    <Snackbar
-      open={open}
-      autoHideDuration={duration}
-      onClose={handleClose}
-      anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-    >
-      <Alert onClose={handleClose} severity={severity} variant="filled">
-        {message}
-      </Alert>
-    </Snackbar>
+      <Snackbar
+          open={open}
+          autoHideDuration={duration}
+          onClose={handleClose}
+          anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}
+      >
+        <Alert onClose={handleClose} severity={severity} variant="filled">
+          {message}
+        </Alert>
+      </Snackbar>
   );
 };
 
 // Notification Badge Component
-export const NotificationBadge = ({ children, count = 0, showZero = false }) => {
+export const NotificationBadge = ({children, count = 0, showZero = false}) => {
   return (
-    <Badge
-      badgeContent={count}
-      color="error"
-      invisible={!showZero && count === 0}
-      max={99}
-    >
-      {children}
-    </Badge>
+      <Badge
+          badgeContent={count}
+          color="error"
+          invisible={!showZero && count === 0}
+          max={99}
+      >
+        {children}
+      </Badge>
   );
 };
 
 // Notification Status Indicator
 export const NotificationStatusIndicator = () => {
-  const { settings, unreadCount, urgentCount } = useNotifications();
+  const {settings, unreadCount, urgentCount} = useNotifications();
 
   if (!settings.enabled) {
     return (
-      <Tooltip title="Notifications disabled">
-        <Chip
-          icon={<NotificationsOffIcon />}
-          label="Notifications Off"
-          size="small"
-          color="default"
-          variant="outlined"
-        />
-      </Tooltip>
+        <Tooltip title="Notifications disabled">
+          <Chip
+              icon={<NotificationsOffIcon/>}
+              label="Notifications Off"
+              size="small"
+              color="default"
+              variant="outlined"
+          />
+        </Tooltip>
     );
   }
 
   if (urgentCount > 0) {
     return (
-      <Tooltip title={`${urgentCount} urgent notifications`}>
-        <Chip
-          icon={<WarningIcon />}
-          label={`${urgentCount} Urgent`}
-          size="small"
-          color="error"
-          sx={{ animation: 'pulse 2s infinite' }}
-        />
-      </Tooltip>
+        <Tooltip title={`${urgentCount} urgent notifications`}>
+          <Chip
+              icon={<WarningIcon/>}
+              label={`${urgentCount} Urgent`}
+              size="small"
+              color="error"
+              sx={{animation: 'pulse 2s infinite'}}
+          />
+        </Tooltip>
     );
   }
 
   if (unreadCount > 0) {
     return (
-      <Tooltip title={`${unreadCount} unread notifications`}>
-        <Chip
-          icon={<NotificationsIcon />}
-          label={unreadCount}
-          size="small"
-          color="primary"
-        />
-      </Tooltip>
+        <Tooltip title={`${unreadCount} unread notifications`}>
+          <Chip
+              icon={<NotificationsIcon/>}
+              label={unreadCount}
+              size="small"
+              color="primary"
+          />
+        </Tooltip>
     );
   }
 
   return (
-    <Tooltip title="All notifications read">
-      <Chip
-        icon={<CheckCircleIcon />}
-        label="All Read"
-        size="small"
-        color="success"
-        variant="outlined"
-      />
-    </Tooltip>
+      <Tooltip title="All notifications read">
+        <Chip
+            icon={<CheckCircleIcon/>}
+            label="All Read"
+            size="small"
+            color="success"
+            variant="outlined"
+        />
+      </Tooltip>
   );
 };
 
@@ -1026,66 +1041,66 @@ export const createNotification = (type, title, message, options = {}) => {
 // Predefined notification templates
 export const NotificationTemplates = {
   appointmentReminder: (patientName, date, time) => createNotification(
-    'appointment',
-    'Appointment Reminder',
-    `Reminder: ${patientName} has an appointment on ${date} at ${time}`,
-    { priority: 'high' }
+      'appointment',
+      'Appointment Reminder',
+      `Reminder: ${patientName} has an appointment on ${date} at ${time}`,
+      {priority: 'high'}
   ),
 
   appointmentCancelled: (patientName, date) => createNotification(
-    'appointment',
-    'Appointment Cancelled',
-    `${patientName}'s appointment on ${date} has been cancelled`,
-    { priority: 'normal' }
+      'appointment',
+      'Appointment Cancelled',
+      `${patientName}'s appointment on ${date} has been cancelled`,
+      {priority: 'normal'}
   ),
 
   labResultsReady: (patientName) => createNotification(
-    'medical',
-    'Lab Results Ready',
-    `Lab results are ready for ${patientName}`,
-    { priority: 'normal' }
+      'medical',
+      'Lab Results Ready',
+      `Lab results are ready for ${patientName}`,
+      {priority: 'normal'}
   ),
 
   urgentLabResults: (patientName) => createNotification(
-    'medical',
-    'Urgent Lab Results',
-    `URGENT: Lab results for ${patientName} require immediate attention`,
-    { urgent: true, priority: 'high' }
+      'medical',
+      'Urgent Lab Results',
+      `URGENT: Lab results for ${patientName} require immediate attention`,
+      {urgent: true, priority: 'high'}
   ),
 
   paymentReceived: (amount, patientName) => createNotification(
-    'payment',
-    'Payment Received',
-    `Payment of $${amount} received from ${patientName}`,
-    { priority: 'normal' }
+      'payment',
+      'Payment Received',
+      `Payment of $${amount} received from ${patientName}`,
+      {priority: 'normal'}
   ),
 
   paymentOverdue: (amount, patientName) => createNotification(
-    'payment',
-    'Payment Overdue',
-    `Payment of $${amount} from ${patientName} is overdue`,
-    { priority: 'high' }
+      'payment',
+      'Payment Overdue',
+      `Payment of $${amount} from ${patientName} is overdue`,
+      {priority: 'high'}
   ),
 
   newPatientRegistration: (patientName) => createNotification(
-    'patient',
-    'New Patient Registration',
-    `${patientName} has registered as a new patient`,
-    { priority: 'normal' }
+      'patient',
+      'New Patient Registration',
+      `${patientName} has registered as a new patient`,
+      {priority: 'normal'}
   ),
 
   systemMaintenance: (startTime, endTime) => createNotification(
-    'system',
-    'Scheduled Maintenance',
-    `System maintenance scheduled from ${startTime} to ${endTime}`,
-    { priority: 'normal' }
+      'system',
+      'Scheduled Maintenance',
+      `System maintenance scheduled from ${startTime} to ${endTime}`,
+      {priority: 'normal'}
   ),
 
   securityAlert: (message) => createNotification(
-    'security',
-    'Security Alert',
-    message,
-    { urgent: true, priority: 'high' }
+      'security',
+      'Security Alert',
+      message,
+      {urgent: true, priority: 'high'}
   ),
 };
 

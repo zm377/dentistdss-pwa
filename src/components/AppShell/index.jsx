@@ -7,9 +7,8 @@ import {
 import { useLocation } from 'react-router-dom';
 import dictionary from '../../utils/dictionary';
 
-import Footer from '../Footer';
 import Home from '../../pages/Home';
-import Dashboard from '../../pages/Dashboard';
+import Dashboard from '../../pages/Dashboard/index.jsx';
 
 const AppShell = ({
   children,
@@ -25,7 +24,7 @@ const AppShell = ({
   const isPublicPage = dictionary.locations.public.includes(location.pathname);
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: 'calc(100vh - 100px)' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
       {(isPublicPage) ? (
         <Home isMobile={isMobile} darkMode={darkMode} toggleDarkMode={toggleDarkMode}>
           {children}
@@ -35,7 +34,6 @@ const AppShell = ({
           {children}
         </Dashboard>
       )}
-      <Footer />
     </Box>
   );
 };

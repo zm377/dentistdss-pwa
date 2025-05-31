@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { 
-  Box, 
-  Typography, 
-  Container, 
-  Paper, 
-  Alert, 
+import React, {useState, useEffect} from 'react';
+import {useLocation, useNavigate} from 'react-router-dom';
+import {
+  Box,
+  Typography,
+  Container,
+  Paper,
+  Alert,
   TextField,
   Button,
   CircularProgress,
@@ -23,7 +23,7 @@ const LOCAL_STORAGE_RESEND_KEY = 'resendVerificationStatus';
 const VerifyEmailWithCodePage = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { email: initialEmail, firstName: initialFirstName } = location.state || {};
+  const {email: initialEmail, firstName: initialFirstName} = location.state || {};
 
   // Persist email and firstName in local state to survive potential state loss on refresh, though navigation usually handles this.
   const [email, setEmail] = useState(initialEmail);
@@ -183,111 +183,123 @@ const VerifyEmailWithCodePage = () => {
 
   if (!email || !firstName) {
     return (
-      <Container component="main" maxWidth="sm" sx={{ mt: 8 }}>
-        <Paper elevation={3} sx={{ p: 4, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <ErrorOutlineIcon sx={{ fontSize: 60, color: 'error.main', mb: 2 }} />
-          <Typography variant="h5" component="h1" gutterBottom>
-            Verification Error
-          </Typography>
-          <Alert severity="error" sx={{ mb: 2, width: '100%' }}>
-            Your session information is missing. Please try signing up again.
-          </Alert>
-          <Button variant="contained" onClick={() => navigate('/signup')}>
-            Go to Sign Up
-          </Button>
-        </Paper>
-      </Container>
+        <Container component="main" maxWidth="sm" sx={{mt: 8}}>
+          <Paper elevation={3} sx={{p: 4, display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+            <ErrorOutlineIcon sx={{fontSize: 60, color: 'error.main', mb: 2}}/>
+            <Typography variant="h5" component="h1" gutterBottom>
+              Verification Error
+            </Typography>
+            <Alert severity="error" sx={{mb: 2, width: '100%'}}>
+              Your session information is missing. Please try signing up again.
+            </Alert>
+            <Button variant="contained" onClick={() => navigate('/signup')}>
+              Go to Sign Up
+            </Button>
+          </Paper>
+        </Container>
     );
   }
 
   if (showSuccessMessage) {
     return (
-      <Container component="main" maxWidth="sm" sx={{ mt: 8 }}>
-        <Paper elevation={3} sx={{ p: { xs: 2, sm: 4 }, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-          <CheckCircleOutlineIcon sx={{ fontSize: 60, color: 'success.main', mb: 2 }} />
-          <Typography variant="h4" component="h1" gutterBottom>
-            Verification Successful!
-          </Typography>
-          <Typography variant="h6" component="p" sx={{ mb: 1 }}>
-            Welcome aboard, {firstName}!
-          </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-            You have successfully activated your Dentabot account.
-          </Typography>
-          <Typography variant="body1" color="text.secondary">
-            Redirecting to login in {countdown} second{countdown !== 1 ? 's' : ''}...
-          </Typography>
-          <CircularProgress sx={{mt: 2}} />
-        </Paper>
-      </Container>
+        <Container component="main" maxWidth="sm" sx={{mt: 8}}>
+          <Paper elevation={3} sx={{
+            p: {xs: 2, sm: 4},
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            textAlign: 'center'
+          }}>
+            <CheckCircleOutlineIcon sx={{fontSize: 60, color: 'success.main', mb: 2}}/>
+            <Typography variant="h4" component="h1" gutterBottom>
+              Verification Successful!
+            </Typography>
+            <Typography variant="h6" component="p" sx={{mb: 1}}>
+              Welcome aboard, {firstName}!
+            </Typography>
+            <Typography variant="body1" color="text.secondary" sx={{mb: 3}}>
+              You have successfully activated your Dentabot account.
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              Redirecting to login in {countdown} second{countdown !== 1 ? 's' : ''}...
+            </Typography>
+            <CircularProgress sx={{mt: 2}}/>
+          </Paper>
+        </Container>
     );
   }
 
   return (
-    <Container component="main" maxWidth="sm" sx={{ mt: 8 }}>
-      <Paper elevation={3} sx={{ p: { xs: 2, sm: 4 }, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-        <EmailIcon sx={{ fontSize: 60, color: 'primary.main', mb: 2 }} />
-        <Typography variant="h4" component="h1" gutterBottom>
-          Verify Your Email, {firstName}!
-        </Typography>
-        <Typography variant="body1" color="text.secondary" sx={{ mb: 1 }}>
-          We've sent a 6-digit verification code to:
-        </Typography>
-        <Typography variant="h6" component="p" sx={{ mb: 3, color: 'primary.dark', fontWeight: 'bold' }}>
-          {email}
-        </Typography>
-        <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-          Please enter the code below to activate your account.
-        </Typography>
+      <Container component="main" maxWidth="sm" sx={{mt: 8}}>
+        <Paper elevation={3} sx={{
+          p: {xs: 2, sm: 4},
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          textAlign: 'center'
+        }}>
+          <EmailIcon sx={{fontSize: 60, color: 'primary.main', mb: 2}}/>
+          <Typography variant="h4" component="h1" gutterBottom>
+            Verify Your Email, {firstName}!
+          </Typography>
+          <Typography variant="body1" color="text.secondary" sx={{mb: 1}}>
+            We've sent a 6-digit verification code to:
+          </Typography>
+          <Typography variant="h6" component="p" sx={{mb: 3, color: 'primary.dark', fontWeight: 'bold'}}>
+            {email}
+          </Typography>
+          <Typography variant="body1" color="text.secondary" sx={{mb: 3}}>
+            Please enter the code below to activate your account.
+          </Typography>
 
-        <Box component="form" onSubmit={handleVerify} sx={{ width: '100%', maxWidth: '300px' }}>
-          <TextField
-            fullWidth
-            id="verificationCode"
-            name="verificationCode"
-            label="Verification Code"
-            variant="outlined"
-            value={verificationCode}
-            onChange={handleCodeChange}
-            inputProps={{ maxLength: 6, style: { textAlign: 'center', fontSize: '1.5rem', letterSpacing: '0.5rem' } }}
-            error={!!error}
-            helperText={error}
-            disabled={loadingVerify || loadingResend}
-            sx={{ mb: 2 }}
-          />
+          <Box component="form" onSubmit={handleVerify} sx={{width: '100%', maxWidth: '300px'}}>
+            <TextField
+                fullWidth
+                id="verificationCode"
+                name="verificationCode"
+                label="Verification Code"
+                variant="outlined"
+                value={verificationCode}
+                onChange={handleCodeChange}
+                inputProps={{maxLength: 6, style: {textAlign: 'center', fontSize: '1.5rem', letterSpacing: '0.5rem'}}}
+                error={!!error}
+                helperText={error}
+                disabled={loadingVerify || loadingResend}
+                sx={{mb: 2}}
+            />
 
-          {resendMessage && <Alert severity="success" sx={{ mb: 2, width: '100%' }}>{resendMessage}</Alert>}
-          {resendError && <Alert severity="error" sx={{ mb: 2, width: '100%' }}>{resendError}</Alert>}
+            {resendMessage && <Alert severity="success" sx={{mb: 2, width: '100%'}}>{resendMessage}</Alert>}
+            {resendError && <Alert severity="error" sx={{mb: 2, width: '100%'}}>{resendError}</Alert>}
 
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            color="primary"
-            disabled={loadingVerify || loadingResend || verificationCode.length !== 6}
-            sx={{ mb: 2, py: 1.5 }}
-          >
-            {loadingVerify ? <CircularProgress size={24} color="inherit" /> : 'Verify Account'}
-          </Button>
-          
-          <Button
-            fullWidth
-            variant="outlined"
-            color="secondary"
-            onClick={handleResendCode}
-            disabled={loadingVerify || loadingResend || resendDisabled}
-          >
-            {loadingResend ? <CircularProgress size={24} color="inherit" /> : 
-             resendCooldown > 0 ? `Resend Code (${resendCooldown}s)` : 'Resend Verification Code'
-            }
-          </Button>
-        </Box>
-        
-        <Typography variant="caption" color="text.secondary" sx={{ mt: 3 }}>
-          If you don't see the email, please check your spam or junk folder.
-        </Typography>
-      </Paper>
-    </Container>
+            <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                color="primary"
+                disabled={loadingVerify || loadingResend || verificationCode.length !== 6}
+                sx={{mb: 2, py: 1.5}}
+            >
+              {loadingVerify ? <CircularProgress size={24} color="inherit"/> : 'Verify Account'}
+            </Button>
+
+            <Button
+                fullWidth
+                variant="outlined"
+                color="secondary"
+                onClick={handleResendCode}
+                disabled={loadingVerify || loadingResend || resendDisabled}
+            >
+              {loadingResend ? <CircularProgress size={24} color="inherit"/> :
+                  resendCooldown > 0 ? `Resend Code (${resendCooldown}s)` : 'Resend Verification Code'
+              }
+            </Button>
+          </Box>
+
+          <Typography variant="caption" color="text.secondary" sx={{mt: 3}}>
+            If you don't see the email, please check your spam or junk folder.
+          </Typography>
+        </Paper>
+      </Container>
   );
 };
 

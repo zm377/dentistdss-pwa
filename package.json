@@ -19,10 +19,14 @@
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
     "@testing-library/user-event": "^13.5.0",
+    "@toolpad/core": "^0.15.0",
     "axios": "^1.9.0",
+    "dayjs": "^1.11.13",
     "eslint-config-react-app": "^7.0.1",
+    "moment": "^2.30.1",
     "prop-types": "^15.8.1",
     "react": "^19.0.0",
+    "react-big-calendar": "^1.19.2",
     "react-dom": "^19.0.0",
     "react-markdown": "^10.1.0",
     "react-router-dom": "^7.6.0",
@@ -34,8 +38,8 @@
     "postcss": "^8.4.31"
   },
   "scripts": {
-    "start": "webpack serve --mode development",
-    "build": "webpack --mode production",
+    "start": "react-scripts start",
+    "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
@@ -58,21 +62,9 @@
     ]
   },
   "devDependencies": {
-    "@babel/core": "^7.27.3",
-    "@babel/preset-env": "^7.27.2",
-    "@babel/preset-react": "^7.27.1",
     "@eslint/js": "^9.27.0",
-    "babel-loader": "^10.0.0",
-    "css-loader": "^7.1.2",
     "eslint": "^8.57.1",
     "eslint-plugin-react": "^7.37.5",
-    "file-loader": "^6.2.0",
-    "globals": "^16.1.0",
-    "html-webpack-plugin": "^5.6.3",
-    "style-loader": "^4.0.0",
-    "url-loader": "^4.1.1",
-    "webpack": "^5.99.9",
-    "webpack-cli": "^6.0.1",
-    "webpack-dev-server": "^5.2.1"
+    "globals": "^16.1.0"
   }
 }

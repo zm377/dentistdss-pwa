@@ -20,7 +20,7 @@ const authAPI = {
    * Returns the object coming from backend (typically { accessToken, tokenType, user })
    */
   async login(email, password) {
-    const authData = await api.post('/api/auth/login', { email, password });
+    const authData = await api.post('/api/auth/login', {email, password});
 
     // The interceptor unwraps successful responses to `response.message`,
     // so `authData` should already be that object.
@@ -77,7 +77,7 @@ const authAPI = {
     // or Authorization header) adjust the request accordingly.
 
     // const authData = await api.post('/login/oauth2/code/google', { idToken });
-    const authData = await api.post('/oauth2/token', { idToken });
+    const authData = await api.post('/oauth2/token', {idToken});
     // console.log('authData', authData);
     // Persist token locally for future API calls – mirrors the behaviour of
     // the email/password login helper.
@@ -88,7 +88,7 @@ const authAPI = {
 
   // ----- Verification helpers (unchanged) -----
   verifySignupToken: (vtoken) => api.get(`/api/auth/signup/verify?vtoken=${vtoken}`),
-  verifySignupWithCode: (email, code) => api.post('/api/auth/signup/verify/code', { email, code }),
+  verifySignupWithCode: (email, code) => api.post('/api/auth/signup/verify/code', {email, code}),
   resendVerificationCode: (email) => api.post(`/api/auth/signup/verify/code/resend?email=${email}`),
 
   async signupClinicAdmin(clinicAdminData) {

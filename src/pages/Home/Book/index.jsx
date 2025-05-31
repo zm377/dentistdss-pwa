@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, {useState, useEffect, useMemo} from 'react';
 import {
   Container,
   Typography,
@@ -9,7 +9,7 @@ import {
   Box,
   Button as MuiButton // Renamed to avoid conflict if you use a Button variable later
 } from '@mui/material';
-import BookCard from './BookCard'; // Import the BookCard component
+import BookCard from '../../../components/Home/Book/BookCard'; // Import the BookCard component
 
 // Helper function to generate Amazon search links
 const generateAmazonLink = (title, authors) => {
@@ -352,18 +352,18 @@ function BookPage() {
       setFilteredBooks(dentalBooksData);
     } else {
       setFilteredBooks(
-        dentalBooksData.filter(book => 
-          selectedTopics.some(topic => book.topics.includes(topic))
-        )
+          dentalBooksData.filter(book =>
+              selectedTopics.some(topic => book.topics.includes(topic))
+          )
       );
     }
   }, [selectedTopics]);
 
   const handleTopicToggle = (topic) => {
     setSelectedTopics(prevSelectedTopics =>
-      prevSelectedTopics.includes(topic)
-        ? prevSelectedTopics.filter(t => t !== topic)
-        : [...prevSelectedTopics, topic]
+        prevSelectedTopics.includes(topic)
+            ? prevSelectedTopics.filter(t => t !== topic)
+            : [...prevSelectedTopics, topic]
     );
   };
 
@@ -372,90 +372,90 @@ function BookPage() {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Typography 
-        variant={isMobile ? "h4" : "h3"} 
-        component="h1" 
-        gutterBottom 
-        align="center"
-        sx={{
-          fontWeight: 'bold',
-          color: isDarkMode ? '#e0f2f1' : 'primary.main',
-          mb: 2 // Reduced margin bottom for chips
-        }}
-      >
-        Dental Reading List
-      </Typography>
-      
-      <Box sx={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 1, mb: 3 }}>
-        {allTopics.map(topic => (
-          <Chip
-            key={topic}
-            label={topic}
-            onClick={() => handleTopicToggle(topic)}
-            color={selectedTopics.includes(topic) ? 'primary' : 'default'}
-            variant={selectedTopics.includes(topic) ? 'filled' : 'outlined'}
+      <Container maxWidth="lg" sx={{py: 4}}>
+        <Typography
+            variant={isMobile ? "h4" : "h3"}
+            component="h1"
+            gutterBottom
+            align="center"
             sx={{
-              borderColor: isDarkMode && !selectedTopics.includes(topic) ? 'rgba(0, 230, 180, 0.5)' : (selectedTopics.includes(topic) ? 'primary.main' : 'rgba(0,0,0,0.23)'),
-              bgcolor: selectedTopics.includes(topic) ? (isDarkMode ? '#00897b' : 'primary.main') : (isDarkMode ? 'rgba(38, 50, 56, 0.8)' : 'default'),
-              color: selectedTopics.includes(topic) ? 'white' : (isDarkMode ? '#e0f2f1' : 'text.primary'),
-              '& .MuiChip-label': {
-                fontWeight: selectedTopics.includes(topic) ? 'medium' : 'normal'
-              },
-              '&:hover': {
-                bgcolor: selectedTopics.includes(topic) 
-                  ? (isDarkMode ? '#00796b' : 'primary.dark') 
-                  : (isDarkMode ? 'rgba(0, 137, 123, 0.3)' : 'rgba(0,0,0,0.08)')
-              }
+              fontWeight: 'bold',
+              color: isDarkMode ? '#e0f2f1' : 'primary.main',
+              mb: 2 // Reduced margin bottom for chips
             }}
-          />
-        ))}
-      </Box>
-
-      {selectedTopics.length > 0 && (
-        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
-          <MuiButton 
-            variant="text" 
-            onClick={clearFilters}
-            size="small"
-            sx={{
-              color: isDarkMode ? '#81c784' : 'primary.main',
-              textTransform: 'none'
-            }}
-          >
-            Clear All Filters
-          </MuiButton>
-        </Box>
-      )}
-
-      <Typography 
-        variant={isMobile ? "body1" : "h6"} 
-        align="center" 
-        color={isDarkMode ? 'rgba(255,255,255,0.8)' : "text.secondary"} 
-        sx={{ mb: 4, maxWidth: '700px', mx: 'auto' }}
-      >
-        Explore our curated list of dental books. Click on any book to find it on Amazon.
-      </Typography>
-
-      {filteredBooks.length > 0 ? (
-        <Grid container spacing={isMobile ? 2 : 3}>
-          {filteredBooks.map((book) => (
-            <Grid item size={4} key={book.id} xs={12} sm={6} md={4} lg={3}>
-              <BookCard book={book} />
-            </Grid>
-          ))}
-        </Grid>
-      ) : (
-        <Typography 
-          variant="body1" 
-          align="center" 
-          color={isDarkMode ? 'rgba(255,255,255,0.7)' : "text.secondary"} 
-          sx={{ mt: 4 }}
         >
-          No books found matching your selected topic(s). Try clearing filters or selecting different topics.
+          Dental Reading List
         </Typography>
-      )}
-    </Container>
+
+        <Box sx={{display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 1, mb: 3}}>
+          {allTopics.map(topic => (
+              <Chip
+                  key={topic}
+                  label={topic}
+                  onClick={() => handleTopicToggle(topic)}
+                  color={selectedTopics.includes(topic) ? 'primary' : 'default'}
+                  variant={selectedTopics.includes(topic) ? 'filled' : 'outlined'}
+                  sx={{
+                    borderColor: isDarkMode && !selectedTopics.includes(topic) ? 'rgba(0, 230, 180, 0.5)' : (selectedTopics.includes(topic) ? 'primary.main' : 'rgba(0,0,0,0.23)'),
+                    bgcolor: selectedTopics.includes(topic) ? (isDarkMode ? '#00897b' : 'primary.main') : (isDarkMode ? 'rgba(38, 50, 56, 0.8)' : 'default'),
+                    color: selectedTopics.includes(topic) ? 'white' : (isDarkMode ? '#e0f2f1' : 'text.primary'),
+                    '& .MuiChip-label': {
+                      fontWeight: selectedTopics.includes(topic) ? 'medium' : 'normal'
+                    },
+                    '&:hover': {
+                      bgcolor: selectedTopics.includes(topic)
+                          ? (isDarkMode ? '#00796b' : 'primary.dark')
+                          : (isDarkMode ? 'rgba(0, 137, 123, 0.3)' : 'rgba(0,0,0,0.08)')
+                    }
+                  }}
+              />
+          ))}
+        </Box>
+
+        {selectedTopics.length > 0 && (
+            <Box sx={{display: 'flex', justifyContent: 'center', mb: 3}}>
+              <MuiButton
+                  variant="text"
+                  onClick={clearFilters}
+                  size="small"
+                  sx={{
+                    color: isDarkMode ? '#81c784' : 'primary.main',
+                    textTransform: 'none'
+                  }}
+              >
+                Clear All Filters
+              </MuiButton>
+            </Box>
+        )}
+
+        <Typography
+            variant={isMobile ? "body1" : "h6"}
+            align="center"
+            color={isDarkMode ? 'rgba(255,255,255,0.8)' : "text.secondary"}
+            sx={{mb: 4, maxWidth: '700px', mx: 'auto'}}
+        >
+          Explore our curated list of dental books. Click on any book to find it on Amazon.
+        </Typography>
+
+        {filteredBooks.length > 0 ? (
+            <Grid container spacing={isMobile ? 2 : 3}>
+              {filteredBooks.map((book) => (
+                  <Grid item size={4} key={book.id} xs={12} sm={6} md={4} lg={3}>
+                    <BookCard book={book}/>
+                  </Grid>
+              ))}
+            </Grid>
+        ) : (
+            <Typography
+                variant="body1"
+                align="center"
+                color={isDarkMode ? 'rgba(255,255,255,0.7)' : "text.secondary"}
+                sx={{mt: 4}}
+            >
+              No books found matching your selected topic(s). Try clearing filters or selecting different topics.
+            </Typography>
+        )}
+      </Container>
   );
 }
 

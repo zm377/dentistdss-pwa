@@ -57,27 +57,27 @@ async function streamApiCall(endpoint, prompt, sessionId, onTokenReceived, authT
 
     // eslint-disable-next-line no-constant-condition
     while (true) {
-      const { value, done } = await reader.read();
+      const {value, done} = await reader.read();
       if (done) {
         // Process any remaining data in the buffer if the stream ended abruptly
         // This is a fallback; well-formed SSE streams usually end cleanly.
         if (buffer.length > 0) {
-            const lines = buffer.split('\\n'); // Split remaining buffer by newline
-            for (const line of lines) {
-                if (line.startsWith('data:')) {
-                    const token = line.slice('data:'.length).trim();
-                    if (token) {
-                         cumulativeResponse += token;
-                         if (typeof onTokenReceived === 'function') onTokenReceived(token, cumulativeResponse);
-                    }
-                }
+          const lines = buffer.split('\\n'); // Split remaining buffer by newline
+          for (const line of lines) {
+            if (line.startsWith('data:')) {
+              const token = line.slice('data:'.length).trim();
+              if (token) {
+                cumulativeResponse += token;
+                if (typeof onTokenReceived === 'function') onTokenReceived(token, cumulativeResponse);
+              }
             }
+          }
         }
         break;
       }
 
-      buffer += decoder.decode(value, { stream: true });
-      
+      buffer += decoder.decode(value, {stream: true});
+
       let position;
       // Process complete SSE messages (terminated by double newline)
       while ((position = buffer.indexOf('\\n\\n')) >= 0) {
@@ -89,12 +89,12 @@ async function streamApiCall(endpoint, prompt, sessionId, onTokenReceived, authT
           if (line.startsWith('data:')) {
             const token = line.slice('data:'.length).trim();
             if (token) { // Ensure token is not empty
-                cumulativeResponse += token;
-                // The rate limit message from backend ("You have reached the maximal inquiries...")
-                // will also arrive here as a token.
-                if (typeof onTokenReceived === 'function') {
-                  onTokenReceived(token, cumulativeResponse);
-                }
+              cumulativeResponse += token;
+              // The rate limit message from backend ("You have reached the maximal inquiries...")
+              // will also arrive here as a token.
+              if (typeof onTokenReceived === 'function') {
+                onTokenReceived(token, cumulativeResponse);
+              }
             }
           }
           // Other SSE lines like 'event:', 'id:', 'retry:' could be handled here if needed.
@@ -106,8 +106,8 @@ async function streamApiCall(endpoint, prompt, sessionId, onTokenReceived, authT
     console.error('Error in streamApiCall:', error);
     if (typeof onTokenReceived === 'function') {
       const errorMessage = (error.message && error.message.includes("maximal inquiries"))
-        ? error.message // Use the specific rate limit message if it caused an error throw
-        : 'Sorry, I encountered an error processing your request. Please try again.';
+          ? error.message // Use the specific rate limit message if it caused an error throw
+          : 'Sorry, I encountered an error processing your request. Please try again.';
       onTokenReceived(errorMessage, errorMessage);
     }
     throw error; // Re-throw so the caller can also handle it if needed
@@ -153,4 +153,4 @@ function botDentist(userInput, sessionId, onTokenReceived, authToken) {
 //    `botAssistant` or `botDentist`, calling the appropriate endpoint and handling auth if required.
 // 6. If you use `uuid` for session IDs, make sure to install it: `npm install uuid` or `yarn add uuid`.
 
-export default { botAssistant, botDentist };
+export default {botAssistant, botDentist};

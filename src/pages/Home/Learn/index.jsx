@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   Container,
   Typography,
@@ -123,10 +123,10 @@ function Learn() {
   const [activeFilters, setActiveFilters] = useState([]);
 
   const filteredArticles = activeFilters.length > 0
-    ? articles.filter(article =>
-      article.tags.some(tag => activeFilters.includes(tag))
-    )
-    : articles;
+      ? articles.filter(article =>
+          article.tags.some(tag => activeFilters.includes(tag))
+      )
+      : articles;
 
   useEffect(() => {
     // Animate articles appearing one by one
@@ -152,287 +152,287 @@ function Learn() {
 
   const handleFilterToggle = (tag) => {
     setActiveFilters(prev =>
-      prev.includes(tag)
-        ? prev.filter(t => t !== tag)
-        : [...prev, tag]
+        prev.includes(tag)
+            ? prev.filter(t => t !== tag)
+            : [...prev, tag]
     );
   };
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
-      {/* Hero Section */}
-      <Box
-        sx={{
-          textAlign: 'center',
-          mb: 6,
-          p: 4,
-          borderRadius: 2,
-          background: theme.palette.mode === 'dark' ? theme.palette.primary.dark : theme.palette.primary.light,
-          backgroundImage: theme.palette.mode === 'dark'
-            ? 'linear-gradient(135deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0) 100%)'
-            : 'linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 100%)',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.08)'
-        }}
-      >
-        <Typography
-          variant="h3"
-          component="h1"
-          gutterBottom
-          sx={{
-            fontWeight: 700,
-            color: theme.palette.mode === 'dark' ? theme.palette.primary.light : theme.palette.primary.contrastText,
-            mb: 2,
-            textShadow: '0px 2px 4px rgba(0,0,0,0.05)'
-          }}
+      <Container maxWidth="lg" sx={{py: 4}}>
+        {/* Hero Section */}
+        <Box
+            sx={{
+              textAlign: 'center',
+              mb: 6,
+              p: 4,
+              borderRadius: 2,
+              background: theme.palette.mode === 'dark' ? theme.palette.primary.dark : theme.palette.primary.light,
+              backgroundImage: theme.palette.mode === 'dark'
+                  ? 'linear-gradient(135deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0) 100%)'
+                  : 'linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 100%)',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.08)'
+            }}
         >
-          Learn About Oral Health
-        </Typography>
-        <Typography variant="h6" sx={{ mb: 3, color: theme.palette.text.primary, maxWidth: '800px', mx: 'auto' }}>
-          Discover essential information about dental health, common conditions, and how to maintain a healthy smile.
-        </Typography>
-        <Divider sx={{ width: '60%', mx: 'auto', mb: 3 }} />
-
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2 }}>
-          <FilterAltIcon sx={{ mr: 1, color: theme.palette.primary.main }} />
-          <Typography variant="subtitle1" sx={{ color: theme.palette.text.primary }}>
-            Filter by topic:
-          </Typography>
-        </Box>
-
-        <Box sx={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 1 }}>
-          {allTags.map((tag) => (
-            <Chip
-              key={tag}
-              label={tag}
-              onClick={() => handleFilterToggle(tag)}
+          <Typography
+              variant="h3"
+              component="h1"
+              gutterBottom
               sx={{
-                bgcolor: activeFilters.includes(tag) ? theme.palette.primary.main : theme.palette.mode === 'dark' ? theme.palette.grey[800] : theme.palette.grey[100],
-                color: activeFilters.includes(tag)
-                  ? 'white'
-                  : theme.palette.mode === 'dark' ? theme.palette.common.white : theme.palette.text.primary,
-                borderWidth: 1,
-                borderStyle: 'solid',
-                borderColor: activeFilters.includes(tag)
-                  ? theme.palette.primary.main
-                  : theme.palette.mode === 'dark' ? theme.palette.grey[700] : theme.palette.grey[300],
-                fontWeight: activeFilters.includes(tag) ? 500 : 400,
-                '&:hover': {
-                  bgcolor: activeFilters.includes(tag) ? theme.palette.primary.dark : theme.palette.grey[200]
-                }
+                fontWeight: 700,
+                color: theme.palette.mode === 'dark' ? theme.palette.primary.light : theme.palette.primary.contrastText,
+                mb: 2,
+                textShadow: '0px 2px 4px rgba(0,0,0,0.05)'
               }}
-            />
-          ))}
-        </Box>
-      </Box>
+          >
+            Learn About Oral Health
+          </Typography>
+          <Typography variant="h6" sx={{mb: 3, color: theme.palette.text.primary, maxWidth: '800px', mx: 'auto'}}>
+            Discover essential information about dental health, common conditions, and how to maintain a healthy smile.
+          </Typography>
+          <Divider sx={{width: '60%', mx: 'auto', mb: 3}}/>
 
-      {/* Article Dialog */}
-      <Dialog
-        fullScreen={isMobile}
-        open={openDialog}
-        onClose={handleCloseDialog}
-        TransitionComponent={Transition}
-        maxWidth="md"
-        fullWidth
-        PaperProps={{
-          sx: { borderRadius: isMobile ? 0 : 2, overflow: 'hidden' }
-        }}
-      >
-        {isMobile ? (
-          <AppBar sx={{ position: 'relative' }}>
-            <Toolbar>
-              <IconButton
-                edge="start"
-                color="inherit"
-                onClick={handleCloseDialog}
-                aria-label="close"
-              >
-                <CloseIcon />
-              </IconButton>
-              <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
-                {selectedArticle?.title}
-              </Typography>
-            </Toolbar>
-          </AppBar>
-        ) : (
-          <DialogTitle sx={{
-            pb: 0,
-            pt: 2,
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'flex-start',
-            color: theme.palette.primary.main,
-            fontWeight: 600
-          }}>
-            {selectedArticle?.title}
-            <IconButton onClick={handleCloseDialog} sx={{ ml: 2 }}>
-              <CloseIcon />
-            </IconButton>
-          </DialogTitle>
-        )}
-
-        <DialogContent sx={{ px: isMobile ? 2 : 3, pt: isMobile ? 2 : 3 }}>
-          {selectedArticle && (
-            <>
-              {selectedArticle.tags && (
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 3 }}>
-                  {selectedArticle.tags.map((tag) => (
-                    <Chip
-                      key={tag}
-                      label={tag}
-                      size="small"
-                      sx={{
-                        bgcolor: theme.palette.mode === 'dark'
-                          ? theme.palette.primary.dark
-                          : theme.palette.primary.light,
-                        color: theme.palette.mode === 'dark'
-                          ? theme.palette.primary.light
-                          : theme.palette.primary.dark,
-                        fontSize: '0.75rem',
-                        height: 24
-                      }}
-                    />
-                  ))}
-                </Box>
-              )}
-
-              <CardMedia
-                component="img"
-                image={selectedArticle.img}
-                alt={selectedArticle.title}
-                sx={{
-                  width: '100%',
-                  height: 300,
-                  borderRadius: 1,
-                  mb: 3,
-                  objectFit: 'cover',
-                  boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
-                }}
-              />
-
-              {selectedArticle.content.split('\n\n').map((paragraph, idx) => (
-                <Typography key={idx} variant="body1" paragraph sx={{ lineHeight: 1.8, fontSize: '1.05rem' }}>
-                  {paragraph}
-                </Typography>
-              ))}
-            </>
-          )}
-        </DialogContent>
-
-        {!isMobile && (
-          <DialogActions sx={{ px: 3, pb: 3 }}>
-            <Button onClick={handleCloseDialog} variant="outlined">Close</Button>
-          </DialogActions>
-        )}
-      </Dialog>
-
-      {/* Articles Grid */}
-      <Grid container spacing={3}>
-        {filteredArticles.length === 0 ? (
-          <Box sx={{
-            width: '100%',
-            py: 10,
-            textAlign: 'center',
-            color: theme.palette.text.primary
-          }}>
-            <Typography variant="h6">
-              No articles match your selected filters.
+          <Box sx={{display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2}}>
+            <FilterAltIcon sx={{mr: 1, color: theme.palette.primary.main}}/>
+            <Typography variant="subtitle1" sx={{color: theme.palette.text.primary}}>
+              Filter by topic:
             </Typography>
-            <Button
-              variant="outlined"
-              onClick={() => setActiveFilters([])}
-              sx={{ mt: 2 }}
-            >
-              Clear Filters
-            </Button>
           </Box>
-        ) : (
-          filteredArticles.map((article, index) => (
-            <Grid size={4} item xs={12} md={6} lg={4} key={article.title}>
-              <Fade in={visibleArticles.includes(articles.indexOf(article))} timeout={500}>
-                <Card
-                  elevation={2}
-                  sx={{
-                    height: '100%',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    transition: 'all 0.3s ease',
-                    '&:hover': {
-                      transform: 'translateY(-6px)',
-                      boxShadow: '0 8px 16px rgba(0,0,0,0.1)'
-                    },
-                    borderRadius: 2,
-                    overflow: 'hidden',
-                    backgroundColor: theme.palette.background.paper,
-                    borderWidth: theme.palette.mode === 'dark' ? 1 : 0,
-                    borderStyle: 'solid',
-                    borderColor: theme.palette.mode === 'dark' ? theme.palette.divider : 'transparent'
-                  }}
-                >
-                  <CardMedia
-                    component="img"
-                    height="180"
-                    image={article.img}
-                    alt={article.title}
-                    sx={{ objectFit: 'cover' }}
-                  />
-                  <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', p: 2.5 }}>
-                    <Box sx={{ mb: 1.5 }}>
-                      {article.tags.map((tag) => (
-                        <Chip
-                          key={tag}
-                          label={tag}
-                          size="small"
-                          sx={{
-                            mr: 0.5,
-                            mb: 0.5,
-                            bgcolor: theme.palette.mode === 'dark'
-                              ? theme.palette.primary.dark
-                              : theme.palette.primary.light,
-                            color: theme.palette.primary.contrastText,
-                            fontSize: '0.75rem',
-                            height: 24
-                          }}
-                        />
-                      ))}
-                    </Box>
 
-                    <Typography variant="h6" component="h2" gutterBottom sx={{
-                      fontWeight: 600,
-                      color: theme.palette.mode === 'dark' ? theme.palette.primary.light : theme.palette.primary.main,
-                      fontSize: '1.1rem',
-                      lineHeight: 1.3
-                    }}>
-                      {article.title}
-                    </Typography>
-                    <Typography variant="body2" color="text.primary" sx={{ mb: 2, flexGrow: 1 }}>
-                      {article.content.split('.')[0] + '...'}
-                    </Typography>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      size="small"
-                      endIcon={<ArrowForwardIcon />}
-                      onClick={() => handleReadMore(article)}
+          <Box sx={{display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 1}}>
+            {allTags.map((tag) => (
+                <Chip
+                    key={tag}
+                    label={tag}
+                    onClick={() => handleFilterToggle(tag)}
+                    sx={{
+                      bgcolor: activeFilters.includes(tag) ? theme.palette.primary.main : theme.palette.mode === 'dark' ? theme.palette.grey[800] : theme.palette.grey[100],
+                      color: activeFilters.includes(tag)
+                          ? 'white'
+                          : theme.palette.mode === 'dark' ? theme.palette.common.white : theme.palette.text.primary,
+                      borderWidth: 1,
+                      borderStyle: 'solid',
+                      borderColor: activeFilters.includes(tag)
+                          ? theme.palette.primary.main
+                          : theme.palette.mode === 'dark' ? theme.palette.grey[700] : theme.palette.grey[300],
+                      fontWeight: activeFilters.includes(tag) ? 500 : 400,
+                      '&:hover': {
+                        bgcolor: activeFilters.includes(tag) ? theme.palette.primary.dark : theme.palette.grey[200]
+                      }
+                    }}
+                />
+            ))}
+          </Box>
+        </Box>
+
+        {/* Article Dialog */}
+        <Dialog
+            fullScreen={isMobile}
+            open={openDialog}
+            onClose={handleCloseDialog}
+            TransitionComponent={Transition}
+            maxWidth="md"
+            fullWidth
+            PaperProps={{
+              sx: {borderRadius: isMobile ? 0 : 2, overflow: 'hidden'}
+            }}
+        >
+          {isMobile ? (
+              <AppBar sx={{position: 'relative'}}>
+                <Toolbar>
+                  <IconButton
+                      edge="start"
+                      color="inherit"
+                      onClick={handleCloseDialog}
+                      aria-label="close"
+                  >
+                    <CloseIcon/>
+                  </IconButton>
+                  <Typography sx={{ml: 2, flex: 1}} variant="h6" component="div">
+                    {selectedArticle?.title}
+                  </Typography>
+                </Toolbar>
+              </AppBar>
+          ) : (
+              <DialogTitle sx={{
+                pb: 0,
+                pt: 2,
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'flex-start',
+                color: theme.palette.primary.main,
+                fontWeight: 600
+              }}>
+                {selectedArticle?.title}
+                <IconButton onClick={handleCloseDialog} sx={{ml: 2}}>
+                  <CloseIcon/>
+                </IconButton>
+              </DialogTitle>
+          )}
+
+          <DialogContent sx={{px: isMobile ? 2 : 3, pt: isMobile ? 2 : 3}}>
+            {selectedArticle && (
+                <>
+                  {selectedArticle.tags && (
+                      <Box sx={{display: 'flex', flexWrap: 'wrap', gap: 1, mb: 3}}>
+                        {selectedArticle.tags.map((tag) => (
+                            <Chip
+                                key={tag}
+                                label={tag}
+                                size="small"
+                                sx={{
+                                  bgcolor: theme.palette.mode === 'dark'
+                                      ? theme.palette.primary.dark
+                                      : theme.palette.primary.light,
+                                  color: theme.palette.mode === 'dark'
+                                      ? theme.palette.primary.light
+                                      : theme.palette.primary.dark,
+                                  fontSize: '0.75rem',
+                                  height: 24
+                                }}
+                            />
+                        ))}
+                      </Box>
+                  )}
+
+                  <CardMedia
+                      component="img"
+                      image={selectedArticle.img}
+                      alt={selectedArticle.title}
                       sx={{
-                        alignSelf: 'flex-start',
-                        borderRadius: 6,
-                        px: 2,
-                        boxShadow: 'none',
-                        '&:hover': {
-                          boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
-                        }
+                        width: '100%',
+                        height: 300,
+                        borderRadius: 1,
+                        mb: 3,
+                        objectFit: 'cover',
+                        boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
                       }}
-                    >
-                      Read More
-                    </Button>
-                  </CardContent>
-                </Card>
-              </Fade>
-            </Grid>
-          ))
-        )}
-      </Grid>
-    </Container>
+                  />
+
+                  {selectedArticle.content.split('\n\n').map((paragraph, idx) => (
+                      <Typography key={idx} variant="body1" paragraph sx={{lineHeight: 1.8, fontSize: '1.05rem'}}>
+                        {paragraph}
+                      </Typography>
+                  ))}
+                </>
+            )}
+          </DialogContent>
+
+          {!isMobile && (
+              <DialogActions sx={{px: 3, pb: 3}}>
+                <Button onClick={handleCloseDialog} variant="outlined">Close</Button>
+              </DialogActions>
+          )}
+        </Dialog>
+
+        {/* Articles Grid */}
+        <Grid container spacing={3}>
+          {filteredArticles.length === 0 ? (
+              <Box sx={{
+                width: '100%',
+                py: 10,
+                textAlign: 'center',
+                color: theme.palette.text.primary
+              }}>
+                <Typography variant="h6">
+                  No articles match your selected filters.
+                </Typography>
+                <Button
+                    variant="outlined"
+                    onClick={() => setActiveFilters([])}
+                    sx={{mt: 2}}
+                >
+                  Clear Filters
+                </Button>
+              </Box>
+          ) : (
+              filteredArticles.map((article, index) => (
+                  <Grid size={4} item xs={12} md={6} lg={4} key={article.title}>
+                    <Fade in={visibleArticles.includes(articles.indexOf(article))} timeout={500}>
+                      <Card
+                          elevation={2}
+                          sx={{
+                            height: '100%',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            transition: 'all 0.3s ease',
+                            '&:hover': {
+                              transform: 'translateY(-6px)',
+                              boxShadow: '0 8px 16px rgba(0,0,0,0.1)'
+                            },
+                            borderRadius: 2,
+                            overflow: 'hidden',
+                            backgroundColor: theme.palette.background.paper,
+                            borderWidth: theme.palette.mode === 'dark' ? 1 : 0,
+                            borderStyle: 'solid',
+                            borderColor: theme.palette.mode === 'dark' ? theme.palette.divider : 'transparent'
+                          }}
+                      >
+                        <CardMedia
+                            component="img"
+                            height="180"
+                            image={article.img}
+                            alt={article.title}
+                            sx={{objectFit: 'cover'}}
+                        />
+                        <CardContent sx={{flexGrow: 1, display: 'flex', flexDirection: 'column', p: 2.5}}>
+                          <Box sx={{mb: 1.5}}>
+                            {article.tags.map((tag) => (
+                                <Chip
+                                    key={tag}
+                                    label={tag}
+                                    size="small"
+                                    sx={{
+                                      mr: 0.5,
+                                      mb: 0.5,
+                                      bgcolor: theme.palette.mode === 'dark'
+                                          ? theme.palette.primary.dark
+                                          : theme.palette.primary.light,
+                                      color: theme.palette.primary.contrastText,
+                                      fontSize: '0.75rem',
+                                      height: 24
+                                    }}
+                                />
+                            ))}
+                          </Box>
+
+                          <Typography variant="h6" component="h2" gutterBottom sx={{
+                            fontWeight: 600,
+                            color: theme.palette.mode === 'dark' ? theme.palette.primary.light : theme.palette.primary.main,
+                            fontSize: '1.1rem',
+                            lineHeight: 1.3
+                          }}>
+                            {article.title}
+                          </Typography>
+                          <Typography variant="body2" color="text.primary" sx={{mb: 2, flexGrow: 1}}>
+                            {article.content.split('.')[0] + '...'}
+                          </Typography>
+                          <Button
+                              variant="contained"
+                              color="primary"
+                              size="small"
+                              endIcon={<ArrowForwardIcon/>}
+                              onClick={() => handleReadMore(article)}
+                              sx={{
+                                alignSelf: 'flex-start',
+                                borderRadius: 6,
+                                px: 2,
+                                boxShadow: 'none',
+                                '&:hover': {
+                                  boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
+                                }
+                              }}
+                          >
+                            Read More
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    </Fade>
+                  </Grid>
+              ))
+          )}
+        </Grid>
+      </Container>
   );
 }
 
