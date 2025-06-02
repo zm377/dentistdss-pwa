@@ -14,10 +14,7 @@ import {
   ListItemText,
 } from '@mui/material';
 import { useAuth } from '../../../context/auth';
-import {
-  mockClinicDetailsData,
-  simulateApiCall
-} from '../../../utils/dashboard/mockData';
+import api from '../../../services';
 
 /**
  * SettingsPage - Unified settings page for admin roles
@@ -42,7 +39,12 @@ const SettingsPage = ({ userRole = 'CLINIC_ADMIN' }) => {
 
       try {
         if (userRole === 'CLINIC_ADMIN') {
-          const data = await simulateApiCall(mockClinicDetailsData);
+          if (!currentUser?.clinicId) {
+            setError('No clinic information available for this user.');
+            setLoading(false);
+            return;
+          }
+          const data = await api.clinic.getClinicById(currentUser.clinicId);
           setClinicDetails(data);
         }
         // System admin settings would be loaded here
@@ -55,7 +57,7 @@ const SettingsPage = ({ userRole = 'CLINIC_ADMIN' }) => {
     };
 
     loadSettings();
-  }, [userRole]);
+  }, [userRole, currentUser?.clinicId]);
 
   /**
    * Render clinic admin settings

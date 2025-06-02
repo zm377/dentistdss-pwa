@@ -8,6 +8,15 @@ const clinicAPI = {
     return api.post('/api/clinic/search', {keywords});
   },
 
+  /**
+   * Get clinic details by ID
+   * @param {number} clinicId - The clinic ID
+   * @returns {Promise<Object>} Clinic details object
+   */
+  async getClinicById(clinicId) {
+    return api.get(`/api/clinic/${clinicId}`);
+  },
+
   // Schedule Management API Methods
 
   /**

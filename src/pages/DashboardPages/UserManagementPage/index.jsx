@@ -6,15 +6,10 @@ import {
   Chip,
   Alert,
 } from '@mui/material';
-import { useAuth } from '../../../context/auth';
 import {
   ListCard,
   ActionButton,
 } from '../../../components/Dashboard/shared';
-import {
-  mockSystemAdminSystemUsersData,
-  simulateApiCall
-} from '../../../utils/dashboard/mockData';
 import { roleMapping } from '../../../utils/dictionary';
 import api from '../../../services';
 
@@ -30,8 +25,6 @@ const UserManagementPage = ({ userRole = 'SYSTEM_ADMIN', clinicId = null }) => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-
-  const { currentUser } = useAuth() || {};
 
   // Load users data
   useEffect(() => {
@@ -52,16 +45,16 @@ const UserManagementPage = ({ userRole = 'SYSTEM_ADMIN', clinicId = null }) => {
             data = data.filter(user => user.clinicId === clinicId);
           }
         } else {
-          // Fallback to mock data
-          data = await simulateApiCall(mockSystemAdminSystemUsersData);
+          // Return empty array for unsupported roles
+          console.warn(`Unsupported user role for user management: ${userRole}`);
+          data = [];
         }
-        setUsers(data);
+        setUsers(data || []);
       } catch (err) {
         console.error('Failed to load users:', err);
         setError('Failed to load users. Please try again later.');
-        // Fallback to mock data
-        const fallbackData = await simulateApiCall(mockSystemAdminSystemUsersData);
-        setUsers(fallbackData);
+        // Set empty array on error instead of mock data
+        setUsers([]);
       } finally {
         setLoading(false);
       }

@@ -20,6 +20,10 @@ api.interceptors.request.use(
       if (token) {
         config.headers.Authorization = `${tokenType} ${token}`;
       }
+      // withCredentials: true,
+      config.withCredentials = true;
+      //credentials: 'include',
+      config.credentials = 'include';
       return config;
     },
     (error) => {

@@ -24,7 +24,8 @@ const config = {
   },
 
   api: {
-    baseUrl: isProduction ? `${API_HOST}` : `${API_HOST}:${API_PORT}`,
+    // baseUrl: isProduction ? `${API_HOST}` : `${API_HOST}:${API_PORT}`,
+    baseUrl: `https://api.mizhifei.press`,
     authPath: API_AUTH_PATH,
     oauthPath: API_OAUTH_PATH,
     genaiPath: API_GENAI_PATH,

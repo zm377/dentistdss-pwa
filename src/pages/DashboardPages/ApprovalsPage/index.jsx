@@ -7,7 +7,6 @@ import {
   Alert,
   DialogContentText,
 } from '@mui/material';
-import { useAuth } from '../../../context/auth';
 import { useAsyncData } from '../../../hooks/dashboard/useAsyncData';
 import {
   ListCard,
@@ -16,10 +15,6 @@ import {
 import useApprovalDialog from '../../../hooks/dashboard/useApprovalDialog';
 import useConfirmationDialog from '../../../hooks/dashboard/useConfirmationDialog';
 import ConfirmationDialog from '../../../components/ConfirmationDialog';
-import {
-  mockPendingApprovalsData,
-  simulateApiCall
-} from '../../../utils/dashboard/mockData';
 import {
   formatDate
 } from '../../../utils/dashboard/dashboardUtils';
@@ -34,25 +29,22 @@ import api from '../../../services';
  * - Approval workflow management
  */
 const ApprovalsPage = ({ userRole = 'SYSTEM_ADMIN', clinicId = null }) => {
-  const { currentUser } = useAuth() || {};
-
   // Confirmation dialog management
   const confirmationDialog = useConfirmationDialog();
 
   // Data fetching function
   const fetchApprovals = useCallback(async () => {
-    let data;
     if (userRole === 'SYSTEM_ADMIN') {
       // Load all pending approvals
-      data = await api.approval.getPendingApprovals();
+      return await api.approval.getPendingApprovals();
     } else if (userRole === 'CLINIC_ADMIN') {
       // Load clinic-specific approvals
-      data = await api.approval.getPendingApprovalsForClinicAdmin(clinicId);
+      return await api.approval.getPendingApprovalsForClinicAdmin(clinicId);
     } else {
-      // Fallback to mock data
-      data = await simulateApiCall(mockPendingApprovalsData);
+      // Return empty array for unsupported roles
+      console.warn(`Unsupported user role for approvals: ${userRole}`);
+      return [];
     }
-    return data;
   }, [userRole, clinicId]);
 
   // Use async data hook
@@ -60,13 +52,12 @@ const ApprovalsPage = ({ userRole = 'SYSTEM_ADMIN', clinicId = null }) => {
     data: pendingApprovals = [],
     loading,
     error,
-    refresh: refreshApprovals,
     setData: setPendingApprovals,
   } = useAsyncData(fetchApprovals, [userRole, clinicId], {
     onError: (err) => {
       console.error('Failed to load approvals:', err);
-      // Fallback to mock data on error
-      return simulateApiCall(mockPendingApprovalsData);
+      // Return empty array on error instead of mock data
+      return [];
     },
   });
 

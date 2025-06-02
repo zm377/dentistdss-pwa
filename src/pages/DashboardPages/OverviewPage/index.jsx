@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
 import {
   Box,
   Card,
@@ -8,10 +7,7 @@ import {
   Alert,
 } from '@mui/material';
 import { useAuth } from '../../../context/auth';
-import {
-  mockClinicDetailsData,
-  simulateApiCall
-} from '../../../utils/dashboard/mockData';
+import api from '../../../services';
 
 /**
  * OverviewPage - Dashboard overview page for Clinic Admin
@@ -31,11 +27,17 @@ const OverviewPage = () => {
   // Load clinic data
   useEffect(() => {
     const loadClinicData = async () => {
+      if (!currentUser?.clinicId) {
+        setError('No clinic information available for this user.');
+        setLoading(false);
+        return;
+      }
+
       setLoading(true);
       setError('');
 
       try {
-        const data = await simulateApiCall(mockClinicDetailsData);
+        const data = await api.clinic.getClinicById(currentUser.clinicId);
         setClinicDetails(data);
       } catch (err) {
         console.error('Failed to load clinic data:', err);
@@ -46,7 +48,7 @@ const OverviewPage = () => {
     };
 
     loadClinicData();
-  }, []);
+  }, [currentUser?.clinicId]);
 
   if (loading) {
     return <Alert severity="info">Loading clinic information...</Alert>;
@@ -70,10 +72,6 @@ const OverviewPage = () => {
       </Card>
     </Box>
   );
-};
-
-OverviewPage.propTypes = {
-  // No additional props needed
 };
 
 export default OverviewPage;
