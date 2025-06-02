@@ -10,7 +10,8 @@ import {
   Tooltip
 } from '@mui/material';
 import HelpIcon from '@mui/icons-material/Help';
-import api from '../../../services'; // Adjusted import path
+import api from '../../../services';
+import { v4 as uuidv4 } from 'uuid';
 
 const FloatingChatHelper = () => {
   const theme = useTheme();
@@ -18,6 +19,7 @@ const FloatingChatHelper = () => {
   const [chatOpen, setChatOpen] = useState(false);
   const [chatInput, setChatInput] = useState('');
   const [chatMessages, setChatMessages] = useState([]);
+  const [sessionId] = useState(() => uuidv4()); // Generate session ID once per component instance
 
   const handleChatToggle = () => {
     setChatOpen(!chatOpen);
@@ -32,9 +34,9 @@ const FloatingChatHelper = () => {
 
       setChatMessages(prev => [...prev, {sender: 'bot', text: '', isStreaming: true}]);
 
-      api.chatbot.botAssistant(
-          chatMessages.filter(msg => !msg.isStreaming), // Send previous messages without the current streaming one
+      api.chatbot.help(
           userMessage,
+          sessionId,
           (token, fullText) => {
             setChatMessages(prev => {
               const updated = [...prev];

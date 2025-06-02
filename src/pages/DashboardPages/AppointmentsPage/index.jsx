@@ -1,176 +1,166 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
-import { Box, Alert } from '@mui/material';
-import { Link as RouterLink } from 'react-router-dom';
+import {
+  Box,
+  Alert,
+  Tabs,
+  Tab,
+  Button,
+  useTheme,
+  useMediaQuery,
+  Typography,
+} from '@mui/material';
+import {
+  CalendarToday as CalendarIcon,
+  List as ListIcon,
+  Add as AddIcon,
+} from '@mui/icons-material';
 import { useAuth } from '../../../context/auth';
 import {
-  ListCard,
-  ActionButton,
-  InfoCard,
+  AppointmentCard,
+  AppointmentCalendar,
+  BookingWizard,
+  AppointmentDialog,
   SearchableList
 } from '../../../components/Dashboard/shared';
-import {
-  mockPatientAppointmentsData,
-  mockDentistAppointmentsData,
-  mockReceptionistAppointmentsData,
-  simulateApiCall
-} from '../../../utils/dashboard/mockData';
-import {
-  formatDate,
-  formatTime,
-  getStatusColor
-} from '../../../utils/dashboard/dashboardUtils';
+import ConfirmationDialog from '../../../components/ConfirmationDialog';
+import useAppointments from '../../../hooks/appointment/useAppointments';
+import useAppointmentActions from '../../../hooks/appointment/useAppointmentActions';
+import useAppointmentBooking from '../../../hooks/appointment/useAppointmentBooking';
 
 /**
  * AppointmentsPage - Unified appointments page for all roles
  *
  * Features:
- * - Role-based appointment views
- * - Search and filter functionality
- * - Appointment management actions
+ * - Role-based appointment views with calendar and list modes
+ * - Real-time appointment management
+ * - Booking wizard for new appointments
+ * - Appointment actions (reschedule, cancel, etc.)
+ * - Responsive design with mobile optimization
  */
 const AppointmentsPage = ({ userRole = 'PATIENT' }) => {
-  const [appointments, setAppointments] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [viewMode, setViewMode] = useState('calendar'); // 'calendar' or 'list'
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedAppointment, setSelectedAppointment] = useState(null);
+  const [dialogMode, setDialogMode] = useState('view'); // 'view', 'edit', 'reschedule'
+  const [showBookingWizard, setShowBookingWizard] = useState(false);
 
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const { currentUser } = useAuth() || {};
 
-  // Load appointments data
-  useEffect(() => {
-    const loadAppointments = async () => {
-      setLoading(true);
-      setError('');
+  // Custom hooks
+  const {
+    appointments,
+    todaysAppointments,
+    loading,
+    error,
+    refreshAppointments,
+    updateAppointment,
+  } = useAppointments(selectedDate);
 
-      try {
-        let mockData;
-        switch (userRole) {
-          case 'PATIENT':
-            mockData = mockPatientAppointmentsData;
-            break;
-          case 'DENTIST':
-            mockData = mockDentistAppointmentsData;
-            break;
-          case 'RECEPTIONIST':
-            mockData = mockReceptionistAppointmentsData;
-            break;
-          default:
-            mockData = mockPatientAppointmentsData;
-        }
-        const data = await simulateApiCall(mockData);
-        setAppointments(data);
-      } catch (err) {
-        console.error('Failed to load appointments:', err);
-        setError('Failed to load appointments. Please try again later.');
-      } finally {
-        setLoading(false);
-      }
-    };
+  const appointmentActions = useAppointmentActions(updateAppointment);
 
-    loadAppointments();
-  }, [userRole]);
+  const bookingWizard = useAppointmentBooking((newAppointment) => {
+    refreshAppointments();
+    setShowBookingWizard(false);
+  });
 
-  /**
-   * Render individual appointment item
-   */
-  const renderAppointmentItem = (appointment, index) => (
-    <Box key={appointment.id || index} sx={{ mb: 2 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        <Box sx={{ flex: 1 }}>
-          <Box sx={{ fontWeight: 'medium', mb: 0.5 }}>
-            {userRole === 'PATIENT' ? appointment.dentistName : appointment.patientName}
-          </Box>
-          <Box sx={{ color: 'text.secondary', fontSize: '0.875rem', mb: 0.5 }}>
-            {formatDate(appointment.date)} at {formatTime(appointment.time)}
-          </Box>
-          <Box sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>
-            {appointment.type}
-          </Box>
-        </Box>
-        <Box
-          sx={{
-            px: 1,
-            py: 0.5,
-            borderRadius: 1,
-            fontSize: '0.75rem',
-            fontWeight: 'medium',
-            backgroundColor: getStatusColor(appointment.status),
-            color: 'white'
-          }}
-        >
-          {appointment.status}
-        </Box>
-      </Box>
-    </Box>
+  // Event handlers
+  const handleAppointmentClick = useCallback((appointment) => {
+    setSelectedAppointment(appointment);
+    setDialogMode('view');
+  }, []);
+
+  const handleReschedule = useCallback((appointment) => {
+    setSelectedAppointment(appointment);
+    setDialogMode('reschedule');
+  }, []);
+
+  const handleEdit = useCallback((appointment) => {
+    setSelectedAppointment(appointment);
+    setDialogMode('edit');
+  }, []);
+
+  const handleCloseDialog = useCallback(() => {
+    setSelectedAppointment(null);
+    setDialogMode('view');
+  }, []);
+
+  const handleViewModeChange = useCallback((event, newMode) => {
+    if (newMode !== null) {
+      setViewMode(newMode);
+    }
+  }, []);
+
+  const handleDateChange = useCallback((date) => {
+    setSelectedDate(date);
+  }, []);
+
+  const handleNewAppointment = useCallback((slotInfo = null) => {
+    if (slotInfo) {
+      bookingWizard.updateBookingData('date', slotInfo.date);
+      bookingWizard.updateBookingData('startTime', slotInfo.startTime);
+      bookingWizard.updateBookingData('endTime', slotInfo.endTime);
+    }
+    setShowBookingWizard(true);
+  }, [bookingWizard]);
+
+  // Render calendar view
+  const renderCalendarView = () => (
+    <AppointmentCalendar
+      appointments={appointments}
+      userRole={userRole}
+      selectedDate={selectedDate}
+      onSelectEvent={handleAppointmentClick}
+      onSelectSlot={handleNewAppointment}
+      onNavigate={handleDateChange}
+      onNewAppointment={handleNewAppointment}
+      showAddButton={userRole === 'PATIENT' || userRole === 'RECEPTIONIST' || userRole === 'CLINIC_ADMIN'}
+      height={isMobile ? 500 : 600}
+    />
   );
 
-  /**
-   * Get role-specific content
-   */
-  const getRoleSpecificContent = () => {
-    switch (userRole) {
-      case 'PATIENT':
-        return (
-          <InfoCard
-            elevation={2}
-            cardSx={{ borderRadius: 2, overflow: 'hidden' }}
-            contentSx={{ p: 3 }}
-            showAlert={false}
-          >
-            <ActionButton
-              component={RouterLink}
-              to="/book-appointment"
-              variant="contained"
-              color="primary"
-              size="large"
-              position="left"
-              containerSx={{ px: 3, py: 1 }}
-            >
-              Book New Appointment
-            </ActionButton>
+  // Render list view
+  const renderListView = () => {
+    const searchFields = userRole === 'PATIENT'
+      ? ['dentistName', 'serviceType']
+      : userRole === 'DENTIST'
+      ? ['patientName', 'serviceType']
+      : ['patientName', 'dentistName', 'serviceType'];
 
-            <ListCard
-              items={appointments}
-              renderItem={renderAppointmentItem}
-              emptyMessage="You have no upcoming appointments."
-            />
-          </InfoCard>
-        );
+    const emptyMessage = userRole === 'PATIENT'
+      ? 'You have no appointments.'
+      : 'No appointments found.';
 
-      case 'DENTIST':
-        return (
-          <SearchableList
-            items={appointments}
-            renderItem={renderAppointmentItem}
-            searchFields={['patientName', 'type']}
-            emptyMessage="No appointments scheduled."
-            searchPlaceholder="Search appointments by patient name or type..."
+    const searchPlaceholder = userRole === 'PATIENT'
+      ? 'Search by dentist or service type...'
+      : userRole === 'DENTIST'
+      ? 'Search by patient or service type...'
+      : 'Search by patient, dentist, or service type...';
+
+    return (
+      <SearchableList
+        items={appointments}
+        renderItem={(appointment) => (
+          <AppointmentCard
+            key={appointment.id}
+            appointment={appointment}
+            userRole={userRole}
+            onViewDetails={handleAppointmentClick}
+            onReschedule={handleReschedule}
+            onCancel={appointmentActions.cancelAppointment}
+            onConfirm={appointmentActions.confirmAppointment}
+            onMarkNoShow={appointmentActions.markNoShow}
+            onComplete={appointmentActions.completeAppointment}
+            compact={isMobile}
           />
-        );
-
-      case 'RECEPTIONIST':
-        return (
-          <Box>
-            <ActionButton variant="contained" color="primary" position="left">
-              Schedule New Appointment
-            </ActionButton>
-            <SearchableList
-              items={appointments}
-              renderItem={renderAppointmentItem}
-              searchFields={['patientName', 'dentistName', 'type']}
-              emptyMessage="No appointments found."
-              searchPlaceholder="Search appointments by patient, dentist, or type..."
-            />
-          </Box>
-        );
-
-      default:
-        return (
-          <Alert severity="warning">
-            Appointments view not available for this role.
-          </Alert>
-        );
-    }
+        )}
+        searchFields={searchFields}
+        emptyMessage={emptyMessage}
+        searchPlaceholder={searchPlaceholder}
+      />
+    );
   };
 
   if (loading) {
@@ -183,14 +173,113 @@ const AppointmentsPage = ({ userRole = 'PATIENT' }) => {
 
   return (
     <Box sx={{ pt: 2, height: '100%' }}>
-      {getRoleSpecificContent()}
+      {/* Header with View Toggle and Actions */}
+      <Box sx={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        mb: 3,
+        flexWrap: 'wrap',
+        gap: 2,
+      }}>
+        {/* Title and Today's Count */}
+        <Box>
+          <Typography variant="h5" sx={{ fontWeight: 'medium', mb: 0.5 }}>
+            {userRole === 'PATIENT' ? 'My Appointments' : 'Appointments'}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            {todaysAppointments.length} appointment{todaysAppointments.length !== 1 ? 's' : ''} today
+          </Typography>
+        </Box>
+
+        {/* Actions */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          {/* View Mode Toggle */}
+          <Tabs
+            value={viewMode}
+            onChange={handleViewModeChange}
+            size="small"
+            sx={{ minHeight: 'auto' }}
+          >
+            <Tab
+              icon={<CalendarIcon />}
+              label={!isMobile ? 'Calendar' : ''}
+              value="calendar"
+              sx={{ minHeight: 'auto', py: 1 }}
+            />
+            <Tab
+              icon={<ListIcon />}
+              label={!isMobile ? 'List' : ''}
+              value="list"
+              sx={{ minHeight: 'auto', py: 1 }}
+            />
+          </Tabs>
+
+          {/* New Appointment Button */}
+          {(userRole === 'PATIENT' || userRole === 'RECEPTIONIST' || userRole === 'CLINIC_ADMIN') && (
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={() => handleNewAppointment()}
+              size={isMobile ? 'small' : 'medium'}
+            >
+              {isMobile ? 'Book' : 'Book Appointment'}
+            </Button>
+          )}
+        </Box>
+      </Box>
+
+      {/* Main Content */}
+      <Box sx={{ height: 'calc(100% - 120px)' }}>
+        {viewMode === 'calendar' ? renderCalendarView() : renderListView()}
+      </Box>
+
+      {/* Appointment Dialog */}
+      <AppointmentDialog
+        open={!!selectedAppointment}
+        onClose={handleCloseDialog}
+        appointment={selectedAppointment}
+        mode={dialogMode}
+        userRole={userRole}
+        onReschedule={appointmentActions.rescheduleAppointment}
+        onCancel={appointmentActions.cancelAppointment}
+        onConfirm={appointmentActions.confirmAppointment}
+        onMarkNoShow={appointmentActions.markNoShow}
+        onComplete={appointmentActions.completeAppointment}
+        loading={appointmentActions.loading}
+      />
+
+      {/* Booking Wizard */}
+      <BookingWizard
+        open={showBookingWizard}
+        onClose={() => setShowBookingWizard(false)}
+        currentStep={bookingWizard.currentStep}
+        bookingData={bookingWizard.bookingData}
+        patientData={bookingWizard.patientData}
+        errors={bookingWizard.errors}
+        clinics={bookingWizard.clinics}
+        availableSlots={bookingWizard.availableSlots}
+        serviceTypes={bookingWizard.serviceTypes}
+        loading={bookingWizard.loading}
+        onUpdateBookingData={bookingWizard.updateBookingData}
+        onUpdatePatientData={bookingWizard.updatePatientData}
+        onNextStep={bookingWizard.nextStep}
+        onPreviousStep={bookingWizard.previousStep}
+        onSubmitBooking={bookingWizard.submitBooking}
+        userRole={userRole}
+        isLoggedIn={!!currentUser}
+      />
+
+      {/* Confirmation Dialog */}
+      <ConfirmationDialog {...appointmentActions.confirmationDialog} />
+      <ConfirmationDialog {...bookingWizard.confirmationDialog} />
     </Box>
   );
 };
 
 AppointmentsPage.propTypes = {
   /** User role to determine view type */
-  userRole: PropTypes.oneOf(['PATIENT', 'DENTIST', 'RECEPTIONIST']),
+  userRole: PropTypes.oneOf(['PATIENT', 'DENTIST', 'RECEPTIONIST', 'CLINIC_ADMIN']),
 };
 
 export default AppointmentsPage;

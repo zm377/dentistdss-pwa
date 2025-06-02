@@ -1,59 +1,157 @@
-// Removed OpenAI import and config import as they were for OpenAI specific settings.
-// import OpenAI from 'openai';
-// import config from '../config';
+import config from '../config';
 
-// If session IDs are to be generated client-side by this service as a fallback,
-// you might need a UUID library. Example:
-// import { v4 as uuidv4 } from 'uuid';
+/**
+ * Chatbot API service following established service patterns
+ * Handles Server-Sent Events (SSE) streaming responses from Spring WebFlux backend
+ *
+ * The Spring WebFlux service automatically formats each emitted string as an SSE event
+ * by prefixing it with 'data:' before every individual token/word in the streaming response.
+ */
 
-// Core function to call the backend streaming API
-async function streamApiCall(endpoint, prompt, sessionId, onTokenReceived, authToken = null) {
+/**
+ * Validates that a session ID is provided for endpoints that require it
+ * @param {string} sessionId - The session ID to validate
+ * @param {function} onTokenReceived - Callback function for error handling
+ * @returns {boolean} True if valid, false if invalid (and error is handled)
+ */
+function validateSessionId(sessionId, onTokenReceived) {
+  if (!sessionId) {
+    const sessionErrorMsg = 'Session ID is required for this chatbot endpoint.';
+    console.error(sessionErrorMsg);
+    if (typeof onTokenReceived === 'function') {
+      onTokenReceived(sessionErrorMsg, sessionErrorMsg);
+    }
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Parses SSE data lines and extracts tokens with proper spacing
+ * @param {string} rawEventsBlock - Raw SSE event block to parse
+ * @param {string} cumulativeResponse - Current cumulative response
+ * @param {function} onTokenReceived - Callback for token processing
+ * @returns {string} Updated cumulative response
+ */
+function parseSSEDataLines(rawEventsBlock, cumulativeResponse, onTokenReceived) {
+  const lines = rawEventsBlock.split('\n');
+  let updatedResponse = cumulativeResponse;
+
+  for (const line of lines) {
+    const trimmedLine = line.trim();
+    if (trimmedLine.startsWith('data:')) {
+      const token = trimmedLine.slice('data:'.length).trim();
+      if (token && token !== '[DONE]' && token !== 'null') { // Filter out termination signals and null values
+        // Add space before token if response already has content and token doesn't start with punctuation
+        const needsSpace = updatedResponse.length > 0 &&
+                          !token.match(/^[.,!?;:)}\]"']/) &&
+                          !updatedResponse.match(/[(\[{"'\s]$/);
+
+        if (needsSpace) {
+          updatedResponse += ' ' + token;
+        } else {
+          updatedResponse += token;
+        }
+
+        // The rate limit message from backend ("You have reached the maximal inquiries...")
+        // will also arrive here as a token.
+        if (typeof onTokenReceived === 'function') {
+          onTokenReceived(token, updatedResponse);
+        }
+      }
+    }
+    // Handle other SSE event types if needed
+    else if (trimmedLine.startsWith('event:')) {
+      const eventType = trimmedLine.slice('event:'.length).trim();
+      // Could handle different event types here (e.g., 'error', 'complete', etc.)
+      if (eventType === 'error') {
+        console.warn('SSE Error event received');
+      }
+    }
+    // Handle retry directive
+    else if (trimmedLine.startsWith('retry:')) {
+      const retryTime = parseInt(trimmedLine.slice('retry:'.length).trim(), 10);
+      console.log(`SSE retry time: ${retryTime}ms`);
+    }
+  }
+
+  return updatedResponse;
+}
+
+// Core function to call the backend streaming API using fetch for streaming support
+async function streamApiCall(endpoint, prompt, sessionId, onTokenReceived) {
   const headers = {
-    'Content-Type': 'text/plain', // Backend API expects plain text for the prompt
-    // 'Accept': 'text/event-stream', // Usually set automatically by the browser for fetch with streaming
+    'Content-Type': 'text/plain', // Send prompt as plain text
+    'Accept': 'text/event-stream', // Expect SSE response from Spring WebFlux
+    'Cache-Control': 'no-cache', // Prevent caching of SSE streams
   };
 
+  // Add session ID header if provided
   if (sessionId) {
     headers['X-Session-Id'] = sessionId;
   }
-  // Note: If no sessionId is provided, the backend will generate one.
-  // It's generally better for the client (UI component) to manage the sessionId's lifecycle.
 
-  if (authToken) {
-    headers['Authorization'] = `Bearer ${authToken}`; // Assuming Bearer token authentication
+  // Add authentication token from localStorage (following established pattern)
+  const token = localStorage.getItem('authToken');
+  const tokenType = localStorage.getItem('tokenType');
+  if (token) {
+    headers['Authorization'] = `${tokenType} ${token}`;
   }
 
-  // Assuming the PWA and backend are served from the same origin, so relative URLs are used.
-  // Change this if your API is hosted on a different domain/port.
-  const fullUrl = `/api/genai/chatbot${endpoint}`; // e.g., endpoint is '/help' or '/aidentist'
+  // Use the same base URL pattern as other services
+  const baseURL = config.api.baseUrl;
+  const fullUrl = `${baseURL}/api/genai/chatbot${endpoint}`;
 
   try {
     const response = await fetch(fullUrl, {
       method: 'POST',
       headers: headers,
       body: prompt,
+      credentials: 'include', // Include cookies for session management
     });
 
     if (!response.ok) {
-      let errorText = `API call to ${fullUrl} failed with status ${response.status}`;
+      let errorMessage = `API call failed with status ${response.status}`;
       try {
         const text = await response.text();
-        errorText = text || errorText; // Use backend error message if available
+        errorMessage = text || errorMessage;
       } catch (e) {
         // Ignore if can't read text
       }
-      console.error(errorText);
-      // Pass error to callback as if it's a message from the bot
-      if (typeof onTokenReceived === 'function') {
-        onTokenReceived(errorText, errorText);
+
+      console.error('Chatbot API Error:', errorMessage);
+
+      // Handle authentication errors following established pattern
+      if (response.status === 401) {
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('tokenType');
+        // Dispatch error event following established pattern
+        const event = new CustomEvent('show-snackbar', {
+          detail: {
+            message: 'Authentication required. Please log in.',
+            severity: 'error',
+          },
+        });
+        window.dispatchEvent(event);
       }
-      throw new Error(errorText);
+
+      // Pass error to callback
+      if (typeof onTokenReceived === 'function') {
+        onTokenReceived(errorMessage, errorMessage);
+      }
+      throw new Error(errorMessage);
     }
 
     const reader = response.body.getReader();
     const decoder = new TextDecoder('utf-8');
     let buffer = '';
     let cumulativeResponse = '';
+
+    // Verify we're getting the expected content type
+    const contentType = response.headers.get('content-type');
+    if (contentType && !contentType.includes('text/event-stream')) {
+      console.warn(`Expected text/event-stream but got: ${contentType}`);
+    }
 
     // eslint-disable-next-line no-constant-condition
     while (true) {
@@ -62,16 +160,8 @@ async function streamApiCall(endpoint, prompt, sessionId, onTokenReceived, authT
         // Process any remaining data in the buffer if the stream ended abruptly
         // This is a fallback; well-formed SSE streams usually end cleanly.
         if (buffer.length > 0) {
-          const lines = buffer.split('\\n'); // Split remaining buffer by newline
-          for (const line of lines) {
-            if (line.startsWith('data:')) {
-              const token = line.slice('data:'.length).trim();
-              if (token) {
-                cumulativeResponse += token;
-                if (typeof onTokenReceived === 'function') onTokenReceived(token, cumulativeResponse);
-              }
-            }
-          }
+          // Use the utility function to parse remaining buffer with proper spacing
+          cumulativeResponse = parseSSEDataLines(buffer, cumulativeResponse, onTokenReceived);
         }
         break;
       }
@@ -80,77 +170,128 @@ async function streamApiCall(endpoint, prompt, sessionId, onTokenReceived, authT
 
       let position;
       // Process complete SSE messages (terminated by double newline)
-      while ((position = buffer.indexOf('\\n\\n')) >= 0) {
+      while ((position = buffer.indexOf('\n\n')) >= 0) {
         const rawEventsBlock = buffer.slice(0, position);
-        buffer = buffer.slice(position + 2); // Move past the '\\n\\n'
+        buffer = buffer.slice(position + 2); // Move past the '\n\n'
 
-        const lines = rawEventsBlock.split('\\n');
-        for (const line of lines) {
-          if (line.startsWith('data:')) {
-            const token = line.slice('data:'.length).trim();
-            if (token) { // Ensure token is not empty
-              cumulativeResponse += token;
-              // The rate limit message from backend ("You have reached the maximal inquiries...")
-              // will also arrive here as a token.
-              if (typeof onTokenReceived === 'function') {
-                onTokenReceived(token, cumulativeResponse);
-              }
-            }
-          }
-          // Other SSE lines like 'event:', 'id:', 'retry:' could be handled here if needed.
-        }
+        // Use the utility function to parse SSE data lines with proper spacing
+        cumulativeResponse = parseSSEDataLines(rawEventsBlock, cumulativeResponse, onTokenReceived);
       }
     }
     return cumulativeResponse;
   } catch (error) {
     console.error('Error in streamApiCall:', error);
-    if (typeof onTokenReceived === 'function') {
-      const errorMessage = (error.message && error.message.includes("maximal inquiries"))
-          ? error.message // Use the specific rate limit message if it caused an error throw
-          : 'Sorry, I encountered an error processing your request. Please try again.';
-      onTokenReceived(errorMessage, errorMessage);
+
+    // Determine appropriate error message
+    let userMessage = 'Sorry, I encountered an error processing your request. Please try again.';
+    if (error.message && error.message.includes("maximal inquiries")) {
+      userMessage = error.message; // Use specific rate limit message
     }
-    throw error; // Re-throw so the caller can also handle it if needed
+
+    // Dispatch error event following established pattern
+    const event = new CustomEvent('show-snackbar', {
+      detail: {
+        message: userMessage,
+        severity: 'error',
+      },
+    });
+    window.dispatchEvent(event);
+
+    // Pass error to callback
+    if (typeof onTokenReceived === 'function') {
+      onTokenReceived(userMessage, userMessage);
+    }
+
+    throw error; // Re-throw for caller handling
   }
 }
 
-// `botAssistant` calls the '/help' endpoint.
-// No authentication required for this endpoint.
-// `userInput`: The text from the user.
-// `sessionId`: A unique identifier for the chat session (caller should manage this).
-// `onTokenReceived`: Callback function (token, fullResponse) => void.
-function botAssistant(userInput, sessionId, onTokenReceived) {
-  return streamApiCall('/help', userInput, sessionId, onTokenReceived, null);
-}
+/**
+ * Chatbot API following established service patterns
+ * All endpoints return promises and handle streaming responses
+ */
+const chatbotAPI = {
+  /**
+   * General help chatbot - no authentication required
+   * @param {string} userInput - The user's message
+   * @param {string} sessionId - Session identifier for conversation continuity
+   * @param {function} onTokenReceived - Callback for streaming tokens (token, fullResponse) => void
+   * @returns {Promise<string>} Complete response text
+   */
+  async help(userInput, sessionId, onTokenReceived) {
+    return streamApiCall('/help', userInput, sessionId, onTokenReceived);
+  },
 
-// `botDentist` calls the '/aidentist' endpoint.
-// Requires authentication.
-// `authToken`: The JWT or other token for authentication.
-function botDentist(userInput, sessionId, onTokenReceived, authToken) {
-  if (!authToken) {
-    const authErrorMsg = 'Authentication required to access the AI Dentist. Please log in.';
-    console.error(authErrorMsg);
-    if (typeof onTokenReceived === 'function') {
-      onTokenReceived(authErrorMsg, authErrorMsg);
+  /**
+   * AI Dentist chatbot - requires authentication
+   * @param {string} userInput - The user's message
+   * @param {string} sessionId - Session identifier for conversation continuity
+   * @param {function} onTokenReceived - Callback for streaming tokens (token, fullResponse) => void
+   * @returns {Promise<string>} Complete response text
+   */
+  async aidentist(userInput, sessionId, onTokenReceived) {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      const authErrorMsg = 'Authentication required to access the AI Dentist. Please log in.';
+      console.error(authErrorMsg);
+      if (typeof onTokenReceived === 'function') {
+        onTokenReceived(authErrorMsg, authErrorMsg);
+      }
+      return Promise.reject(new Error(authErrorMsg));
     }
-    return Promise.reject(new Error(authErrorMsg));
+    return streamApiCall('/aidentist', userInput, sessionId, onTokenReceived);
+  },
+
+  /**
+   * Triage chatbot - requires authentication and session ID
+   * @param {string} userInput - The user's message
+   * @param {string} sessionId - Session identifier (required)
+   * @param {function} onTokenReceived - Callback for streaming tokens (token, fullResponse) => void
+   * @returns {Promise<string>} Complete response text
+   */
+  async triage(userInput, sessionId, onTokenReceived) {
+    if (!validateSessionId(sessionId, onTokenReceived)) {
+      return Promise.reject(new Error('Session ID is required for triage chatbot.'));
+    }
+    return streamApiCall('/triage', userInput, sessionId, onTokenReceived);
+  },
+
+  /**
+   * Receptionist chatbot - requires authentication and session ID
+   * @param {string} userInput - The user's message
+   * @param {string} sessionId - Session identifier (required)
+   * @param {function} onTokenReceived - Callback for streaming tokens (token, fullResponse) => void
+   * @returns {Promise<string>} Complete response text
+   */
+  async receptionist(userInput, sessionId, onTokenReceived) {
+    if (!validateSessionId(sessionId, onTokenReceived)) {
+      return Promise.reject(new Error('Session ID is required for receptionist chatbot.'));
+    }
+    return streamApiCall('/receptionist', userInput, sessionId, onTokenReceived);
+  },
+
+  /**
+   * Documentation summarization chatbot - requires authentication and session ID
+   * @param {string} userInput - The user's message
+   * @param {string} sessionId - Session identifier (required)
+   * @param {function} onTokenReceived - Callback for streaming tokens (token, fullResponse) => void
+   * @returns {Promise<string>} Complete response text
+   */
+  async documentationSummarize(userInput, sessionId, onTokenReceived) {
+    if (!validateSessionId(sessionId, onTokenReceived)) {
+      return Promise.reject(new Error('Session ID is required for documentation summarization.'));
+    }
+    return streamApiCall('/documentation/summarize', userInput, sessionId, onTokenReceived);
+  },
+
+  // Legacy function names for backward compatibility
+  botAssistant(userInput, sessionId, onTokenReceived) {
+    return this.help(userInput, sessionId, onTokenReceived);
+  },
+
+  botDentist(userInput, sessionId, onTokenReceived) {
+    return this.aidentist(userInput, sessionId, onTokenReceived);
   }
-  return streamApiCall('/aidentist', userInput, sessionId, onTokenReceived, authToken);
-}
+};
 
-// TODO for the developer integrating this service:
-// 1. Session ID Management: Ensure that `sessionId` is generated (e.g., using `uuid` library)
-//    by the calling UI component at the start of a new chat session and passed consistently.
-// 2. Authentication Token: For `botDentist`, ensure `authToken` is correctly retrieved
-//    from your application's auth state (e.g., localStorage, Auth Context) and passed.
-// 3. UI Updates: Adapt UI components to provide `sessionId` and `authToken` where necessary.
-//    The `onTokenReceived` callback behavior (receiving individual tokens and the cumulative response)
-//    is maintained, so UI rendering of streamed text should largely remain compatible.
-// 4. Rate Limiting: The backend's rate limit message ("You have reached the maximal inquiries...")
-//    will be passed through `onTokenReceived`. The UI should display this message appropriately.
-// 5. Additional Endpoints: If you need to use other chat agents from your backend
-//    (e.g., /receptionist, /triage, /documentation/summarize), add new functions similar to
-//    `botAssistant` or `botDentist`, calling the appropriate endpoint and handling auth if required.
-// 6. If you use `uuid` for session IDs, make sure to install it: `npm install uuid` or `yarn add uuid`.
-
-export default {botAssistant, botDentist};
+export default chatbotAPI;

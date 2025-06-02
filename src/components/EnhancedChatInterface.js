@@ -26,6 +26,8 @@ import {
 } from '@mui/icons-material';
 import ReactMarkdown from 'react-markdown';
 import {useAuth} from '../context/AuthContext';
+import api from '../services';
+import { v4 as uuidv4 } from 'uuid';
 
 const EnhancedChatInterface = ({
                                  chatType = 'help', // 'help', 'aidentist', 'general'
@@ -44,6 +46,7 @@ const EnhancedChatInterface = ({
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
+  const [sessionId] = useState(() => uuidv4()); // Generate session ID once per component instance
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
@@ -71,9 +74,7 @@ const EnhancedChatInterface = ({
     setIsStreaming(true);
 
     try {
-      // Simulate AI response with streaming effect
-      const aiResponse = await simulateAIResponse(userMessage.content, chatType);
-
+      // Create AI message placeholder
       const aiMessage = {
         id: Date.now() + 1,
         type: 'ai',
@@ -84,19 +85,36 @@ const EnhancedChatInterface = ({
 
       setMessages(prev => [...prev, aiMessage]);
 
-      // Simulate streaming by adding characters gradually
-      let currentContent = '';
-      for (let i = 0; i < aiResponse.length; i++) {
-        currentContent += aiResponse[i];
-        setMessages(prev =>
-            prev.map(msg =>
-                msg.id === aiMessage.id
-                    ? {...msg, content: currentContent}
-                    : msg
-            )
-        );
-        await new Promise(resolve => setTimeout(resolve, 20));
+      // Determine which API endpoint to use based on chatType
+      let apiCall;
+      switch (chatType) {
+        case 'aidentist':
+          apiCall = api.chatbot.aidentist(userMessage.content, sessionId, (token, fullText) => {
+            setMessages(prev =>
+                prev.map(msg =>
+                    msg.id === aiMessage.id
+                        ? {...msg, content: fullText}
+                        : msg
+                )
+            );
+          });
+          break;
+        case 'help':
+        default:
+          apiCall = api.chatbot.help(userMessage.content, sessionId, (token, fullText) => {
+            setMessages(prev =>
+                prev.map(msg =>
+                    msg.id === aiMessage.id
+                        ? {...msg, content: fullText}
+                        : msg
+                )
+            );
+          });
+          break;
       }
+
+      // Wait for the complete response
+      await apiCall;
 
       // Mark streaming as complete
       setMessages(prev =>
@@ -123,34 +141,7 @@ const EnhancedChatInterface = ({
     }
   };
 
-  const simulateAIResponse = async (userInput, type) => {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
 
-    const responses = {
-      help: {
-        'appointment': 'To book an appointment, you can use our online booking system or call our clinic directly. Our available time slots are updated in real-time to ensure accuracy.',
-        'pain': 'Dental pain can have various causes. For immediate relief, you can try over-the-counter pain medication and cold compress. However, I strongly recommend scheduling an appointment as soon as possible for proper diagnosis.',
-        'cleaning': 'Regular dental cleanings are recommended every 6 months. They help prevent cavities, gum disease, and maintain overall oral health.',
-        'default': 'Thank you for your question! I\'m here to help with dental health information, appointment booking, and general clinic inquiries. Could you please provide more specific details about what you\'d like to know?'
-      },
-      aidentist: {
-        'symptoms': 'Based on the symptoms you\'ve described, I recommend scheduling an appointment for a thorough examination. In the meantime, maintain good oral hygiene and avoid very hot or cold foods.',
-        'treatment': 'Treatment options vary depending on the specific condition. I\'d need to perform a clinical examination to provide accurate recommendations. Would you like to schedule a consultation?',
-        'default': 'As your AI dental assistant, I can help with preliminary assessments and treatment planning. Please describe your symptoms or concerns in detail.'
-      }
-    };
-
-    const typeResponses = responses[type] || responses.help;
-
-    // Simple keyword matching for demo
-    const keywords = Object.keys(typeResponses);
-    const matchedKeyword = keywords.find(keyword =>
-        userInput.toLowerCase().includes(keyword)
-    );
-
-    return typeResponses[matchedKeyword] || typeResponses.default;
-  };
 
   const handleRegenerateResponse = (messageId) => {
     // Find the user message that prompted this AI response

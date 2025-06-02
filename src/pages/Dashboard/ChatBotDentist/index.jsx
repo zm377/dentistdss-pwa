@@ -11,6 +11,7 @@ import {
 import SendIcon from '@mui/icons-material/Send';
 import api from '../../../services';
 import MessageBubble from '../../../components/MessageBubble';
+import { v4 as uuidv4 } from 'uuid';
 
 const INITIAL_MESSAGE = {
   role: 'Professional Dentist',
@@ -31,6 +32,7 @@ const ChatInterface = () => {
   const [dots, setDots] = useState('');
   const [isThinkingClosing, setIsThinkingClosing] = useState(false);
   const [isAtBottom, setIsAtBottom] = useState(true);
+  const [sessionId] = useState(() => uuidv4()); // Generate session ID once per component instance
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -154,9 +156,9 @@ const ChatInterface = () => {
     setIsThinkingClosing(false);
 
     try {
-      await api.chatbot.botDentist(
-          messages,
+      await api.chatbot.aidentist(
           input,
+          sessionId,
           (token, fullText) => {
             setMessages(prevMessages => {
               const {updatedMessages} = processThinkingContent(fullText, prevMessages);

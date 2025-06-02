@@ -12,7 +12,6 @@ import {
 } from '@mui/material';
 import { useAuth } from '../../../context/auth';
 import {
-  mockDentistProfileData,
   simulateApiCall
 } from '../../../utils/dashboard/mockData';
 
@@ -38,7 +37,7 @@ const ProfilePage = () => {
       setError('');
 
       try {
-        const data = await simulateApiCall(mockDentistProfileData);
+        const data = await simulateApiCall( );
         setDentistProfile(data);
       } catch (err) {
         console.error('Failed to load dentist profile:', err);

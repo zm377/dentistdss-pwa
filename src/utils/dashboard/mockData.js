@@ -2,62 +2,6 @@
  * Centralized mock data for dashboard components
  */
 
-// Patient Dashboard Mock Data
-export const mockPatientAppointmentsData = [
-  { 
-    id: 'appt1', 
-    dentistName: 'Dr. Smith', 
-    time: '10:00 AM', 
-    date: '2024-07-30', 
-    type: 'Check-up', 
-    status: 'Confirmed' 
-  },
-  { 
-    id: 'appt2', 
-    dentistName: 'Dr. Johnson', 
-    time: '02:00 PM', 
-    date: '2024-08-05', 
-    type: 'Cleaning', 
-    status: 'Pending' 
-  },
-];
-
-// Dentist Dashboard Mock Data
-export const mockDentistAppointmentsData = [
-  { 
-    id: 'appt1', 
-    patientName: 'John Doe', 
-    time: '10:00 AM', 
-    date: '2024-07-30', 
-    type: 'Check-up', 
-    status: 'Confirmed' 
-  },
-  { 
-    id: 'appt2', 
-    patientName: 'Alice Brown', 
-    time: '11:30 AM', 
-    date: '2024-07-30', 
-    type: 'Filling', 
-    status: 'Confirmed' 
-  },
-  {
-    id: 'appt3',
-    patientName: 'Bob Green',
-    time: '02:00 PM',
-    date: '2024-07-30',
-    type: 'Consultation',
-    status: 'Pending'
-  },
-  {
-    id: 'appt4',
-    patientName: 'Carol White',
-    time: '09:00 AM',
-    date: '2024-07-31',
-    type: 'Cleaning',
-    status: 'Confirmed'
-  },
-];
-
 export const mockDentistPatientRecordsData = [
   { 
     id: 'patient1', 
@@ -73,14 +17,6 @@ export const mockDentistPatientRecordsData = [
   },
 ];
 
-export const mockDentistProfileData = {
-  name: 'Dr. Jane Smith',
-  specialty: 'General Dentistry',
-  license: 'DDS-12345',
-  experience: '10 years',
-  education: 'Harvard School of Dental Medicine',
-  avatarUrl: null,
-};
 
 // Clinic Admin Dashboard Mock Data
 export const mockClinicDetailsData = {
@@ -115,47 +51,6 @@ export const mockPendingApprovalsData = [
   },
 ];
 
-// Receptionist Dashboard Mock Data
-export const mockReceptionistClinicInfoData = { 
-  name: 'Sunshine Dental Clinic', 
-  todayDate: new Date().toLocaleDateString() 
-};
-
-export const mockReceptionistAppointmentsData = [
-  { 
-    id: 'appt1', 
-    patientName: 'John Doe', 
-    time: '10:00 AM', 
-    dentist: 'Dr. Smith', 
-    type: 'Check-up', 
-    status: 'Confirmed' 
-  },
-  {
-    id: 'appt2',
-    patientName: 'Alice Brown',
-    time: '11:30 AM',
-    dentist: 'Dr. Smith',
-    type: 'Filling',
-    status: 'Confirmed'
-  },
-  {
-    id: 'appt3',
-    patientName: 'Bob Green',
-    time: '02:00 PM',
-    dentist: 'Dr. Grant',
-    type: 'Consultation',
-    status: 'Arrived'
-  },
-  {
-    id: 'appt4',
-    patientName: 'Carol White',
-    time: '03:00 PM',
-    dentist: 'Dr. Smith',
-    type: 'Cleaning',
-    status: 'Pending Confirmation'
-  },
-];
-
 export const mockReceptionistPatientsData = [
   {
     id: 'patient1',
@@ -170,30 +65,6 @@ export const mockReceptionistPatientsData = [
     phone: '555-5678',
     lastVisit: '2024-03-22',
     nextAppointment: '2024-07-30 11:30 AM'
-  },
-];
-
-// System Admin Dashboard Mock Data
-export const mockSystemAdminPendingApprovalsData = [
-  {
-    id: 'approval1',
-    type: 'Clinic Administrator Signup',
-    userName: 'Dr. Emily Carter',
-    userEmail: 'emily.carter@email.com',
-    clinicName: 'New Health Clinic',
-    requestReason: 'Opening new dental practice',
-    createdAt: '2024-07-25T10:00:00Z',
-    date: new Date().toLocaleDateString()
-  },
-  {
-    id: 'approval2',
-    type: 'System Feature Request',
-    userName: 'Tech Team',
-    userEmail: 'tech@company.com',
-    details: 'Request for new reporting module',
-    requestReason: 'Enhanced reporting capabilities needed',
-    createdAt: '2024-07-26T14:30:00Z',
-    date: new Date().toLocaleDateString()
   },
 ];
 
@@ -223,34 +94,11 @@ export const mockSystemAdminSystemUsersData = [
   },
 ];
 
-// Common data generators
-export const generateMockId = () => {
-  return Date.now().toString(36) + Math.random().toString(36).substr(2);
-};
 
-export const generateMockDate = (daysFromNow = 0) => {
-  const date = new Date();
-  date.setDate(date.getDate() + daysFromNow);
-  return date.toISOString().split('T')[0];
-};
-
-export const generateMockTime = () => {
-  const hours = Math.floor(Math.random() * 8) + 9; // 9 AM to 5 PM
-  const minutes = Math.random() < 0.5 ? '00' : '30';
-  const period = hours >= 12 ? 'PM' : 'AM';
-  const displayHours = hours > 12 ? hours - 12 : hours;
-  return `${displayHours}:${minutes} ${period}`;
-};
 
 // Data fetching simulation
 export const simulateApiCall = (data, delay = 1000) => {
   return new Promise((resolve) => {
     setTimeout(() => resolve(data), delay);
-  });
-};
-
-export const simulateApiError = (message = 'API Error', delay = 1000) => {
-  return new Promise((_, reject) => {
-    setTimeout(() => reject(new Error(message)), delay);
   });
 };
