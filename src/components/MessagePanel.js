@@ -5,9 +5,6 @@ import {
   List,
   ListItem,
   ListItemText,
-  Paper,
-  Badge,
-  Tooltip,
   CircularProgress,
   Alert,
   Chip,
@@ -64,8 +61,6 @@ const MessagePanel = ({userId}) => {
     return new Date(b.date) - new Date(a.date);
   });
 
-  const unreadCount = messages.filter(m => !m.read).length;
-
   if (loading) {
     return <Box sx={{display: 'flex', justifyContent: 'center', p: 2}}><CircularProgress/></Box>;
   }
@@ -75,27 +70,7 @@ const MessagePanel = ({userId}) => {
   }
 
   return (
-      <Paper elevation={3}
-             sx={{p: isMobile ? 1 : 2, mt: 2, maxHeight: '70vh', display: 'flex', flexDirection: 'column'}}>
-        <Box sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          mb: 2,
-          p: 1,
-          borderBottom: `1px solid ${theme.palette.divider}`
-        }}>
-          <Typography variant={isMobile ? "h6" : "h5"} component="h2">
-            My Messages
-          </Typography>
-          <Tooltip title={`You have ${unreadCount} unread messages`}>
-            <Badge badgeContent={unreadCount} color="error">
-              <MailIcon/>
-            </Badge>
-          </Tooltip>
-          {/* TODO: Add sorting options UI */}
-        </Box>
-
+      <Box sx={{p: isMobile ? 1 : 2, minHeight: '78vh', maxHeight: '90vh', display: 'flex', flexDirection: 'column'}}>
         {messages.length === 0 ? (
             <Typography sx={{textAlign: 'center', p: 2}}>You have no messages.</Typography>
         ) : (
@@ -156,7 +131,7 @@ const MessagePanel = ({userId}) => {
               </Grid>
             </Grid>
         )}
-      </Paper>
+      </Box>
   );
 };
 

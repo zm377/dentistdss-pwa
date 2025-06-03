@@ -1,5 +1,6 @@
-import React from 'react';
+import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import { useNavigate } from 'react-router-dom';
 import {
     AppBar,
     Toolbar,
@@ -12,13 +13,17 @@ import {
     useTheme,
     useMediaQuery,
     Tooltip,
+    Badge,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LogoutIcon from '@mui/icons-material/Logout';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
+import MailIcon from '@mui/icons-material/Mail';
 import { TOUCH_TARGETS } from '../../../utils/mobileOptimization';
+import { useAuth } from '../../../context/auth';
+import api from '../../../services';
 
 const Header = ({
     isSmUp,
@@ -35,6 +40,36 @@ const Header = ({
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
     const isSmallMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+    // Get current user and unread message count
+    const { currentUser } = useAuth();
+    const [unreadCount, setUnreadCount] = useState(0);
+    const navigate = useNavigate();
+
+    const userId = currentUser?.uid || currentUser?.id;
+
+    // Fetch unread message count
+    useEffect(() => {
+        if (!userId) return;
+
+        const fetchUnreadCount = async () => {
+            try {
+                const response = await api.message.getUnreadMessagesCount(userId);
+                // The API returns an object with counts, sum all values
+                const totalCount = Object.values(response || {}).reduce((sum, count) => sum + (count || 0), 0);
+                setUnreadCount(totalCount);
+            } catch (error) {
+                console.error('Failed to fetch unread message count:', error);
+                setUnreadCount(0);
+            }
+        };
+
+        fetchUnreadCount();
+
+        // Refresh count every 30 seconds
+        const interval = setInterval(fetchUnreadCount, 30000);
+        return () => clearInterval(interval);
+    }, [userId]);
 
     return (
         <AppBar
@@ -88,6 +123,39 @@ const Header = ({
                 </Box>
 
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.5, sm: 1 } }}>
+                    <Tooltip title={`You have ${unreadCount} unread messages`}>
+                        <IconButton
+                            onClick={() => navigate('/messages')}
+                            color="inherit"
+                            size={isSmallMobile ? "small" : "medium"}
+                            sx={{
+                                minWidth: TOUCH_TARGETS.MINIMUM,
+                                minHeight: TOUCH_TARGETS.MINIMUM,
+                                transition: theme.transitions.create('transform', {
+                                    duration: theme.transitions.duration.shorter,
+                                }),
+                                '&:hover': {
+                                    transform: 'scale(1.1)',
+                                    bgcolor: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.04)',
+                                },
+                            }}
+                        >
+                            <Badge
+                                badgeContent={unreadCount}
+                                color="error"
+                                sx={{
+                                    '& .MuiBadge-badge': {
+                                        fontSize: { xs: '0.6rem', sm: '0.75rem' },
+                                        minWidth: { xs: 16, sm: 20 },
+                                        height: { xs: 16, sm: 20 },
+                                    }
+                                }}
+                            >
+                                <MailIcon sx={{ fontSize: { xs: '1.2rem', sm: '1.5rem' } }} />
+                            </Badge>
+                        </IconButton>
+                    </Tooltip>
+
                     <Tooltip title={darkMode ? "Switch to light mode" : "Switch to dark mode"}>
                         <IconButton
                             onClick={toggleDarkMode}
@@ -153,12 +221,14 @@ const Header = ({
                     }}
                     open={Boolean(userMenuAnchorEl)}
                     onClose={handleUserMenuClose}
-                    PaperProps={{
-                        sx: {
-                            mt: 1,
-                            minWidth: 160,
-                            borderRadius: 2,
-                            boxShadow: theme.shadows[8],
+                    slotProps={{
+                        paper: {
+                            sx: {
+                                mt: 1,
+                                minWidth: 160,
+                                borderRadius: 2,
+                                boxShadow: theme.shadows[8],
+                            }
                         }
                     }}
                 >
