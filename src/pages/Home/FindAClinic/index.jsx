@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   Container,
   Typography,
@@ -7,27 +7,20 @@ import {
   useMediaQuery,
 } from '@mui/material';
 
-import SearchSection from './components/SearchSection';
-import MapSection from './components/MapSection';
-import ClinicList from './components/ClinicList';
-import LoadingOverlay from './components/LoadingOverlay';
-import { useClinicSearch } from './hooks/useClinicSearch';
-import { useMapControls } from './hooks/useMapControls';
-import { useResponsiveLayout } from './hooks/useResponsiveLayout';
+import SearchSection from '../../../components/FindAClinic/SearchSection';
+import MapSection from '../../../components/FindAClinic/MapSection';
+import ClinicList from '../../../components/FindAClinic/ClinicList';
 
-/**
- * Optimized FindAClinic component with mobile-first responsive design
- * Features:
- * - Component composition with sub-components under 200 lines each
- * - Custom hooks for complex logic separation
- * - Mobile-first responsive design with Material-UI breakpoints
- * - 44px minimum touch targets for mobile accessibility
- * - Proper error boundaries and loading states
- * - React.memo optimization for performance
- */
+import { useClinicSearch } from '../../../hooks/useClinicSearch';
+import { useMapControls } from '../../../hooks/useMapControls';
+import { useResponsiveLayout } from '../../../hooks/useResponsiveLayout';
+
 const FindAClinic = React.memo(() => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
+  // State for geocoded clinics
+  const [clinicsWithCoords, setClinicsWithCoords] = useState([]);
 
   // Custom hooks for separated concerns
   const {
@@ -55,6 +48,11 @@ const FindAClinic = React.memo(() => {
   } = useMapControls();
 
   const { containerSpacing } = useResponsiveLayout(isMobile);
+
+  // Handle geocoded clinics from MapSection
+  const handleClinicsWithCoordsChange = useCallback((geocodedClinics) => {
+    setClinicsWithCoords(geocodedClinics);
+  }, []);
 
 
 
@@ -135,6 +133,7 @@ const FindAClinic = React.memo(() => {
             onInfoWindowClose={handleInfoWindowClose}
             onMapLoad={onMapLoad}
             onMapUnmount={onMapUnmount}
+            onClinicsWithCoordsChange={handleClinicsWithCoordsChange}
           />
         </Grid>
 
@@ -144,9 +143,9 @@ const FindAClinic = React.memo(() => {
           xs={12}
           md={4}
           sx={{
-            width: { xs: '100%', md: '33.333333%' },
-            maxWidth: { xs: '100%', md: '33.333333%' },
-            flexBasis: { xs: '100%', md: '33.333333%' },
+            width: { xs: '100%', md: '33%' },
+            maxWidth: { xs: '100%', md: '33%' },
+            flexBasis: { xs: '100%', md: '33%' },
             flexGrow: 0,
             flexShrink: 0,
             display: 'flex',
@@ -157,7 +156,7 @@ const FindAClinic = React.memo(() => {
           }}
         >
           <ClinicList
-            clinics={clinics}
+            clinics={clinicsWithCoords.length > 0 ? clinicsWithCoords : clinics}
             selectedClinic={selectedClinic}
             loading={loading}
             isMobile={isMobile}
@@ -166,8 +165,7 @@ const FindAClinic = React.memo(() => {
         </Grid>
       </Grid>
 
-      {/* Loading Overlay */}
-      <LoadingOverlay loading={loading} />
+
     </Container>
   );
 });

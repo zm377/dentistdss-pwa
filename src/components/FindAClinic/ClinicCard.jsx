@@ -16,8 +16,8 @@ import {
   Language as WebsiteIcon,
   Directions as DirectionsIcon,
 } from '@mui/icons-material';
-import { openDirections } from '../utils/mapUtils';
-import { TOUCH_TARGETS } from '../../../../utils/mobileOptimization';
+import { openDirections } from '../../utils/mapUtils';
+import { TOUCH_TARGETS } from '../../utils/mobileOptimization';
 
 /**
  * ClinicCard Component

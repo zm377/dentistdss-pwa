@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useTheme, useMediaQuery } from '@mui/material';
-import { MOBILE_SPACING } from '../../../../utils/mobileOptimization';
+import { MOBILE_SPACING } from '../utils/mobileOptimization';
 
 /**
  * Custom hook for responsive layout calculations

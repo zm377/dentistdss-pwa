@@ -10,7 +10,7 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { Search as SearchIcon, Clear as ClearIcon } from '@mui/icons-material';
-import { TOUCH_TARGETS } from '../../../../utils/mobileOptimization';
+import { TOUCH_TARGETS } from '../../utils/mobileOptimization';
 
 /**
  * SearchSection Component

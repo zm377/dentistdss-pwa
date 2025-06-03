@@ -9,7 +9,6 @@ import {
   List,
 } from '@mui/material';
 import ClinicCard from './ClinicCard';
-import { useGeocoding } from '../hooks/useGeocoding';
 
 /**
  * ClinicList Component
@@ -27,8 +26,6 @@ const ClinicList = React.memo(({
   isMobile,
   onClinicSelect
 }) => {
-  // Use geocoding hook for clinic coordinates
-  const { clinicsWithCoords } = useGeocoding(clinics);
 
   // Responsive list height
   const getListHeight = () => {
@@ -136,14 +133,14 @@ const ClinicList = React.memo(({
             role="list"
             aria-label="Clinic search results"
           >
-            {clinicsWithCoords.map((clinic, index) => (
+            {clinics.map((clinic, index) => (
               <ClinicCard
                 key={clinic.id || index}
                 clinic={clinic}
                 isSelected={selectedClinic?.id === clinic.id}
                 onClick={() => onClinicSelect(clinic)}
                 isMobile={isMobile}
-                isLast={index === clinicsWithCoords.length - 1}
+                isLast={index === clinics.length - 1}
               />
             ))}
           </List>

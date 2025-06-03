@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { geocodeAddress } from '../../../../utils/geocode';
-import config from '../../../../config';
+import { geocodeAddress } from '../utils/geocode';
+import config from '../config';
 
 /**
  * Custom hook for geocoding clinic addresses
@@ -21,22 +21,8 @@ export const useGeocoding = (clinics) => {
   // Track if we've processed the current clinics array
   const processedClinicsRef = useRef(null);
 
-  // Immediate fallback: if clinics change and we don't have coords yet, set the original clinics
-  useEffect(() => {
-    console.log('🗺️ useGeocoding fallback check:', {
-      clinicsLength: clinics?.length || 0,
-      clinicsWithCoordsLength: clinicsWithCoords.length,
-      geocoding,
-      shouldSetFallback: clinics && clinics.length > 0 && clinicsWithCoords.length === 0 && !geocoding
-    });
-
-    // Only set fallback if we haven't processed these clinics yet and we're not geocoding
-    if (clinics && clinics.length > 0 && clinicsWithCoords.length === 0 && !geocoding && processedClinicsRef.current !== clinics) {
-      console.log('🗺️ Setting fallback clinics without geocoding');
-      setClinicsWithCoords(clinics);
-      processedClinicsRef.current = clinics;
-    }
-  }, [clinics, clinicsWithCoords.length, geocoding]);
+  // Add a timeout to reset geocoding state if it gets stuck
+  const geocodingTimeoutRef = useRef(null);
 
   // Cache for geocoded addresses to prevent duplicate API calls
   const geocodeCache = useRef({});
@@ -67,7 +53,6 @@ export const useGeocoding = (clinics) => {
    * @returns {Object} Clinic with coordinates
    */
   const geocodeClinic = useCallback(async (clinic) => {
-
     // Return clinic as-is if it already has coordinates
     if (clinic.latitude && clinic.longitude) {
       return clinic;
@@ -94,7 +79,6 @@ export const useGeocoding = (clinics) => {
         country: clinic.country,
       });
 
-
       if (coords) {
         // Cache the successful result
         geocodeCache.current[cacheKey] = coords;
@@ -105,7 +89,7 @@ export const useGeocoding = (clinics) => {
         };
       }
     } catch (error) {
-      console.warn(`🗺️ geocodeClinic: Geocoding failed for clinic ${clinic.name}:`, error);
+      console.warn(`Geocoding failed for clinic ${clinic.name}:`, error);
     }
 
     // Return original clinic if geocoding fails
@@ -115,14 +99,8 @@ export const useGeocoding = (clinics) => {
   /**
    * Geocode all clinics in the array
    */
-  const geocodeClinics = useCallback(async () => {
-    console.log('🗺️ geocodeClinics called with:', {
-      clinicsLength: clinics?.length || 0,
-      hasApiKey: !!config.api.google.mapsApiKey
-    });
-
-    if (!clinics || !clinics.length) {
-      console.log('🗺️ No clinics to geocode, clearing coords');
+  const geocodeClinics = useCallback(async (clinicsToGeocode) => {
+    if (!clinicsToGeocode || !clinicsToGeocode.length) {
       setClinicsWithCoords([]);
       return;
     }
@@ -130,60 +108,68 @@ export const useGeocoding = (clinics) => {
     setGeocoding(true);
     setGeocodingError(null);
 
+    // Set a timeout to reset geocoding state if it gets stuck (30 seconds)
+    geocodingTimeoutRef.current = setTimeout(() => {
+      setGeocoding(false);
+    }, 30000);
+
     try {
       // For testing: if no Google Maps API key, just return clinics as-is
       const hasApiKey = !!config.api.google.mapsApiKey;
 
       if (!hasApiKey) {
-        console.log('🗺️ No API key, using clinics without geocoding');
-        if (isMountedRef.current) {
-          setClinicsWithCoords(clinics);
-          processedClinicsRef.current = clinics; // Mark these clinics as processed
-        }
+        setClinicsWithCoords(clinicsToGeocode);
+        processedClinicsRef.current = clinicsToGeocode;
         return;
       }
 
-      console.log('🗺️ Starting geocoding for', clinics.length, 'clinics');
-
       // Process clinics in parallel with Promise.all
       const results = await Promise.all(
-        clinics.map(clinic => geocodeClinic(clinic))
+        clinicsToGeocode.map(clinic => geocodeClinic(clinic))
       );
 
-      console.log('🗺️ Geocoding completed, results:', results.map(r => ({
-        name: r.name,
-        hasCoords: !!(r.latitude && r.longitude)
-      })));
-
-      // Only update state if component is still mounted
-      if (isMountedRef.current) {
-        setClinicsWithCoords(results);
-        processedClinicsRef.current = clinics; // Mark these clinics as processed
-      }
+      // Update state with geocoded results
+      setClinicsWithCoords(results);
+      processedClinicsRef.current = clinicsToGeocode;
     } catch (error) {
-      console.error('🗺️ geocodeClinics: Geocoding error:', error);
-
-      if (isMountedRef.current) {
-        setGeocodingError('Failed to get location data for some clinics.');
-        // Still set the clinics even if some geocoding failed
-        setClinicsWithCoords(clinics);
-        processedClinicsRef.current = clinics; // Mark these clinics as processed
-      }
+      console.error('Geocoding error:', error);
+      setGeocodingError('Failed to get location data for some clinics.');
+      // Still set the clinics even if some geocoding failed
+      setClinicsWithCoords(clinicsToGeocode);
+      processedClinicsRef.current = clinicsToGeocode;
     } finally {
-      if (isMountedRef.current) {
-        setGeocoding(false);
+      // Clear the timeout
+      if (geocodingTimeoutRef.current) {
+        clearTimeout(geocodingTimeoutRef.current);
+        geocodingTimeoutRef.current = null;
       }
+
+      setGeocoding(false);
     }
-  }, [clinics, geocodeClinic]);
+  }, [geocodeClinic]);
 
   // Geocode clinics when the clinics array changes
   useEffect(() => {
+    // If we have new clinics and geocoding is stuck, reset it
+    if (clinics && clinics.length > 0 && processedClinicsRef.current !== clinics && geocoding) {
+      setGeocoding(false);
+      // Clear any existing timeout
+      if (geocodingTimeoutRef.current) {
+        clearTimeout(geocodingTimeoutRef.current);
+        geocodingTimeoutRef.current = null;
+      }
+      return; // Let the next effect run handle the geocoding
+    }
+
     // Only geocode if we have new clinics and we're not already geocoding
     if (clinics && clinics.length > 0 && processedClinicsRef.current !== clinics && !geocoding) {
-      geocodeClinics();
+      geocodeClinics(clinics);
+    } else if (clinics && clinics.length === 0) {
+      setClinicsWithCoords([]);
+      processedClinicsRef.current = clinics;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [clinics]); // Only depend on clinics, not geocodeClinics to prevent infinite loop
+  }, [clinics]); // Only depend on clinics to prevent infinite loop
 
   // Cleanup on unmount
   useEffect(() => {

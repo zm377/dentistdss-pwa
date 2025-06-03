@@ -9,9 +9,9 @@ import {
   useMediaQuery,
 } from '@mui/material';
 import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
-import config from '../../../../config';
-import ClinicInfoWindow from './ClinicInfoWindow';
-import { useGeocoding } from '../hooks/useGeocoding';
+import config from '../../config';
+import ClinicInfoWindow from '../../components/FindAClinic/ClinicInfoWindow';
+import { useGeocoding } from '../../hooks/useGeocoding';
 
 /**
  * MapSection Component
@@ -28,14 +28,13 @@ const MapSection = React.memo(({
   selectedClinic,
   mapCenter,
   mapZoom,
-  map,
   infoWindowOpen,
   isMobile,
-  onClinicSelect,
   onMarkerClick,
   onInfoWindowClose,
   onMapLoad,
-  onMapUnmount
+  onMapUnmount,
+  onClinicsWithCoordsChange
 }) => {
   const theme = useTheme();
   const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'));
@@ -46,32 +45,20 @@ const MapSection = React.memo(({
   // Use geocoding hook for clinic coordinates
   const { clinicsWithCoords, geocoding } = useGeocoding(clinics);
 
+
+  // Notify parent component when geocoded clinics change
+  useEffect(() => {
+    if (onClinicsWithCoordsChange) {
+      onClinicsWithCoordsChange(clinicsWithCoords);
+    }
+  }, [clinicsWithCoords, onClinicsWithCoordsChange]);
+
   // Find the selected clinic with coordinates from the geocoded list
   const selectedClinicWithCoords = selectedClinic
     ? clinicsWithCoords.find(clinic => clinic.id === selectedClinic.id) || selectedClinic
     : null;
 
-  // Debug logging
-  useEffect(() => {
-    console.log('🗺️ MapSection Debug:', {
-      clinicsCount: clinics?.length || 0,
-      clinicsWithCoordsCount: clinicsWithCoords?.length || 0,
-      selectedClinic: selectedClinic ? {
-        id: selectedClinic.id,
-        name: selectedClinic.name,
-        hasCoords: !!(selectedClinic.latitude && selectedClinic.longitude)
-      } : null,
-      selectedClinicWithCoords: selectedClinicWithCoords ? {
-        id: selectedClinicWithCoords.id,
-        name: selectedClinicWithCoords.name,
-        hasCoords: !!(selectedClinicWithCoords.latitude && selectedClinicWithCoords.longitude)
-      } : null,
-      infoWindowOpen,
-      geocoding,
-      isGoogleMapsLoaded,
-      googleMapsAvailable: !!window.google?.maps
-    });
-  }, [clinics, clinicsWithCoords, selectedClinic, selectedClinicWithCoords, infoWindowOpen, geocoding, isGoogleMapsLoaded]);
+
 
   // Responsive map height
   const getMapHeight = () => {
@@ -155,11 +142,9 @@ const MapSection = React.memo(({
       <LoadScript
         googleMapsApiKey={config.api.google.mapsApiKey}
         onLoad={() => {
-          console.log('🗺️ Google Maps API loaded successfully');
           setIsGoogleMapsLoaded(true);
         }}
-        onError={(error) => {
-          console.error('🗺️ Google Maps API failed to load:', error);
+        onError={() => {
           setIsGoogleMapsLoaded(false);
         }}
         loadingElement={
@@ -187,35 +172,24 @@ const MapSection = React.memo(({
           {/* Clinic Markers */}
           {isGoogleMapsLoaded && clinicsWithCoords
             .filter(clinic => clinic.latitude && clinic.longitude)
-            .map((clinic, index) => {
-              console.log('🗺️ Rendering marker for clinic:', {
-                id: clinic.id,
-                name: clinic.name,
-                latitude: clinic.latitude,
-                longitude: clinic.longitude,
-                hasValidCoords: true
-              });
-
-              return (
-                <Marker
-                  key={clinic.id || `clinic-${index}`}
-                  position={{
-                    lat: parseFloat(clinic.latitude),
-                    lng: parseFloat(clinic.longitude)
-                  }}
-                  onClick={() => {
-                    console.log('🗺️ Marker clicked:', clinic.name);
-                    onMarkerClick(clinic);
-                  }}
-                  title={clinic.name}
-                  animation={
-                    selectedClinic?.id === clinic.id && window.google?.maps?.Animation
-                      ? window.google.maps.Animation.BOUNCE
-                      : null
-                  }
-                />
-              );
-            })
+            .map((clinic, index) => (
+              <Marker
+                key={clinic.id || `clinic-${index}`}
+                position={{
+                  lat: parseFloat(clinic.latitude),
+                  lng: parseFloat(clinic.longitude)
+                }}
+                onClick={() => {
+                  onMarkerClick(clinic);
+                }}
+                title={clinic.name}
+                animation={
+                  selectedClinic?.id === clinic.id && window.google?.maps?.Animation
+                    ? window.google.maps.Animation.BOUNCE
+                    : null
+                }
+              />
+            ))
           }
 
           {/* Info Window */}
@@ -231,7 +205,6 @@ const MapSection = React.memo(({
                   lng: parseFloat(selectedClinicWithCoords.longitude)
                 }}
                 onCloseClick={() => {
-                  console.log('🗺️ InfoWindow closed');
                   onInfoWindowClose();
                 }}
                 options={{
@@ -251,28 +224,28 @@ const MapSection = React.memo(({
 
           {/* Fallback message when clinic has no coordinates */}
           {selectedClinic &&
-           infoWindowOpen &&
-           (!selectedClinicWithCoords?.latitude || !selectedClinicWithCoords?.longitude) && (
-            <Box
-              sx={{
-                position: 'absolute',
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                bgcolor: 'background.paper',
-                p: 2,
-                borderRadius: 1,
-                boxShadow: 3,
-                zIndex: 1000,
-                maxWidth: 300,
-                textAlign: 'center'
-              }}
-            >
-              <Typography variant="body2" color="text.secondary">
-                Location not available for {selectedClinic.name}
-              </Typography>
-            </Box>
-          )}
+            infoWindowOpen &&
+            (!selectedClinicWithCoords?.latitude || !selectedClinicWithCoords?.longitude) && (
+              <Box
+                sx={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  bgcolor: 'background.paper',
+                  p: 2,
+                  borderRadius: 1,
+                  boxShadow: 3,
+                  zIndex: 1000,
+                  maxWidth: 300,
+                  textAlign: 'center'
+                }}
+              >
+                <Typography variant="body2" color="text.secondary">
+                  Location not available for {selectedClinic.name}
+                </Typography>
+              </Box>
+            )}
         </GoogleMap>
       </LoadScript>
     </Paper>
@@ -297,11 +270,13 @@ MapSection.propTypes = {
   onInfoWindowClose: PropTypes.func.isRequired,
   onMapLoad: PropTypes.func.isRequired,
   onMapUnmount: PropTypes.func.isRequired,
+  onClinicsWithCoordsChange: PropTypes.func,
 };
 
 MapSection.defaultProps = {
   selectedClinic: null,
   map: null,
+  onClinicsWithCoordsChange: null,
 };
 
 export default MapSection;
