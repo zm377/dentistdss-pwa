@@ -41,7 +41,7 @@ This project codebase is managed by git on GitHub: [https://github.com/zm377/den
 ## Technology Stack
 
 - **Frontend**: React 19, Material-UI 6, React Router 7
-- **AI Integration**: OpenAI API (GPT-4)
+- **AI Integration**: OpenAI API and Google Vertex AI with Server-Sent Events (SSE) for real-time responses by Spring AI
 - **Authentication**: Google OAuth 2.0
 - **Styling**: Material-UI, Styled Components, Emotion
 - **PWA**: Service Worker enabled for offline functionality
