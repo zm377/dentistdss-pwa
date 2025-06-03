@@ -13,7 +13,6 @@ import {
   useMediaQuery,
   Fade,
   Button,
-  Paper,
   Dialog,
   DialogContent,
   IconButton,
@@ -167,11 +166,8 @@ function Learn() {
               mb: 6,
               p: 4,
               borderRadius: 2,
-              background: theme.palette.mode === 'dark' ? theme.palette.primary.dark : theme.palette.primary.light,
-              backgroundImage: theme.palette.mode === 'dark'
-                  ? 'linear-gradient(135deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0) 100%)'
-                  : 'linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 100%)',
-              boxShadow: '0 4px 20px rgba(0,0,0,0.08)'
+              bgcolor: 'secondary.light',
+              boxShadow: 2
             }}
         >
           <Typography
@@ -180,44 +176,45 @@ function Learn() {
               gutterBottom
               sx={{
                 fontWeight: 700,
-                color: theme.palette.mode === 'dark' ? theme.palette.primary.light : theme.palette.primary.contrastText,
-                mb: 2,
-                textShadow: '0px 2px 4px rgba(0,0,0,0.05)'
+                color: 'primary.contrastText',
+                mb: 2
               }}
           >
             Learn About Oral Health
           </Typography>
-          <Typography variant="h6" sx={{mb: 3, color: theme.palette.text.primary, maxWidth: '800px', mx: 'auto'}}>
+          <Typography
+              variant="h6"
+              sx={{
+                mb: 3,
+                color: 'primary.contrastText',
+                maxWidth: '800px',
+                mx: 'auto'
+              }}
+          >
             Discover essential information about dental health, common conditions, and how to maintain a healthy smile.
           </Typography>
-          <Divider sx={{width: '60%', mx: 'auto', mb: 3}}/>
+          <Divider sx={{width: '60%', mx: 'auto', mb: 3, backgroundColor: 'primary.contrastText'}}/>
 
           <Box sx={{display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2}}>
-            <FilterAltIcon sx={{mr: 1, color: theme.palette.primary.main}}/>
-            <Typography variant="subtitle1" sx={{color: theme.palette.text.primary}}>
+            <FilterAltIcon sx={{mr: 1, color: 'primary.contrastText'}}/>
+            <Typography variant="subtitle1" color="primary.contrastText">
               Filter by topic:
             </Typography>
           </Box>
 
-          <Box sx={{display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 1}}>
+          <Box sx={{display: 'flex', justifyContent: 'center', color: 'primary.contrastText', flexWrap: 'wrap', gap: 1}}>
             {allTags.map((tag) => (
                 <Chip
                     key={tag}
                     label={tag}
                     onClick={() => handleFilterToggle(tag)}
+                    color={activeFilters.includes(tag) ? 'secondary' : 'secondary.main'}
+                    textColor={activeFilters.includes(tag) ? 'primary' : 'secondary.main'}
+                    variant={activeFilters.includes(tag) ? 'outlined' : 'outlined'}
                     sx={{
-                      bgcolor: activeFilters.includes(tag) ? theme.palette.primary.main : theme.palette.mode === 'dark' ? theme.palette.grey[800] : theme.palette.grey[100],
-                      color: activeFilters.includes(tag)
-                          ? 'white'
-                          : theme.palette.mode === 'dark' ? theme.palette.common.white : theme.palette.text.primary,
-                      borderWidth: 1,
-                      borderStyle: 'solid',
-                      borderColor: activeFilters.includes(tag)
-                          ? theme.palette.primary.main
-                          : theme.palette.mode === 'dark' ? theme.palette.grey[700] : theme.palette.grey[300],
-                      fontWeight: activeFilters.includes(tag) ? 500 : 400,
+                      fontWeight: activeFilters.includes(tag) ? 600 : 400,
                       '&:hover': {
-                        bgcolor: activeFilters.includes(tag) ? theme.palette.primary.dark : theme.palette.grey[200]
+                        bgcolor: activeFilters.includes(tag) ? 'primary.contrastText' : 'action.hover'
                       }
                     }}
                 />
@@ -230,11 +227,13 @@ function Learn() {
             fullScreen={isMobile}
             open={openDialog}
             onClose={handleCloseDialog}
-            TransitionComponent={Transition}
+            slots={{ transition: Transition }}
             maxWidth="md"
             fullWidth
-            PaperProps={{
-              sx: {borderRadius: isMobile ? 0 : 2, overflow: 'hidden'}
+            slotProps={{
+              paper: {
+                sx: {borderRadius: isMobile ? 0 : 2, overflow: 'hidden'}
+              }
             }}
         >
           {isMobile ? (
@@ -260,7 +259,7 @@ function Learn() {
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'flex-start',
-                color: theme.palette.primary.main,
+                color: 'primary.main',
                 fontWeight: 600
               }}>
                 {selectedArticle?.title}
@@ -280,13 +279,9 @@ function Learn() {
                                 key={tag}
                                 label={tag}
                                 size="small"
+                                color="primary"
+                                variant="outlined"
                                 sx={{
-                                  bgcolor: theme.palette.mode === 'dark'
-                                      ? theme.palette.primary.dark
-                                      : theme.palette.primary.light,
-                                  color: theme.palette.mode === 'dark'
-                                      ? theme.palette.primary.light
-                                      : theme.palette.primary.dark,
                                   fontSize: '0.75rem',
                                   height: 24
                                 }}
@@ -305,12 +300,20 @@ function Learn() {
                         borderRadius: 1,
                         mb: 3,
                         objectFit: 'cover',
-                        boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
+                        boxShadow: 2
                       }}
                   />
 
                   {selectedArticle.content.split('\n\n').map((paragraph, idx) => (
-                      <Typography key={idx} variant="body1" paragraph sx={{lineHeight: 1.8, fontSize: '1.05rem'}}>
+                      <Typography
+                          key={idx}
+                          variant="body1"
+                          sx={{
+                            lineHeight: 1.8,
+                            fontSize: '1.05rem',
+                            mb: 2
+                          }}
+                      >
                         {paragraph}
                       </Typography>
                   ))}
@@ -331,10 +334,9 @@ function Learn() {
               <Box sx={{
                 width: '100%',
                 py: 10,
-                textAlign: 'center',
-                color: theme.palette.text.primary
+                textAlign: 'center'
               }}>
-                <Typography variant="h6">
+                <Typography variant="h6" color="text.primary">
                   No articles match your selected filters.
                 </Typography>
                 <Button
@@ -346,7 +348,7 @@ function Learn() {
                 </Button>
               </Box>
           ) : (
-              filteredArticles.map((article, index) => (
+              filteredArticles.map((article) => (
                   <Grid size={4} item xs={12} md={6} lg={4} key={article.title}>
                     <Fade in={visibleArticles.includes(articles.indexOf(article))} timeout={500}>
                       <Card
@@ -358,14 +360,11 @@ function Learn() {
                             transition: 'all 0.3s ease',
                             '&:hover': {
                               transform: 'translateY(-6px)',
-                              boxShadow: '0 8px 16px rgba(0,0,0,0.1)'
+                              boxShadow: 4
                             },
                             borderRadius: 2,
                             overflow: 'hidden',
-                            backgroundColor: theme.palette.background.paper,
-                            borderWidth: theme.palette.mode === 'dark' ? 1 : 0,
-                            borderStyle: 'solid',
-                            borderColor: theme.palette.mode === 'dark' ? theme.palette.divider : 'transparent'
+                            bgcolor: 'background.paper'
                           }}
                       >
                         <CardMedia
@@ -382,13 +381,11 @@ function Learn() {
                                     key={tag}
                                     label={tag}
                                     size="small"
+                                    color="primary"
+                                    variant="outlined"
                                     sx={{
                                       mr: 0.5,
                                       mb: 0.5,
-                                      bgcolor: theme.palette.mode === 'dark'
-                                          ? theme.palette.primary.dark
-                                          : theme.palette.primary.light,
-                                      color: theme.palette.primary.contrastText,
                                       fontSize: '0.75rem',
                                       height: 24
                                     }}
@@ -396,15 +393,24 @@ function Learn() {
                             ))}
                           </Box>
 
-                          <Typography variant="h6" component="h2" gutterBottom sx={{
-                            fontWeight: 600,
-                            color: theme.palette.mode === 'dark' ? theme.palette.primary.light : theme.palette.primary.main,
-                            fontSize: '1.1rem',
-                            lineHeight: 1.3
-                          }}>
+                          <Typography
+                              variant="h6"
+                              component="h2"
+                              gutterBottom
+                              sx={{
+                                fontWeight: 600,
+                                color: 'primary.main',
+                                fontSize: '1.1rem',
+                                lineHeight: 1.3
+                              }}
+                          >
                             {article.title}
                           </Typography>
-                          <Typography variant="body2" color="text.primary" sx={{mb: 2, flexGrow: 1}}>
+                          <Typography
+                              variant="body2"
+                              color="text.secondary"
+                              sx={{mb: 2, flexGrow: 1}}
+                          >
                             {article.content.split('.')[0] + '...'}
                           </Typography>
                           <Button
@@ -416,11 +422,7 @@ function Learn() {
                               sx={{
                                 alignSelf: 'flex-start',
                                 borderRadius: 6,
-                                px: 2,
-                                boxShadow: 'none',
-                                '&:hover': {
-                                  boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
-                                }
+                                px: 2
                               }}
                           >
                             Read More
