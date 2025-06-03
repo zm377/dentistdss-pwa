@@ -7,14 +7,11 @@ import {
   Typography,
   TextField,
   Grid,
-  Button,
   Alert,
-  List,
-  ListItem,
-  ListItemText,
 } from '@mui/material';
 import { useAuth } from '../../../context/auth';
 import api from '../../../services';
+import SystemSettingsSection from './components/SystemSettingsSection';
 
 /**
  * SettingsPage - Unified settings page for admin roles
@@ -110,70 +107,7 @@ const SettingsPage = ({ userRole = 'CLINIC_ADMIN' }) => {
    * Render system admin settings
    */
   const renderSystemSettings = () => (
-    <Card>
-      <CardContent>
-        <Grid container spacing={3}>
-          <Grid item xs={12} md={6}>
-            <Card variant="outlined" sx={{ height: '100%' }}>
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  System Configuration
-                </Typography>
-                <List dense>
-                  <ListItem>
-                    <ListItemText
-                      primary="Database Settings"
-                      secondary="Configure database connections and backup schedules"
-                    />
-                    <Button size="small" variant="outlined">
-                      Configure
-                    </Button>
-                  </ListItem>
-                  <ListItem>
-                    <ListItemText
-                      primary="Security Settings"
-                      secondary="Manage authentication and authorization settings"
-                    />
-                    <Button size="small" variant="outlined">
-                      Manage
-                    </Button>
-                  </ListItem>
-                </List>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <Card variant="outlined" sx={{ height: '100%' }}>
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  API Settings
-                </Typography>
-                <List dense>
-                  <ListItem>
-                    <ListItemText
-                      primary="API Keys"
-                      secondary="Manage third-party API integrations"
-                    />
-                    <Button size="small" variant="outlined">
-                      Manage
-                    </Button>
-                  </ListItem>
-                  <ListItem>
-                    <ListItemText
-                      primary="Webhooks"
-                      secondary="Configure webhooks for external services"
-                    />
-                    <Button size="small" variant="outlined">
-                      Configure
-                    </Button>
-                  </ListItem>
-                </List>
-              </CardContent>
-            </Card>
-          </Grid>
-        </Grid>
-      </CardContent>
-    </Card>
+    <SystemSettingsSection />
   );
 
   if (loading) {

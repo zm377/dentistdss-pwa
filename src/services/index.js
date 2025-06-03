@@ -5,6 +5,7 @@ import approvalAPI from './approval';
 import userAPI from './user';
 import appointmentAPI from './appointment';
 import messageAPI from './message';
+import systemAPI from './system';
 
 const api = {
   auth: authAPI,
@@ -14,6 +15,7 @@ const api = {
   user: userAPI,
   appointment: appointmentAPI,
   message: messageAPI,
+  system: systemAPI,
   // Add other API modules here as they're created
 };
 
