@@ -49,56 +49,57 @@ const theme = (mode) => createTheme({
   typography: {
     fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
     h1: {
-      fontSize: '2.5rem',
+      fontSize: 'clamp(1.75rem, 4vw, 2.5rem)',
       fontWeight: 600,
       lineHeight: 1.2,
     },
     h2: {
-      fontSize: '2rem',
+      fontSize: 'clamp(1.5rem, 3.5vw, 2rem)',
       fontWeight: 600,
       lineHeight: 1.3,
     },
     h3: {
-      fontSize: '1.75rem',
+      fontSize: 'clamp(1.25rem, 3vw, 1.75rem)',
       fontWeight: 600,
       lineHeight: 1.3,
     },
     h4: {
-      fontSize: '1.5rem',
+      fontSize: 'clamp(1.125rem, 2.5vw, 1.5rem)',
       fontWeight: 600,
       lineHeight: 1.4,
     },
     h5: {
-      fontSize: '1.25rem',
+      fontSize: 'clamp(1rem, 2vw, 1.25rem)',
       fontWeight: 600,
       lineHeight: 1.4,
     },
     h6: {
-      fontSize: '1rem',
+      fontSize: 'clamp(0.875rem, 1.5vw, 1rem)',
       fontWeight: 600,
       lineHeight: 1.5,
     },
     subtitle1: {
-      fontSize: '1rem',
+      fontSize: 'clamp(0.875rem, 1.5vw, 1rem)',
       fontWeight: 500,
       lineHeight: 1.5,
     },
     subtitle2: {
-      fontSize: '0.875rem',
+      fontSize: 'clamp(0.75rem, 1.25vw, 0.875rem)',
       fontWeight: 500,
       lineHeight: 1.5,
     },
     body1: {
-      fontSize: '1rem',
+      fontSize: 'clamp(0.875rem, 1.25vw, 1rem)',
       lineHeight: 1.6,
     },
     body2: {
-      fontSize: '0.875rem',
+      fontSize: 'clamp(0.75rem, 1vw, 0.875rem)',
       lineHeight: 1.6,
     },
     button: {
       textTransform: 'none',
       fontWeight: 500,
+      fontSize: 'clamp(0.875rem, 1.25vw, 1rem)',
     },
   },
   components: {
@@ -118,12 +119,34 @@ const theme = (mode) => createTheme({
           textTransform: 'none',
           borderRadius: 8,
           fontWeight: 500,
-          padding: '8px 16px',
+          minHeight: 44, // Minimum touch target size
+          padding: '12px 20px',
+          '@media (max-width: 600px)': {
+            minHeight: 48, // Larger touch target on mobile
+            padding: '14px 24px',
+            fontSize: '1rem',
+          },
         },
         contained: {
           boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.15)',
           '&:hover': {
             boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.2)',
+          },
+        },
+        sizeSmall: {
+          minHeight: 36,
+          padding: '8px 16px',
+          '@media (max-width: 600px)': {
+            minHeight: 40,
+            padding: '10px 18px',
+          },
+        },
+        sizeLarge: {
+          minHeight: 52,
+          padding: '16px 28px',
+          '@media (max-width: 600px)': {
+            minHeight: 56,
+            padding: '18px 32px',
           },
         },
       },
@@ -163,6 +186,23 @@ const theme = (mode) => createTheme({
         root: {
           '& .MuiOutlinedInput-root': {
             borderRadius: 8,
+            minHeight: 44, // Minimum touch target
+            '@media (max-width: 600px)': {
+              minHeight: 48, // Larger on mobile
+              fontSize: '16px', // Prevents zoom on iOS
+            },
+          },
+          '& .MuiInputBase-input': {
+            padding: '12px 14px',
+            '@media (max-width: 600px)': {
+              padding: '14px 16px',
+              fontSize: '16px', // Prevents zoom on iOS
+            },
+          },
+          '& .MuiInputLabel-root': {
+            '@media (max-width: 600px)': {
+              fontSize: '16px',
+            },
           },
         },
       },

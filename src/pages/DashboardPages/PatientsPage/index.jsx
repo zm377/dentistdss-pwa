@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
 import {
   Box,
   Alert,
@@ -8,10 +7,7 @@ import { useAuth } from '../../../context/auth';
 import {
   SearchableList,
 } from '../../../components/Dashboard/shared';
-import {
-  mockReceptionistPatientsData,
-  simulateApiCall
-} from '../../../utils/dashboard/mockData';
+import api from '../../../services';
 
 /**
  * PatientsPage - Patients management page for receptionists
@@ -31,22 +27,30 @@ const PatientsPage = () => {
   // Load patients data
   useEffect(() => {
     const loadPatients = async () => {
+      if (!currentUser?.clinicId) {
+        setError('No clinic information available for this user.');
+        setLoading(false);
+        return;
+      }
+
       setLoading(true);
       setError('');
 
       try {
-        const data = await simulateApiCall(mockReceptionistPatientsData);
-        setPatients(data);
+        const data = await api.clinic.getClinicPatientRecords(currentUser.clinicId);
+        setPatients(data || []);
       } catch (err) {
         console.error('Failed to load patients:', err);
         setError('Failed to load patients. Please try again later.');
+        // Return empty array on error instead of mock data
+        setPatients([]);
       } finally {
         setLoading(false);
       }
     };
 
     loadPatients();
-  }, []);
+  }, [currentUser?.clinicId]);
 
   /**
    * Render individual patient item
@@ -54,14 +58,21 @@ const PatientsPage = () => {
   const renderPatientItem = (patient, index) => (
     <Box key={patient.id || index} sx={{ mb: 2 }}>
       <Box sx={{ fontWeight: 'medium', mb: 0.5 }}>
-        {patient.name}
+        {patient.name || patient.patientName || patient.firstName && patient.lastName ? `${patient.firstName} ${patient.lastName}` : 'Unknown Patient'}
       </Box>
       <Box sx={{ color: 'text.secondary', fontSize: '0.875rem', mb: 0.5 }}>
-        Phone: {patient.phone}
+        Phone: {patient.phone || patient.phoneNumber || 'N/A'}
       </Box>
       <Box sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>
-        Email: {patient.email}
+        Email: {patient.email || patient.emailAddress || 'N/A'}
       </Box>
+      {(patient.lastVisit || patient.nextAppointment) && (
+        <Box sx={{ color: 'text.secondary', fontSize: '0.875rem', mt: 0.5 }}>
+          {patient.lastVisit && `Last visit: ${patient.lastVisit}`}
+          {patient.lastVisit && patient.nextAppointment && ' | '}
+          {patient.nextAppointment && `Next: ${patient.nextAppointment}`}
+        </Box>
+      )}
     </Box>
   );
 
@@ -78,16 +89,12 @@ const PatientsPage = () => {
       <SearchableList
         items={patients}
         renderItem={renderPatientItem}
-        searchFields={['name', 'phone', 'email']}
+        searchFields={['name', 'patientName', 'firstName', 'lastName', 'phone', 'phoneNumber', 'email', 'emailAddress']}
         emptyMessage="No patients found."
         searchPlaceholder="Search patients by name, phone, or email..."
       />
     </Box>
   );
-};
-
-PatientsPage.propTypes = {
-  // No additional props needed
 };
 
 export default PatientsPage;

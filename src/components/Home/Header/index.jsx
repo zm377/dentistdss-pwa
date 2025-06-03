@@ -104,9 +104,9 @@ const Header = ({ darkMode, toggleDarkMode, currentUser }) => {
         transition: 'background 0.5s ease, padding 0.3s ease, min-height 0.3s ease',
         width: '100%',
         zIndex: theme.zIndex.drawer + 1,
-        minHeight: scrolled && !isMobile ? '56px' : (isMobile ? '56px' : '64px'),
-        paddingTop: scrolled && !isMobile ? theme.spacing(0.5) : (isMobile ? theme.spacing(0.5) : theme.spacing(1)),
-        paddingBottom: scrolled && !isMobile ? theme.spacing(0.5) : (isMobile ? theme.spacing(0.5) : theme.spacing(1)),
+        minHeight: { xs: 56, sm: scrolled ? 56 : 64, md: scrolled ? 56 : 64 },
+        paddingTop: { xs: theme.spacing(0.5), sm: scrolled ? theme.spacing(0.5) : theme.spacing(1) },
+        paddingBottom: { xs: theme.spacing(0.5), sm: scrolled ? theme.spacing(0.5) : theme.spacing(1) },
       }}
     >
       <Toolbar sx={{
@@ -128,10 +128,14 @@ const Header = ({ darkMode, toggleDarkMode, currentUser }) => {
         >
           <LocalHospitalIcon
             sx={{
-              mr: 1,
+              mr: { xs: 0.5, sm: 1 },
               color: darkMode ? 'rgba(158, 255, 2, 0.92)' : 'inherit',
               filter: darkMode ? 'drop-shadow(0 0 2px rgba(248, 89, 45, 0.5))' : 'none',
-              fontSize: isMobile ? '1.2rem' : (scrolled ? '1.8rem' : '3rem'),
+              fontSize: {
+                xs: '1.2rem',
+                sm: scrolled ? '1.5rem' : '2rem',
+                md: scrolled ? '1.8rem' : '3rem'
+              },
               transition: 'font-size 0.3s ease',
             }}
           />
@@ -143,6 +147,7 @@ const Header = ({ darkMode, toggleDarkMode, currentUser }) => {
               color: darkMode ? '#e0f7fa' : 'inherit',
               textShadow: darkMode ? '0px 0px 8px rgba(224, 247, 250, 0.3)' : 'none',
               transition: 'font-size 0.3s ease',
+              fontSize: { xs: '0.9rem', sm: '1rem', md: scrolled ? '1rem' : '1.25rem' }
             }}
           >
             Dentabot

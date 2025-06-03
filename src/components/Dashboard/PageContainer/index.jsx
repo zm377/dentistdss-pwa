@@ -4,7 +4,9 @@ import {
   Box,
   Toolbar,
   Container,
+  useTheme,
 } from '@mui/material';
+import { getResponsivePadding } from '../../../utils/mobileOptimization';
 
 /**
  * PageContainer - A reusable page layout component that provides consistent
@@ -26,6 +28,8 @@ const PageContainer = ({
   containerSx = {},
   ...otherProps
 }) => {
+  const theme = useTheme();
+
   return (
     <Box
       component="main"
@@ -34,19 +38,22 @@ const PageContainer = ({
         width: { sm: `calc(100% - ${drawerWidth}px)` },
         minHeight: '100vh',
         overflow: 'auto',
-        backgroundColor: (theme) =>
-          theme.palette.mode === 'light' ? '#F4F6F8' : '#121212',
-        p: { xs: 2, md: 3 },
+        backgroundColor: theme.palette.background.default,
+        p: getResponsivePadding('medium'),
+        transition: theme.transitions.create(['background-color'], {
+          duration: theme.transitions.duration.standard,
+        }),
         ...sx,
       }}
       {...otherProps}
     >
-      <Toolbar />
+      <Toolbar sx={{ minHeight: { xs: 56, sm: 64 } }} />
       <Container
         maxWidth={maxWidth}
         disableGutters={disableGutters}
         sx={{
-          px: { xs: 1, sm: 2, md: 3 },
+          px: getResponsivePadding('medium'),
+          py: { xs: 1, sm: 2 },
           ...containerSx,
         }}
       >

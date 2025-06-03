@@ -7,13 +7,14 @@ const Footer = () => {
       <Box
           component="footer"
           sx={{
-            height: '50px',
+            minHeight: { xs: 60, sm: 50 },
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            px: {xs: 2, sm: 3},
+            px: { xs: 2, sm: 3 },
+            py: { xs: 1, sm: 0 },
             bgcolor: 'background.paper',
-            fontSize: {xs: '0.75rem', sm: '0.875rem'},
+            fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.875rem' },
             borderTop: '1px solid',
             borderColor: 'divider',
             mt: 'auto',
@@ -24,6 +25,8 @@ const Footer = () => {
             sx={{
               fontSize: 'inherit',
               color: 'text.secondary',
+              textAlign: 'center',
+              lineHeight: { xs: 1.4, sm: 1.5 },
               '& a': {
                 color: 'primary.main',
                 textDecoration: 'none',
@@ -34,6 +37,7 @@ const Footer = () => {
             }}
         >
           © {new Date().getFullYear()} {config.app.name} by Zhifei Mi - All rights reserved.
+          <br />
           Contact us at: <a href="mailto:dentistdss@gmail.com">dentistdss@gmail.com</a>
         </Typography>
       </Box>

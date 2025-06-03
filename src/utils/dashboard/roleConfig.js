@@ -14,6 +14,8 @@ import MedicalServicesIcon from '@mui/icons-material/MedicalServices';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import SupportAgentIcon from '@mui/icons-material/SupportAgent';
 import ScheduleIcon from '@mui/icons-material/Schedule';
+import SmartToyIcon from '@mui/icons-material/SmartToy';
+import SummarizeIcon from '@mui/icons-material/Summarize';
 // Import page components
 import {
   AppointmentsPage,
@@ -28,6 +30,9 @@ import {
   PatientsPage,
   CommunicationsPage,
   SchedulePage,
+  AIReceptionistPage,
+  AIDentistPage,
+  AISummarizePage,
 } from '../../pages/Dashboard';
 
 
@@ -64,6 +69,14 @@ export const roleMeta = {
 export const navigationSections = {
   PATIENT: [
     {
+      key: 'overview',
+      label: 'Overview',
+      icon: <DashboardIcon />,
+      path: '/overview',
+      component: OverviewPage,
+      props: { userRole: 'PATIENT' }
+    },
+    {
       key: 'appointments',
       label: 'My Appointments',
       icon: <EventIcon />,
@@ -79,6 +92,13 @@ export const navigationSections = {
       component: DentalRecordsPage
     },
     {
+      key: 'ai-receptionist',
+      label: 'AI Receptionist',
+      icon: <SmartToyIcon />,
+      path: '/ai-receptionist',
+      component: AIReceptionistPage
+    },
+    {
       key: 'messages',
       label: 'Messages',
       icon: <MessageIcon />,
@@ -88,6 +108,14 @@ export const navigationSections = {
   ],
 
   DENTIST: [
+    {
+      key: 'overview',
+      label: 'Overview',
+      icon: <DashboardIcon />,
+      path: '/overview',
+      component: OverviewPage,
+      props: { userRole: 'DENTIST' }
+    },
     {
       key: 'appointments',
       label: 'Appointments',
@@ -109,6 +137,20 @@ export const navigationSections = {
       icon: <NotesIcon />,
       path: '/patient-records',
       component: PatientRecordsPage
+    },
+    {
+      key: 'ai-dentist',
+      label: 'AI Dentist',
+      icon: <SmartToyIcon />,
+      path: '/ai-dentist',
+      component: AIDentistPage
+    },
+    {
+      key: 'ai-summarize',
+      label: 'AI Summarize',
+      icon: <SummarizeIcon />,
+      path: '/ai-summarize',
+      component: AISummarizePage
     },
     {
       key: 'profile',

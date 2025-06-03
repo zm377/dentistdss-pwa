@@ -5,7 +5,13 @@ const clinicAPI = {
     return api.get('/api/clinic/list/all');
   },
   async searchClinics(keywords) {
-    return api.post('/api/clinic/search', {keywords});
+
+    try {
+      const response = await api.post('/api/clinic/search', { keywords });
+      return response;
+    } catch (error) {
+      throw error;
+    }
   },
 
   /**
@@ -98,6 +104,26 @@ const clinicAPI = {
    */
   async deleteAvailabilitySlot(id) {
     return api.delete(`/api/clinic/dentist-availability/${id}`);
+  },
+
+  // Clinical Notes API Methods
+
+  /**
+   * Get patient records for a specific dentist
+   * @param {number} dentistId - The dentist's user ID
+   * @returns {Promise<Array>} Array of patient record objects
+   */
+  async getDentistPatientRecords(dentistId) {
+    return api.get(`/api/clinic/clinical-note/dentist/${dentistId}`);
+  },
+
+  /**
+   * Get patient records for a specific clinic
+   * @param {number} clinicId - The clinic ID
+   * @returns {Promise<Array>} Array of patient record objects
+   */
+  async getClinicPatientRecords(clinicId) {
+    return api.get(`/api/clinic/clinical-note/${clinicId}`);
   }
 }
 

@@ -2,13 +2,13 @@ import {
   Box,
   Typography,
   Button,
-  Paper,
   Grid,
   Container,
   Card,
   CardContent,
   CardMedia,
   useTheme,
+  useMediaQuery,
   Divider
 } from '@mui/material';
 import {Link as RouterLink} from 'react-router-dom';
@@ -18,20 +18,22 @@ import findDentistImg from '../../../../assets/d5.jpeg';
 const Hero = () => {
   const theme = useTheme();
   const isDarkMode = theme.palette.mode === 'dark';
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isSmallMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const white_t = theme.palette.common.white_t || 'rgba(255, 255, 255, 0.2)';
   const secondary_A100_t = (theme.palette.secondary && theme.palette.secondary.A100_t) || 'rgba(77, 182, 172, 0.2)';
 
   return (
 
-      <Container maxWidth="lg" sx={{my: 4, textAlign: 'center'}}>
+      <Container maxWidth="lg" sx={{my: { xs: 2, sm: 3, md: 4 }, textAlign: 'center', px: { xs: 2, sm: 3 }}}>
         <Typography
-            variant="h4"
+            variant={isMobile ? "h5" : "h4"}
             component="h1"
             gutterBottom
             sx={{
               fontWeight: 'bold',
               color: 'primary.main',
-              mb: 3
+              mb: { xs: 2, sm: 2.5, md: 3 }
             }}
         >
           <Box
@@ -70,37 +72,49 @@ const Hero = () => {
           </Box>
         </Typography>
 
-        <Box sx={{display: 'flex', justifyContent: 'center', alignItems: 'center', mb: 3}}>
+        <Box sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          mb: { xs: 2, sm: 2.5, md: 3 },
+          flexDirection: { xs: 'column', sm: 'row' },
+          gap: { xs: 1, sm: 0 }
+        }}>
           <Typography
-              variant="h6"
+              variant={isSmallMobile ? "body1" : "h6"}
               sx={{
-                mx: 2,
+                mx: { xs: 0, sm: 2 },
                 fontWeight: 'medium',
-                color: isDarkMode ? theme.palette.success.light : 'primary.main'
+                color: isDarkMode ? theme.palette.success.light : 'primary.main',
+                textAlign: 'center'
               }}
           >
             Ask Dental Questions
           </Typography>
-          <Divider
-              orientation="vertical"
-              flexItem
-              sx={{
-                borderColor: isDarkMode ? theme.palette.secondary.light : 'primary.main'
-              }}
-          />
+          {!isSmallMobile && (
+            <Divider
+                orientation="vertical"
+                flexItem
+                sx={{
+                  borderColor: isDarkMode ? theme.palette.secondary.light : 'primary.main',
+                  display: { xs: 'none', sm: 'block' }
+                }}
+            />
+          )}
           <Typography
-              variant="h6"
+              variant={isSmallMobile ? "body1" : "h6"}
               sx={{
-                mx: 2,
+                mx: { xs: 0, sm: 2 },
                 fontWeight: 'medium',
-                color: isDarkMode ? theme.palette.success.light : 'primary.main'
+                color: isDarkMode ? theme.palette.success.light : 'primary.main',
+                textAlign: 'center'
               }}
           >
             Find a Clinic
           </Typography>
         </Box>
 
-        <Grid container spacing={4} sx={{mt: 2, justifyContent: 'center'}}>
+        <Grid container spacing={{ xs: 2, sm: 3, md: 4 }} sx={{mt: { xs: 1, sm: 1.5, md: 2 }, justifyContent: 'center'}}>
           {[{
             title: "Ask a dental question",
             image: dentalQuestionImg,
@@ -112,7 +126,7 @@ const Hero = () => {
             alt: "Find a Clinic",
             link: "/find-a-clinic"
           }].map((item, index) => (
-              <Grid item xs={12} md={6} key={index}>
+              <Grid item xs={12} sm={6} md={6} key={index}>
                 <Card
                     elevation={isDarkMode ? 4 : 2}
                     sx={{
@@ -122,21 +136,24 @@ const Hero = () => {
                       borderRadius: 2,
                       bgcolor: 'background.paper',
                       border: isDarkMode ? `1px solid ${theme.palette.divider}` : 'none',
+                      transition: 'all 0.3s ease',
                       '&:hover': {
-                        boxShadow: theme.shadows[isDarkMode ? 8 : 4]
+                        boxShadow: theme.shadows[isDarkMode ? 8 : 4],
+                        transform: 'translateY(-2px)'
                       }
                     }}
                 >
-                  <CardContent sx={{flexGrow: 1, textAlign: 'center', p: 3}}>
+                  <CardContent sx={{flexGrow: 1, textAlign: 'center', p: { xs: 2, sm: 2.5, md: 3 }}}>
                     <CardMedia
                         component="img"
-                        height="360"
+                        height={isMobile ? "240" : "360"}
                         image={item.image}
                         alt={item.alt}
                         sx={{
                           borderRadius: 2,
-                          mb: 2,
-                          filter: isDarkMode ? 'brightness(0.9)' : 'none'
+                          mb: { xs: 1.5, sm: 2 },
+                          filter: isDarkMode ? 'brightness(0.9)' : 'none',
+                          objectFit: 'cover'
                         }}
                     />
                     <Button
@@ -144,10 +161,13 @@ const Hero = () => {
                         to={item.link}
                         variant="contained"
                         color="primary"
-                        size="large"
+                        size={isMobile ? "medium" : "large"}
+                        fullWidth={isSmallMobile}
                         sx={{
-                          borderRadius: 8, // Keep unique border radius
-                          px: 3,
+                          borderRadius: 8,
+                          px: { xs: 2, sm: 3 },
+                          py: { xs: 1.5, sm: 2 },
+                          minHeight: { xs: 48, sm: 52 },
                           '&:hover': {
                             transform: 'translateY(-3px)',
                             boxShadow: theme.shadows[6]
@@ -174,14 +194,14 @@ const Hero = () => {
                           }
                         }}
                     >
-                      <Box sx={{fontWeight: 'medium', display: 'inline-block'}}>
+                      <Box sx={{fontWeight: 'medium', display: 'inline-block', fontSize: { xs: '0.9rem', sm: '1rem' }}}>
                         {item.title}
                       </Box>
                     </Button>
                     <Typography
                         variant="body2"
                         color="text.secondary"
-                        sx={{mt: 2}}
+                        sx={{mt: { xs: 1.5, sm: 2 }, fontSize: { xs: '0.75rem', sm: '0.875rem' }}}
                     >
                       click here
                     </Typography>

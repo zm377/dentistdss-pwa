@@ -16,3 +16,8 @@ export { default as ProfilePage } from '../DashboardPages/ProfilePage';
 export { default as SchedulePage } from '../DashboardPages/Schedule';
 export { default as PatientsPage } from '../DashboardPages/PatientsPage';
 export { default as CommunicationsPage } from '../DashboardPages/CommunicationsPage';
+
+// AI Chat Pages
+export { default as AIReceptionistPage } from '../DashboardPages/AIReceptionistPage';
+export { default as AIDentistPage } from '../DashboardPages/AIDentistPage';
+export { default as AISummarizePage } from '../DashboardPages/AISummarizePage';

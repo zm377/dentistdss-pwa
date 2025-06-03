@@ -6,7 +6,10 @@ import {
   Typography,
   Alert,
   Box,
+  useTheme,
+  useMediaQuery,
 } from '@mui/material';
+import { getResponsivePadding } from '../../../../utils/mobileOptimization';
 
 /**
  * InfoCard - A card component for displaying informational content
@@ -28,38 +31,81 @@ const InfoCard = ({
   contentSx = {},
   ...otherProps
 }) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isSmallMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
   return (
     <Box>
-      <Card 
-        elevation={elevation} 
-        sx={{ 
-          borderRadius: 2, 
+      <Card
+        elevation={elevation}
+        sx={{
+          borderRadius: 2,
           overflow: 'hidden',
-          ...cardSx 
+          transition: theme.transitions.create(['box-shadow', 'transform'], {
+            duration: theme.transitions.duration.shorter,
+          }),
+          '&:hover': {
+            boxShadow: theme.shadows[elevation + 2],
+            transform: 'translateY(-1px)',
+          },
+          ...cardSx
         }}
         {...otherProps}
       >
-        <CardContent sx={{ p: 3, ...contentSx }}>
+        <CardContent sx={{
+          p: getResponsivePadding('medium'),
+          '&:last-child': {
+            pb: getResponsivePadding('medium').xs
+          },
+          ...contentSx
+        }}>
           {title && (
-            <Typography variant="h6" component="h2" gutterBottom>
+            <Typography
+              variant={isMobile ? "subtitle1" : "h6"}
+              component="h2"
+              gutterBottom
+              sx={{
+                fontWeight: 600,
+                fontSize: { xs: '1.1rem', sm: '1.25rem' },
+                mb: { xs: 1.5, sm: 2 }
+              }}
+            >
               {title}
             </Typography>
           )}
-          
+
           {message && (
-            <Typography 
-              variant="body1" 
-              sx={{ fontSize: '1.1rem', mb: children || showAlert ? 3 : 0 }}
+            <Typography
+              variant="body1"
+              sx={{
+                fontSize: { xs: '0.95rem', sm: '1.1rem' },
+                lineHeight: { xs: 1.5, sm: 1.6 },
+                mb: children || showAlert ? { xs: 2, sm: 3 } : 0
+              }}
             >
               {message}
             </Typography>
           )}
-          
+
           {children}
-          
+
           {showAlert && (
-            <Alert severity={severity} sx={{ mt: 2, p: 2 }}>
-              <Typography variant="body1">
+            <Alert
+              severity={severity}
+              sx={{
+                mt: { xs: 1.5, sm: 2 },
+                p: getResponsivePadding('small'),
+                borderRadius: 1,
+                '& .MuiAlert-message': {
+                  fontSize: { xs: '0.85rem', sm: '0.9rem' }
+                }
+              }}
+            >
+              <Typography
+                variant="body2"
+                sx={{ fontSize: { xs: '0.85rem', sm: '0.9rem' } }}
+              >
                 This feature is currently under development and will be available soon.
               </Typography>
             </Alert>

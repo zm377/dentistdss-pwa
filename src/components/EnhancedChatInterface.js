@@ -1,4 +1,4 @@
-import React, {useState, useRef, useEffect} from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Box,
   Paper,
@@ -25,16 +25,16 @@ import {
   ThumbDown as ThumbDownIcon,
 } from '@mui/icons-material';
 import ReactMarkdown from 'react-markdown';
-import {useAuth} from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext';
 import api from '../services';
 import { v4 as uuidv4 } from 'uuid';
 
 const EnhancedChatInterface = ({
-                                 chatType = 'help', // 'help', 'aidentist', 'general'
-                                 placeholder = "Ask me anything about dental health...",
-                                 welcomeMessage = "Hello! I'm your AI dental assistant. How can I help you today?"
-                               }) => {
-  const {currentUser} = useAuth();
+  chatType = 'help', // 'help', 'aidentist', 'general'
+  placeholder = "Ask me anything about dental health...",
+  welcomeMessage = "Hello! I'm your AI dental assistant. How can I help you today?"
+}) => {
+  const { currentUser } = useAuth();
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -51,7 +51,7 @@ const EnhancedChatInterface = ({
   const inputRef = useRef(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({behavior: 'smooth'});
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   useEffect(() => {
@@ -91,11 +91,11 @@ const EnhancedChatInterface = ({
         case 'aidentist':
           apiCall = api.chatbot.aidentist(userMessage.content, sessionId, (token, fullText) => {
             setMessages(prev =>
-                prev.map(msg =>
-                    msg.id === aiMessage.id
-                        ? {...msg, content: fullText}
-                        : msg
-                )
+              prev.map(msg =>
+                msg.id === aiMessage.id
+                  ? { ...msg, content: fullText }
+                  : msg
+              )
             );
           });
           break;
@@ -103,11 +103,11 @@ const EnhancedChatInterface = ({
         default:
           apiCall = api.chatbot.help(userMessage.content, sessionId, (token, fullText) => {
             setMessages(prev =>
-                prev.map(msg =>
-                    msg.id === aiMessage.id
-                        ? {...msg, content: fullText}
-                        : msg
-                )
+              prev.map(msg =>
+                msg.id === aiMessage.id
+                  ? { ...msg, content: fullText }
+                  : msg
+              )
             );
           });
           break;
@@ -118,11 +118,11 @@ const EnhancedChatInterface = ({
 
       // Mark streaming as complete
       setMessages(prev =>
-          prev.map(msg =>
-              msg.id === aiMessage.id
-                  ? {...msg, isStreaming: false}
-                  : msg
-          )
+        prev.map(msg =>
+          msg.id === aiMessage.id
+            ? { ...msg, isStreaming: false }
+            : msg
+        )
       );
 
     } catch (error) {
@@ -171,237 +171,237 @@ const EnhancedChatInterface = ({
     }
   };
 
-  const MessageBubble = ({message}) => {
+  const MessageBubble = ({ message }) => {
     const isUser = message.type === 'user';
     const isAI = message.type === 'ai';
 
     return (
-        <Fade in timeout={300}>
-          <ListItem
-              sx={{
-                display: 'flex',
-                justifyContent: isUser ? 'flex-end' : 'flex-start',
-                alignItems: 'flex-start',
-                px: 2,
-                py: 1,
-              }}
+      <Fade in timeout={300}>
+        <ListItem
+          sx={{
+            display: 'flex',
+            justifyContent: isUser ? 'flex-end' : 'flex-start',
+            alignItems: 'flex-start',
+            px: 2,
+            py: 1,
+          }}
+        >
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: isUser ? 'row-reverse' : 'row',
+              alignItems: 'flex-start',
+              maxWidth: '80%',
+              gap: 1,
+            }}
           >
-            <Box
-                sx={{
-                  display: 'flex',
-                  flexDirection: isUser ? 'row-reverse' : 'row',
-                  alignItems: 'flex-start',
-                  maxWidth: '80%',
-                  gap: 1,
-                }}
+            <Avatar
+              sx={{
+                bgcolor: isUser ? 'primary.main' : 'secondary.main',
+                width: 32,
+                height: 32,
+              }}
             >
-              <Avatar
-                  sx={{
-                    bgcolor: isUser ? 'primary.main' : 'secondary.main',
-                    width: 32,
-                    height: 32,
-                  }}
+              {isUser ? <PersonIcon /> : <SmartToyIcon />}
+            </Avatar>
+
+            <Paper
+              elevation={1}
+              sx={{
+                p: 2,
+                bgcolor: isUser ? 'primary.main' : 'background.paper',
+                color: isUser ? 'primary.contrastText' : 'text.primary',
+                borderRadius: 2,
+                position: 'relative',
+              }}
+            >
+              {isAI ? (
+                <ReactMarkdown>{message.content}</ReactMarkdown>
+              ) : (
+                <Typography variant="body1">{message.content}</Typography>
+              )}
+
+              {message.isStreaming && (
+                <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+                  <CircularProgress size={16} />
+                  <Typography variant="caption" sx={{ ml: 1 }}>
+                    AI is typing...
+                  </Typography>
+                </Box>
+              )}
+
+              {message.isError && (
+                <Alert severity="error" sx={{ mt: 1 }}>
+                  Failed to get response
+                </Alert>
+              )}
+
+              {/* Message actions for AI messages */}
+              {isAI && !message.isStreaming && (
+                <Box sx={{ display: 'flex', gap: 0.5, mt: 1, justifyContent: 'flex-end' }}>
+                  <Tooltip title="Copy message">
+                    <IconButton
+                      size="small"
+                      onClick={() => handleCopyMessage(message.content)}
+                    >
+                      <ContentCopyIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Regenerate response">
+                    <IconButton
+                      size="small"
+                      onClick={() => handleRegenerateResponse(message.id)}
+                    >
+                      <RefreshIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Helpful">
+                    <IconButton size="small">
+                      <ThumbUpIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Not helpful">
+                    <IconButton size="small">
+                      <ThumbDownIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                </Box>
+              )}
+
+              <Typography
+                variant="caption"
+                sx={{
+                  display: 'block',
+                  mt: 1,
+                  opacity: 0.7,
+                  fontSize: '0.75rem',
+                }}
               >
-                {isUser ? <PersonIcon/> : <SmartToyIcon/>}
-              </Avatar>
-
-              <Paper
-                  elevation={1}
-                  sx={{
-                    p: 2,
-                    bgcolor: isUser ? 'primary.main' : 'background.paper',
-                    color: isUser ? 'primary.contrastText' : 'text.primary',
-                    borderRadius: 2,
-                    position: 'relative',
-                  }}
-              >
-                {isAI ? (
-                    <ReactMarkdown>{message.content}</ReactMarkdown>
-                ) : (
-                    <Typography variant="body1">{message.content}</Typography>
-                )}
-
-                {message.isStreaming && (
-                    <Box sx={{display: 'flex', alignItems: 'center', mt: 1}}>
-                      <CircularProgress size={16}/>
-                      <Typography variant="caption" sx={{ml: 1}}>
-                        AI is typing...
-                      </Typography>
-                    </Box>
-                )}
-
-                {message.isError && (
-                    <Alert severity="error" sx={{mt: 1}}>
-                      Failed to get response
-                    </Alert>
-                )}
-
-                {/* Message actions for AI messages */}
-                {isAI && !message.isStreaming && (
-                    <Box sx={{display: 'flex', gap: 0.5, mt: 1, justifyContent: 'flex-end'}}>
-                      <Tooltip title="Copy message">
-                        <IconButton
-                            size="small"
-                            onClick={() => handleCopyMessage(message.content)}
-                        >
-                          <ContentCopyIcon fontSize="small"/>
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="Regenerate response">
-                        <IconButton
-                            size="small"
-                            onClick={() => handleRegenerateResponse(message.id)}
-                        >
-                          <RefreshIcon fontSize="small"/>
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="Helpful">
-                        <IconButton size="small">
-                          <ThumbUpIcon fontSize="small"/>
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="Not helpful">
-                        <IconButton size="small">
-                          <ThumbDownIcon fontSize="small"/>
-                        </IconButton>
-                      </Tooltip>
-                    </Box>
-                )}
-
-                <Typography
-                    variant="caption"
-                    sx={{
-                      display: 'block',
-                      mt: 1,
-                      opacity: 0.7,
-                      fontSize: '0.75rem',
-                    }}
-                >
-                  {message.timestamp.toLocaleTimeString([], {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  })}
-                </Typography>
-              </Paper>
-            </Box>
-          </ListItem>
-        </Fade>
+                {message.timestamp.toLocaleTimeString([], {
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })}
+              </Typography>
+            </Paper>
+          </Box>
+        </ListItem>
+      </Fade>
     );
   };
 
   return (
-      <Paper
-          elevation={0}
-          sx={{
-            height: '600px',
-            display: 'flex',
-            flexDirection: 'column',
-            border: '1px solid',
-            borderColor: 'divider',
-            borderRadius: 2,
-          }}
+    <Paper
+      elevation={0}
+      sx={{
+        height: '600px',
+        display: 'flex',
+        flexDirection: 'column',
+        border: '1px solid',
+        borderColor: 'divider',
+        borderRadius: 2,
+      }}
+    >
+      {/* Chat header */}
+      <Box
+        sx={{
+          p: 2,
+          borderBottom: '1px solid',
+          borderColor: 'divider',
+          bgcolor: 'background.paper',
+        }}
       >
-        {/* Chat header */}
-        <Box
-            sx={{
-              p: 2,
-              borderBottom: '1px solid',
-              borderColor: 'divider',
-              bgcolor: 'background.paper',
-            }}
-        >
-          <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
-            <SmartToyIcon color="primary"/>
-            <Typography variant="h6">
-              {chatType === 'aidentist' ? 'AI Dentist' : 'Dental Assistant'}
-            </Typography>
-            <Chip
-                label="Online"
-                color="success"
-                size="small"
-                variant="outlined"
-            />
-          </Box>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <SmartToyIcon color="primary" />
+          <Typography variant="h6">
+            {chatType === 'aidentist' ? 'AI Dentist' : 'Dental Assistant'}
+          </Typography>
+          <Chip
+            label="Online"
+            color="success"
+            size="small"
+            variant="outlined"
+          />
+        </Box>
+      </Box>
+
+      {/* Messages area */}
+      <Box
+        sx={{
+          flexGrow: 1,
+          overflow: 'auto',
+          bgcolor: 'background.default',
+        }}
+      >
+        <List sx={{ p: 0 }}>
+          {messages.map((message) => (
+            <MessageBubble key={message.id} message={message} />
+          ))}
+        </List>
+        <div ref={messagesEndRef} />
+      </Box>
+
+      {/* Input area */}
+      <Box
+        sx={{
+          p: 2,
+          borderTop: '1px solid',
+          borderColor: 'divider',
+          bgcolor: 'background.paper',
+        }}
+      >
+        <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-end' }}>
+          <TextField
+            ref={inputRef}
+            fullWidth
+            multiline
+            maxRows={4}
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyPress={handleKeyPress}
+            placeholder={placeholder}
+            disabled={isLoading}
+            variant="outlined"
+            size="small"
+          />
+          <IconButton
+            color="primary"
+            onClick={handleSendMessage}
+            disabled={!inputValue.trim() || isLoading}
+            sx={{ mb: 0.5 }}
+          >
+            {isLoading ? <CircularProgress size={24} /> : <SendIcon />}
+          </IconButton>
         </Box>
 
-        {/* Messages area */}
-        <Box
-            sx={{
-              flexGrow: 1,
-              overflow: 'auto',
-              bgcolor: 'background.default',
-            }}
-        >
-          <List sx={{p: 0}}>
-            {messages.map((message) => (
-                <MessageBubble key={message.id} message={message}/>
-            ))}
-          </List>
-          <div ref={messagesEndRef}/>
+        {/* Quick action buttons */}
+        <Box sx={{ display: 'flex', gap: 1, mt: 1, flexWrap: 'wrap' }}>
+          <Button
+            size="small"
+            variant="outlined"
+            onClick={() => setInputValue('I have tooth pain')}
+            disabled={isLoading}
+          >
+            Tooth Pain
+          </Button>
+          <Button
+            size="small"
+            variant="outlined"
+            onClick={() => setInputValue('Book an appointment')}
+            disabled={isLoading}
+          >
+            Book Appointment
+          </Button>
+          <Button
+            size="small"
+            variant="outlined"
+            onClick={() => setInputValue('Dental cleaning info')}
+            disabled={isLoading}
+          >
+            Cleaning Info
+          </Button>
         </Box>
-
-        {/* Input area */}
-        <Box
-            sx={{
-              p: 2,
-              borderTop: '1px solid',
-              borderColor: 'divider',
-              bgcolor: 'background.paper',
-            }}
-        >
-          <Box sx={{display: 'flex', gap: 1, alignItems: 'flex-end'}}>
-            <TextField
-                ref={inputRef}
-                fullWidth
-                multiline
-                maxRows={4}
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder={placeholder}
-                disabled={isLoading}
-                variant="outlined"
-                size="small"
-            />
-            <IconButton
-                color="primary"
-                onClick={handleSendMessage}
-                disabled={!inputValue.trim() || isLoading}
-                sx={{mb: 0.5}}
-            >
-              {isLoading ? <CircularProgress size={24}/> : <SendIcon/>}
-            </IconButton>
-          </Box>
-
-          {/* Quick action buttons */}
-          <Box sx={{display: 'flex', gap: 1, mt: 1, flexWrap: 'wrap'}}>
-            <Button
-                size="small"
-                variant="outlined"
-                onClick={() => setInputValue('I have tooth pain')}
-                disabled={isLoading}
-            >
-              Tooth Pain
-            </Button>
-            <Button
-                size="small"
-                variant="outlined"
-                onClick={() => setInputValue('Book an appointment')}
-                disabled={isLoading}
-            >
-              Book Appointment
-            </Button>
-            <Button
-                size="small"
-                variant="outlined"
-                onClick={() => setInputValue('Dental cleaning info')}
-                disabled={isLoading}
-            >
-              Cleaning Info
-            </Button>
-          </Box>
-        </Box>
-      </Paper>
+      </Box>
+    </Paper>
   );
 };
 

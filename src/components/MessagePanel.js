@@ -7,7 +7,6 @@ import {
   ListItemText,
   Paper,
   Badge,
-  IconButton,
   Tooltip,
   CircularProgress,
   Alert,
@@ -20,7 +19,6 @@ import {
 } from '@mui/material';
 import MailIcon from '@mui/icons-material/Mail';
 import DraftsIcon from '@mui/icons-material/Drafts'; // For read messages
-import SortIcon from '@mui/icons-material/Sort'; // Placeholder for sorting options
 import api from '../services';
 
 
@@ -29,14 +27,21 @@ const MessagePanel = ({userId}) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [selectedMessage, setSelectedMessage] = useState(null);
-  const [sortBy, setSortBy] = useState('date_desc'); // 'date_asc', 'read_status'
+  const [sortBy] = useState('date_desc'); // 'date_asc', 'read_status' - TODO: Add sorting UI
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   useEffect(() => {
     setLoading(true);
     setError('');
-    api.message.getMessages(userId).then(setMessages).catch(setError).finally(() => setLoading(false));
+    api.message.getMessages(userId)
+      .then(setMessages)
+      .catch((err) => {
+        // Extract error message string from error object
+        const errorMessage = err?.message || err?.response?.data?.message || 'Failed to load messages. Please try again.';
+        setError(errorMessage);
+      })
+      .finally(() => setLoading(false));
   }, [userId]);
 
   const handleSelectMessage = (message) => {
@@ -120,8 +125,10 @@ const MessagePanel = ({userId}) => {
                           <ListItemText
                               primary={msg.subject}
                               secondary={`From: ${msg.sender} - ${new Date(msg.date).toLocaleDateString()}`}
-                              primaryTypographyProps={{fontWeight: msg.read ? 'normal' : 'bold', noWrap: true}}
-                              secondaryTypographyProps={{noWrap: true}}
+                              slotProps={{
+                                primary: {fontWeight: msg.read ? 'normal' : 'bold', noWrap: true},
+                                secondary: {noWrap: true}
+                              }}
                           />
                           {!msg.read && <Chip label="New" color="primary" size="small" sx={{ml: 1}}/>}
                         </ListItem>

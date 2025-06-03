@@ -33,9 +33,10 @@ function Login() {
   const {login, googleIdLogin} = useAuth();
   const navigate = useNavigate();
 
-  const isMobile = useMediaQuery('(max-width: 600px)');
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isSmallMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const containerRef = useRef(null);
-  const [googleButtonWidth, setGoogleButtonWidth] = useState(isMobile ? '374px' : '354px');
+  const [googleButtonWidth, setGoogleButtonWidth] = useState(isSmallMobile ? '100%' : isMobile ? '374px' : '354px');
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -103,12 +104,19 @@ function Login() {
   };
 
   return (
-      <Container component="main" maxWidth="xs">
+      <Container
+        component="main"
+        maxWidth="xs"
+        sx={{
+          px: { xs: 2, sm: 3 },
+          py: { xs: 2, sm: 4 }
+        }}
+      >
         <Paper
             elevation={3}
             sx={{
-              mt: 8,
-              p: {xs: 3, sm: 4},
+              mt: { xs: 4, sm: 6, md: 8 },
+              p: { xs: 2.5, sm: 3, md: 4 },
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
@@ -126,13 +134,14 @@ function Login() {
         >
           <Typography
               component="h1"
-              variant="h4"
+              variant={isMobile ? "h5" : "h4"}
               sx={{
                 color: theme.palette.mode === 'dark'
                     ? theme.palette.primary.light
                     : theme.palette.primary.main,
-                mb: 3,
-                fontWeight: 600
+                mb: { xs: 2, sm: 2.5, md: 3 },
+                fontWeight: 600,
+                textAlign: 'center'
               }}
           >
             Log In
@@ -147,13 +156,17 @@ function Login() {
                 label="Email Address"
                 name="email"
                 autoComplete="email"
-                autoFocus
+                autoFocus={!isMobile} // Disable autofocus on mobile to prevent keyboard popup
                 value={email}
                 onChange={handleEmailChange}
                 onBlur={handleEmailBlur}
                 error={!!emailError}
                 helperText={emailError}
                 disabled={loading}
+                inputProps={{
+                  inputMode: 'email',
+                  type: 'email'
+                }}
                 InputProps={{
                   startAdornment: (
                       <InputAdornment position="start">
@@ -252,12 +265,14 @@ function Login() {
                 fullWidth
                 variant="contained"
                 color="primary"
+                size={isMobile ? "medium" : "large"}
                 sx={{
-                  mt: 3,
-                  mb: 2,
-                  py: 1.2,
+                  mt: { xs: 2.5, sm: 3 },
+                  mb: { xs: 1.5, sm: 2 },
+                  py: { xs: 1.5, sm: 1.8 },
                   fontWeight: 600,
-                  fontSize: '1rem',
+                  fontSize: { xs: '0.95rem', sm: '1rem' },
+                  minHeight: { xs: 48, sm: 52 },
                   boxShadow: theme.palette.mode === 'dark'
                       ? '0 4px 12px rgba(0, 100, 80, 0.3)'
                       : '0 4px 12px rgba(0, 0, 0, 0.1)',

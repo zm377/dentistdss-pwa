@@ -1,4 +1,5 @@
 import config from '../config';
+import { v4 as uuidv4 } from 'uuid';
 
 /**
  * Chatbot API service following established service patterns
@@ -9,22 +10,78 @@ import config from '../config';
  */
 
 /**
- * Validates that a session ID is provided for endpoints that require it
- * @param {string} sessionId - The session ID to validate
- * @param {function} onTokenReceived - Callback function for error handling
- * @returns {boolean} True if valid, false if invalid (and error is handled)
+ * Generates a UUID-based session ID for chatbot conversations
+ * @returns {string} UUID session ID
  */
-function validateSessionId(sessionId, onTokenReceived) {
-  if (!sessionId) {
-    const sessionErrorMsg = 'Session ID is required for this chatbot endpoint.';
-    console.error(sessionErrorMsg);
-    if (typeof onTokenReceived === 'function') {
-      onTokenReceived(sessionErrorMsg, sessionErrorMsg);
-    }
+function generateSessionId() {
+  return uuidv4();
+}
+
+/**
+ * Validates if a string is a proper UUID v4 format
+ * @param {string} uuid - String to validate
+ * @returns {boolean} True if valid UUID v4, false otherwise
+ */
+function isValidUUID(uuid) {
+  if (!uuid || typeof uuid !== 'string') {
     return false;
   }
-  return true;
+
+  // UUID v4 regex pattern: xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx
+  // where x is any hexadecimal digit and y is one of 8, 9, A, or B
+  const uuidV4Regex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  return uuidV4Regex.test(uuid);
 }
+
+/**
+ * Ensures a valid UUID session ID is available, generating one if needed or invalid
+ * @param {string|null|undefined} sessionId - Existing session ID or null/undefined
+ * @returns {string} Valid UUID session ID (existing valid UUID or newly generated)
+ */
+function ensureSessionId(sessionId) {
+  // If no session ID provided, generate a new one
+  if (!sessionId) {
+    const newSessionId = generateSessionId();
+    console.log('No session ID provided, generated new UUID:', newSessionId);
+    return newSessionId;
+  }
+
+  // If session ID is provided but not a valid UUID, generate a new one
+  if (!isValidUUID(sessionId)) {
+    const newSessionId = generateSessionId();
+    console.warn(`Invalid session ID format detected: "${sessionId}". Generated new UUID: ${newSessionId}`);
+    return newSessionId;
+  }
+
+  // Session ID is valid, use it
+  console.log('Using existing valid UUID session ID:', sessionId);
+  return sessionId;
+}
+
+/**
+ * Gets authentication token from localStorage with validation
+ * @returns {Object|null} Object with token and tokenType, or null if not available
+ */
+function getAuthToken() {
+  const token = localStorage.getItem('authToken');
+  const tokenType = localStorage.getItem('tokenType') || 'Bearer';
+
+  if (!token) {
+    console.warn('No authentication token found in localStorage');
+    return null;
+  }
+
+  // Basic token validation - check if it's not empty and looks like a JWT
+  if (token.trim().length === 0) {
+    console.warn('Empty authentication token found');
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('tokenType');
+    return null;
+  }
+
+  return { token, tokenType };
+}
+
 
 /**
  * Parses SSE data lines and extracts tokens with proper spacing
@@ -86,16 +143,19 @@ async function streamApiCall(endpoint, prompt, sessionId, onTokenReceived) {
     'Cache-Control': 'no-cache', // Prevent caching of SSE streams
   };
 
-  // Add session ID header if provided
-  if (sessionId) {
-    headers['X-Session-Id'] = sessionId;
-  }
+  // Ensure we have a valid UUID session ID
+  const validSessionId = ensureSessionId(sessionId);
+  headers['X-Session-Id'] = validSessionId;
 
-  // Add authentication token from localStorage (following established pattern)
-  const token = localStorage.getItem('authToken');
-  const tokenType = localStorage.getItem('tokenType');
-  if (token) {
-    headers['Authorization'] = `${tokenType} ${token}`;
+  // Add authentication token with improved validation
+  const authData = getAuthToken();
+  if (authData) {
+    headers['Authorization'] = `${authData.tokenType} ${authData.token}`;
+    console.log(`Making authenticated request to ${endpoint} with token type: ${authData.tokenType}`);
+  } else {
+    console.warn(`No valid authentication token available for ${endpoint}`);
+    // For endpoints that require authentication, this will result in a 401 error
+    // which is handled below
   }
 
   // Use the same base URL pattern as other services
@@ -119,20 +179,41 @@ async function streamApiCall(endpoint, prompt, sessionId, onTokenReceived) {
         // Ignore if can't read text
       }
 
-      console.error('Chatbot API Error:', errorMessage);
+      console.error(`Chatbot API Error for ${endpoint}:`, {
+        status: response.status,
+        statusText: response.statusText,
+        message: errorMessage,
+        url: fullUrl,
+        hasAuthToken: !!authData,
+        tokenType: authData?.tokenType
+      });
 
       // Handle authentication errors following established pattern
       if (response.status === 401) {
+        console.error('Authentication failed - clearing stored tokens');
         localStorage.removeItem('authToken');
         localStorage.removeItem('tokenType');
+
+        // Provide more specific error message based on context
+        const authErrorMessage = authData
+          ? 'Your session has expired. Please log in again.'
+          : 'Authentication required. Please log in to access this feature.';
+
         // Dispatch error event following established pattern
         const event = new CustomEvent('show-snackbar', {
           detail: {
-            message: 'Authentication required. Please log in.',
+            message: authErrorMessage,
             severity: 'error',
           },
         });
         window.dispatchEvent(event);
+
+        // Also redirect to login after a short delay to allow user to see the message
+        setTimeout(() => {
+          if (window.location.pathname !== '/login') {
+            window.location.href = '/login';
+          }
+        }, 2000);
       }
 
       // Pass error to callback
@@ -214,74 +295,148 @@ const chatbotAPI = {
   /**
    * General help chatbot - no authentication required
    * @param {string} userInput - The user's message
-   * @param {string} sessionId - Session identifier for conversation continuity
+   * @param {string} sessionId - Session identifier for conversation continuity (optional - UUID will be generated if not provided)
    * @param {function} onTokenReceived - Callback for streaming tokens (token, fullResponse) => void
    * @returns {Promise<string>} Complete response text
    */
   async help(userInput, sessionId, onTokenReceived) {
-    return streamApiCall('/help', userInput, sessionId, onTokenReceived);
+    const validSessionId = ensureSessionId(sessionId);
+    const response = await streamApiCall('/help', userInput, validSessionId, onTokenReceived);
+    return response;
   },
 
   /**
    * AI Dentist chatbot - requires authentication
    * @param {string} userInput - The user's message
-   * @param {string} sessionId - Session identifier for conversation continuity
+   * @param {string} sessionId - Session identifier for conversation continuity (optional - UUID will be generated if not provided)
    * @param {function} onTokenReceived - Callback for streaming tokens (token, fullResponse) => void
    * @returns {Promise<string>} Complete response text
    */
   async aidentist(userInput, sessionId, onTokenReceived) {
-    const token = localStorage.getItem('authToken');
-    if (!token) {
+    const authData = getAuthToken();
+    if (!authData) {
       const authErrorMsg = 'Authentication required to access the AI Dentist. Please log in.';
       console.error(authErrorMsg);
+
+      // Dispatch error event for consistency
+      const event = new CustomEvent('show-snackbar', {
+        detail: {
+          message: authErrorMsg,
+          severity: 'error',
+        },
+      });
+      window.dispatchEvent(event);
+
       if (typeof onTokenReceived === 'function') {
         onTokenReceived(authErrorMsg, authErrorMsg);
       }
       return Promise.reject(new Error(authErrorMsg));
     }
-    return streamApiCall('/aidentist', userInput, sessionId, onTokenReceived);
+    const validSessionId = ensureSessionId(sessionId);
+    const response = await streamApiCall('/aidentist', userInput, validSessionId, onTokenReceived);
+    return response;
   },
 
   /**
-   * Triage chatbot - requires authentication and session ID
+   * Triage chatbot - requires authentication
    * @param {string} userInput - The user's message
-   * @param {string} sessionId - Session identifier (required)
+   * @param {string} sessionId - Session identifier (optional - UUID will be generated if not provided)
    * @param {function} onTokenReceived - Callback for streaming tokens (token, fullResponse) => void
    * @returns {Promise<string>} Complete response text
    */
   async triage(userInput, sessionId, onTokenReceived) {
-    if (!validateSessionId(sessionId, onTokenReceived)) {
-      return Promise.reject(new Error('Session ID is required for triage chatbot.'));
+    // Check authentication first
+    const authData = getAuthToken();
+    if (!authData) {
+      const authErrorMsg = 'Authentication required to access the Triage chatbot. Please log in.';
+      console.error(authErrorMsg);
+
+      const event = new CustomEvent('show-snackbar', {
+        detail: {
+          message: authErrorMsg,
+          severity: 'error',
+        },
+      });
+      window.dispatchEvent(event);
+
+      if (typeof onTokenReceived === 'function') {
+        onTokenReceived(authErrorMsg, authErrorMsg);
+      }
+      return Promise.reject(new Error(authErrorMsg));
     }
-    return streamApiCall('/triage', userInput, sessionId, onTokenReceived);
+
+    // Ensure we have a valid UUID session ID
+    const validSessionId = ensureSessionId(sessionId);
+    const response = await streamApiCall('/triage', userInput, validSessionId, onTokenReceived);
+    return response;
   },
 
   /**
-   * Receptionist chatbot - requires authentication and session ID
+   * Receptionist chatbot - requires authentication
    * @param {string} userInput - The user's message
-   * @param {string} sessionId - Session identifier (required)
+   * @param {string} sessionId - Session identifier (optional - UUID will be generated if not provided)
    * @param {function} onTokenReceived - Callback for streaming tokens (token, fullResponse) => void
    * @returns {Promise<string>} Complete response text
    */
   async receptionist(userInput, sessionId, onTokenReceived) {
-    if (!validateSessionId(sessionId, onTokenReceived)) {
-      return Promise.reject(new Error('Session ID is required for receptionist chatbot.'));
+    // Check authentication first
+    const authData = getAuthToken();
+    if (!authData) {
+      const authErrorMsg = 'Authentication required to access the Receptionist chatbot. Please log in.';
+      console.error(authErrorMsg);
+
+      const event = new CustomEvent('show-snackbar', {
+        detail: {
+          message: authErrorMsg,
+          severity: 'error',
+        },
+      });
+      window.dispatchEvent(event);
+
+      if (typeof onTokenReceived === 'function') {
+        onTokenReceived(authErrorMsg, authErrorMsg);
+      }
+      return Promise.reject(new Error(authErrorMsg));
     }
-    return streamApiCall('/receptionist', userInput, sessionId, onTokenReceived);
+
+    // Ensure we have a valid UUID session ID
+    const validSessionId = ensureSessionId(sessionId);
+    const response = await streamApiCall('/receptionist', userInput, validSessionId, onTokenReceived);
+    return response;
   },
 
   /**
-   * Documentation summarization chatbot - requires authentication and session ID
+   * Documentation summarization chatbot - requires authentication
    * @param {string} userInput - The user's message
-   * @param {string} sessionId - Session identifier (required)
+   * @param {string} sessionId - Session identifier (optional - UUID will be generated if not provided)
    * @param {function} onTokenReceived - Callback for streaming tokens (token, fullResponse) => void
    * @returns {Promise<string>} Complete response text
    */
   async documentationSummarize(userInput, sessionId, onTokenReceived) {
-    if (!validateSessionId(sessionId, onTokenReceived)) {
-      return Promise.reject(new Error('Session ID is required for documentation summarization.'));
+    // Check authentication first
+    const authData = getAuthToken();
+    if (!authData) {
+      const authErrorMsg = 'Authentication required to access Documentation Summarization. Please log in.';
+      console.error(authErrorMsg);
+
+      const event = new CustomEvent('show-snackbar', {
+        detail: {
+          message: authErrorMsg,
+          severity: 'error',
+        },
+      });
+      window.dispatchEvent(event);
+
+      if (typeof onTokenReceived === 'function') {
+        onTokenReceived(authErrorMsg, authErrorMsg);
+      }
+      return Promise.reject(new Error(authErrorMsg));
     }
-    return streamApiCall('/documentation/summarize', userInput, sessionId, onTokenReceived);
+
+    // Ensure we have a valid UUID session ID
+    const validSessionId = ensureSessionId(sessionId);
+    const response = await streamApiCall('/documentation/summarize', userInput, validSessionId, onTokenReceived);
+    return response;
   },
 
   // Legacy function names for backward compatibility
@@ -291,6 +446,42 @@ const chatbotAPI = {
 
   botDentist(userInput, sessionId, onTokenReceived) {
     return this.aidentist(userInput, sessionId, onTokenReceived);
+  },
+
+  /**
+   * Generate a new UUID session ID
+   * @returns {string} New UUID session ID
+   */
+  generateSessionId() {
+    return generateSessionId();
+  },
+
+  /**
+   * Validate if a session ID is a proper UUID v4 format
+   * @param {string} sessionId - Session ID to validate
+   * @returns {boolean} True if valid UUID v4, false otherwise
+   */
+  isValidSessionId(sessionId) {
+    return isValidUUID(sessionId);
+  },
+
+  /**
+   * Debug utility to check authentication status
+   * @returns {Object} Authentication status information
+   */
+  getAuthStatus() {
+    const authData = getAuthToken();
+    return {
+      hasToken: !!authData,
+      tokenType: authData?.tokenType,
+      tokenLength: authData?.token?.length,
+      // Don't log the actual token for security
+      tokenPreview: authData?.token ? `${authData.token.substring(0, 10)}...` : null,
+      localStorage: {
+        authToken: !!localStorage.getItem('authToken'),
+        tokenType: localStorage.getItem('tokenType')
+      }
+    };
   }
 };
 

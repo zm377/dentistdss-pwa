@@ -13,7 +13,10 @@ import {
   Typography,
   CircularProgress,
   Alert,
+  useTheme,
+  useMediaQuery,
 } from '@mui/material';
+import { TOUCH_TARGETS } from '../../../../utils/mobileOptimization';
 
 /**
  * Optimized Data Table Component
@@ -37,24 +40,41 @@ const DataTable = memo(({
   maxHeight,
   ...props
 }) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isSmallMobile = useMediaQuery(theme.breakpoints.down('sm'));
   // Memoize table rows for performance
   const tableRows = useMemo(() => {
     if (!data || data.length === 0) return [];
-    
+
     return data.map((row, index) => (
-      <TableRow key={row.id || index} hover>
+      <TableRow
+        key={row.id || index}
+        hover
+        sx={{
+          '&:hover': {
+            backgroundColor: theme.palette.action.hover,
+          }
+        }}
+      >
         {columns.map((column) => (
           <TableCell
             key={column.id}
             align={column.align || 'left'}
             style={{ minWidth: column.minWidth }}
+            sx={{
+              fontSize: { xs: '0.75rem', sm: '0.875rem' },
+              py: { xs: 1, sm: 1.5 },
+              px: { xs: 1, sm: 2 },
+              borderBottom: `1px solid ${theme.palette.divider}`,
+            }}
           >
             {column.render ? column.render(row[column.id], row, index) : row[column.id]}
           </TableCell>
         ))}
       </TableRow>
     ));
-  }, [data, columns]);
+  }, [data, columns, theme]);
 
   // Loading state
   if (loading) {
@@ -101,11 +121,33 @@ const DataTable = memo(({
   }
 
   return (
-    <Paper {...props}>
-      <TableContainer sx={{ maxHeight }}>
+    <Paper
+      {...props}
+      sx={{
+        borderRadius: 2,
+        overflow: 'hidden',
+        ...props.sx
+      }}
+    >
+      <TableContainer
+        sx={{
+          maxHeight,
+          overflowX: 'auto',
+          '&::-webkit-scrollbar': {
+            height: 8,
+          },
+          '&::-webkit-scrollbar-track': {
+            backgroundColor: theme.palette.grey[100],
+          },
+          '&::-webkit-scrollbar-thumb': {
+            backgroundColor: theme.palette.grey[400],
+            borderRadius: 4,
+          },
+        }}
+      >
         <Table
           stickyHeader={stickyHeader}
-          size={dense ? 'small' : 'medium'}
+          size={isMobile ? 'small' : (dense ? 'small' : 'medium')}
         >
           <TableHead>
             <TableRow>
@@ -116,7 +158,11 @@ const DataTable = memo(({
                   style={{ minWidth: column.minWidth }}
                   sx={{
                     fontWeight: 'bold',
-                    backgroundColor: 'grey.50',
+                    backgroundColor: theme.palette.mode === 'dark' ? 'grey.800' : 'grey.50',
+                    fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                    py: { xs: 1, sm: 1.5 },
+                    px: { xs: 1, sm: 2 },
+                    whiteSpace: 'nowrap'
                   }}
                 >
                   {column.label}
@@ -129,16 +175,29 @@ const DataTable = memo(({
           </TableBody>
         </Table>
       </TableContainer>
-      
+
       {pagination && (
         <TablePagination
-          rowsPerPageOptions={rowsPerPageOptions}
+          rowsPerPageOptions={isMobile ? [5, 10] : rowsPerPageOptions}
           component="div"
           count={totalRows}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={onPageChange}
           onRowsPerPageChange={onRowsPerPageChange}
+          sx={{
+            '& .MuiTablePagination-toolbar': {
+              minHeight: TOUCH_TARGETS.MINIMUM,
+              px: { xs: 1, sm: 2 }
+            },
+            '& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows': {
+              fontSize: { xs: '0.75rem', sm: '0.875rem' }
+            },
+            '& .MuiIconButton-root': {
+              minWidth: TOUCH_TARGETS.MINIMUM,
+              minHeight: TOUCH_TARGETS.MINIMUM
+            }
+          }}
         />
       )}
     </Paper>

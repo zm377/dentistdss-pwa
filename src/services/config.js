@@ -34,8 +34,10 @@ api.interceptors.request.use(
 // Response interceptor for API calls
 api.interceptors.response.use(
     (response) => {
+
       // Check if the response data and success field exist
       if (response.data && typeof response.data.success !== 'undefined') {
+
         if (response.data.success) {
           // If there's a success message, optionally show it
           if (response.data.message) {
@@ -49,7 +51,8 @@ api.interceptors.response.use(
           }
 
           // Return the data object if it exists, otherwise return the whole response data
-          return response.data.dataObject !== undefined ? response.data.dataObject : response.data;
+          const result = response.data.dataObject !== undefined ? response.data.dataObject : response.data;
+          return result;
         } else {
           // If success is false, use the message field for error
           const errorMessage = response.data.message || response.data.dataObject || 'An unknown error occurred.';

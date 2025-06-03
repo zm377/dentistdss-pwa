@@ -6,24 +6,22 @@ import {
   Paper,
   Grid,
   Container,
-  Card,
-  CardContent,
   CardMedia,
   TextField,
   useTheme,
-  CardActionArea,
-  Divider
+  useMediaQuery,
+  CardActionArea
 } from '@mui/material';
 import {Link as RouterLink} from 'react-router-dom';
 
-import dentalQuestionImg from '../../../assets/d2.jpg';
-import findDentistImg from '../../../assets/d5.jpeg';
 import dentalCareKidsImg from '../../../assets/d6.jpg';
 import Hero from './Hero';
 
 const Welcome = () => {
   const theme = useTheme();
   const isDarkMode = theme.palette.mode === 'dark';
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isSmallMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const secondary_A100_t = (theme.palette.secondary && theme.palette.secondary.A100_t) || 'rgba(77, 182, 172, 0.2)';
 
@@ -34,8 +32,8 @@ const Welcome = () => {
 
         <Box sx={{
           bgcolor: isDarkMode ? theme.palette.grey[900] : theme.palette.grey[100],
-          py: 5,
-          my: 4,
+          py: { xs: 3, sm: 4, md: 5 },
+          my: { xs: 2, sm: 3, md: 4 },
           borderTop: `1px solid ${theme.palette.divider}`,
           borderBottom: `1px solid ${theme.palette.divider}`,
         }}>
@@ -58,7 +56,7 @@ const Welcome = () => {
                 }}
             >
               <Typography
-                  variant="h5"
+                  variant={isMobile ? "h6" : "h5"}
                   component="h2"
                   align="center"
                   gutterBottom
@@ -67,21 +65,25 @@ const Welcome = () => {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    mb: 3,
+                    mb: { xs: 2, sm: 2.5, md: 3 },
                     textShadow: isDarkMode ? `0 0 8px ${secondary_A100_t}` : 'none',
-                    fontWeight: 'medium'
+                    fontWeight: 'medium',
+                    flexDirection: { xs: 'column', sm: 'row' },
+                    gap: { xs: 0.5, sm: 1 }
                   }}
               >
-                🦷 Dental Health Quiz
+                <Box component="span">🦷</Box>
+                <Box component="span">Dental Health Quiz</Box>
               </Typography>
 
               <Typography
-                  variant="subtitle1"
+                  variant={isSmallMobile ? "body2" : "subtitle1"}
                   align="center"
                   sx={{
-                    mb: 3,
+                    mb: { xs: 2, sm: 2.5, md: 3 },
                     fontWeight: 'medium',
-                    color: 'text.primary'
+                    color: 'text.primary',
+                    px: { xs: 1, sm: 0 }
                   }}
               >
                 💭 Test your dental knowledge and learn more about oral health!
@@ -90,11 +92,14 @@ const Welcome = () => {
               <Button
                   fullWidth
                   variant="contained"
-                  color="primary" // Uses theme.palette.primary.main for bgcolor and contrastText for color
+                  color="primary"
+                  size={isMobile ? "medium" : "large"}
                   sx={{
-                    mt: 3,
+                    mt: { xs: 2, sm: 2.5, md: 3 },
                     textTransform: 'none',
-                    py: 1.5,
+                    py: { xs: 1.5, sm: 1.8 },
+                    minHeight: { xs: 48, sm: 52 },
+                    fontSize: { xs: '0.9rem', sm: '1rem' }
                   }}
               >
                 Start Dental Health Quiz
@@ -104,14 +109,14 @@ const Welcome = () => {
         </Box>
 
         {/* Book an Appointment Section */}
-        <Container maxWidth="md" sx={{my: 6}}>
+        <Container maxWidth="md" sx={{my: { xs: 4, sm: 5, md: 6 }, px: { xs: 2, sm: 3 }}}>
           <Typography
-              variant="h4"
+              variant={isMobile ? "h5" : "h4"}
               component="h2"
               align="center"
               gutterBottom
               sx={{
-                mb: 4,
+                mb: { xs: 3, sm: 3.5, md: 4 },
                 fontWeight: 'medium',
                 color: 'text.primary',
                 textShadow: isDarkMode ? `0 0 10px ${secondary_A100_t}` : 'none'
@@ -123,19 +128,23 @@ const Welcome = () => {
           <Paper
               elevation={isDarkMode ? 4 : 2}
               sx={{
-                p: 3,
+                p: { xs: 2, sm: 2.5, md: 3 },
                 borderRadius: 2,
                 bgcolor: 'background.paper',
                 border: isDarkMode ? `1px solid ${theme.palette.divider}` : 'none'
               }}
           >
-            <Grid container spacing={3}>
+            <Grid container spacing={{ xs: 2, sm: 2.5, md: 3 }}>
               <Grid item xs={12}>
                 <TextField
                     fullWidth
                     label="Your Name"
                     variant="outlined"
                     placeholder="Enter your full name"
+                    inputProps={{
+                      autoComplete: 'name',
+                      inputMode: 'text'
+                    }}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -145,6 +154,9 @@ const Welcome = () => {
                     type="date"
                     variant="outlined"
                     InputLabelProps={{shrink: true}}
+                    inputProps={{
+                      min: new Date().toISOString().split('T')[0] // Prevent past dates
+                    }}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -160,13 +172,16 @@ const Welcome = () => {
                 <Button
                     variant="contained"
                     color="primary"
-                    size="large"
+                    size={isMobile ? "medium" : "large"}
+                    fullWidth={isSmallMobile}
                     sx={{
-                      borderRadius: 1, // Keep specific border radius if intended
-                      px: 4,
-                      py: 1.8,
+                      borderRadius: 1,
+                      px: { xs: 3, sm: 4 },
+                      py: { xs: 1.5, sm: 1.8 },
                       fontWeight: 'medium',
                       textShadow: isDarkMode ? '0 1px 3px rgba(0, 0, 0, 0.4)' : 'none',
+                      minHeight: { xs: 48, sm: 52 },
+                      minWidth: { xs: 'auto', sm: 120 }
                     }}
                 >
                   Book Now

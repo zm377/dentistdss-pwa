@@ -39,7 +39,8 @@ const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate(); // Hook for navigation
-  const isMobile = useMediaQuery('(max-width: 600px)');
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isSmallMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const containerRef = useRef(null);
   const [googleButtonWidth, setGoogleButtonWidth] = useState(isMobile ? '352px' : '334px');
 

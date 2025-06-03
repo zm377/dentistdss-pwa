@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
 import {
   Box,
   Card,
@@ -11,10 +10,7 @@ import {
   Alert,
 } from '@mui/material';
 import { useAuth } from '../../../context/auth';
-import {
-  mockDentistPatientRecordsData,
-  simulateApiCall
-} from '../../../utils/dashboard/mockData';
+import api from '../../../services';
 
 /**
  * PatientRecordsPage - Patient records page for dentists
@@ -34,22 +30,30 @@ const PatientRecordsPage = () => {
   // Load patient records data
   useEffect(() => {
     const loadPatientRecords = async () => {
+      if (!currentUser?.id) {
+        setError('No user information available.');
+        setLoading(false);
+        return;
+      }
+
       setLoading(true);
       setError('');
 
       try {
-        const data = await simulateApiCall(mockDentistPatientRecordsData);
-        setPatientRecords(data);
+        const data = await api.clinic.getDentistPatientRecords(currentUser.id);
+        setPatientRecords(data || []);
       } catch (err) {
         console.error('Failed to load patient records:', err);
         setError('Failed to load patient records. Please try again later.');
+        // Return empty array on error instead of mock data
+        setPatientRecords([]);
       } finally {
         setLoading(false);
       }
     };
 
     loadPatientRecords();
-  }, []);
+  }, [currentUser?.id]);
 
   if (loading) {
     return <Alert severity="info">Loading patient records...</Alert>;
@@ -71,8 +75,8 @@ const PatientRecordsPage = () => {
               {patientRecords.map((record, index) => (
                 <ListItem key={record.id || index}>
                   <ListItemText
-                    primary={record.patientName}
-                    secondary={`Last visit: ${record.lastVisit} | Treatment: ${record.treatment}`}
+                    primary={record.patientName || record.name || 'Unknown Patient'}
+                    secondary={`Last visit: ${record.lastVisit || 'N/A'} | Notes: ${record.treatment || record.notes || 'No notes available'}`}
                   />
                 </ListItem>
               ))}
@@ -86,10 +90,6 @@ const PatientRecordsPage = () => {
       </Card>
     </Box>
   );
-};
-
-PatientRecordsPage.propTypes = {
-  // No additional props needed
 };
 
 export default PatientRecordsPage;

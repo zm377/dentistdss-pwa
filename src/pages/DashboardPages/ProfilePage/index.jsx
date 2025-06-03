@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
 import {
   Box,
   Card,
@@ -11,9 +10,7 @@ import {
   Alert,
 } from '@mui/material';
 import { useAuth } from '../../../context/auth';
-import {
-  simulateApiCall
-} from '../../../utils/dashboard/mockData';
+import api from '../../../services';
 
 /**
  * ProfilePage - Profile page for dentists
@@ -33,22 +30,29 @@ const ProfilePage = () => {
   // Load dentist profile data
   useEffect(() => {
     const loadDentistProfile = async () => {
+      if (!currentUser?.id) {
+        setError('No user information available.');
+        setLoading(false);
+        return;
+      }
+
       setLoading(true);
       setError('');
 
       try {
-        const data = await simulateApiCall( );
-        setDentistProfile(data);
+        const data = await api.user.getProfile(currentUser.id);
+        setDentistProfile(data || null);
       } catch (err) {
         console.error('Failed to load dentist profile:', err);
         setError('Failed to load profile information. Please try again later.');
+        setDentistProfile(null);
       } finally {
         setLoading(false);
       }
     };
 
     loadDentistProfile();
-  }, []);
+  }, [currentUser?.id]);
 
   if (loading) {
     return <Alert severity="info">Loading profile...</Alert>;
@@ -70,33 +74,53 @@ const ProfilePage = () => {
               <ListItem>
                 <ListItemText
                   primary="Name"
-                  secondary={dentistProfile.name}
+                  secondary={dentistProfile.name || (dentistProfile.firstName && dentistProfile.lastName ? `${dentistProfile.firstName} ${dentistProfile.lastName}` : 'N/A')}
                 />
               </ListItem>
               <ListItem>
                 <ListItemText
-                  primary="Specialization"
-                  secondary={dentistProfile.specialization}
+                  primary="Email"
+                  secondary={dentistProfile.email || 'N/A'}
                 />
               </ListItem>
               <ListItem>
                 <ListItemText
-                  primary="License Number"
-                  secondary={dentistProfile.licenseNumber}
+                  primary="Role"
+                  secondary={dentistProfile.role || 'N/A'}
                 />
               </ListItem>
-              <ListItem>
-                <ListItemText
-                  primary="Years of Experience"
-                  secondary={`${dentistProfile.experience} years`}
-                />
-              </ListItem>
-              <ListItem>
-                <ListItemText
-                  primary="Education"
-                  secondary={dentistProfile.education}
-                />
-              </ListItem>
+              {dentistProfile.specialization && (
+                <ListItem>
+                  <ListItemText
+                    primary="Specialization"
+                    secondary={dentistProfile.specialization}
+                  />
+                </ListItem>
+              )}
+              {dentistProfile.licenseNumber && (
+                <ListItem>
+                  <ListItemText
+                    primary="License Number"
+                    secondary={dentistProfile.licenseNumber}
+                  />
+                </ListItem>
+              )}
+              {dentistProfile.experience && (
+                <ListItem>
+                  <ListItemText
+                    primary="Years of Experience"
+                    secondary={`${dentistProfile.experience} years`}
+                  />
+                </ListItem>
+              )}
+              {dentistProfile.education && (
+                <ListItem>
+                  <ListItemText
+                    primary="Education"
+                    secondary={dentistProfile.education}
+                  />
+                </ListItem>
+              )}
             </List>
           ) : (
             <Typography variant="body2" color="text.secondary">
@@ -107,10 +131,6 @@ const ProfilePage = () => {
       </Card>
     </Box>
   );
-};
-
-ProfilePage.propTypes = {
-  // No additional props needed
 };
 
 export default ProfilePage;

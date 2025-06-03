@@ -6,6 +6,7 @@ import {
   Paper,
   TextField,
   useTheme,
+  useMediaQuery,
   Fab,
   Tooltip
 } from '@mui/material';
@@ -16,6 +17,8 @@ import { v4 as uuidv4 } from 'uuid';
 const FloatingChatHelper = () => {
   const theme = useTheme();
   const isDarkMode = theme.palette.mode === 'dark';
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isSmallMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [chatOpen, setChatOpen] = useState(false);
   const [chatInput, setChatInput] = useState('');
   const [chatMessages, setChatMessages] = useState([]);
@@ -81,18 +84,26 @@ const FloatingChatHelper = () => {
   };
 
   return (
-      <Box sx={{position: 'fixed', bottom: 20, right: 20, zIndex: 1000}}>
+      <Box sx={{
+        position: 'fixed',
+        bottom: { xs: 16, sm: 20 },
+        right: { xs: 16, sm: 20 },
+        zIndex: 1000
+      }}>
         <Tooltip title="Chat with AI Assistant" arrow placement="left">
           <Fab
               color="primary"
               aria-label="chat"
               onClick={handleChatToggle}
+              size={isSmallMobile ? "medium" : "large"}
               sx={{
                 bgcolor: chatOpen ? (isDarkMode ? '#00796b' : 'secondary.main') : (isDarkMode ? '#00897b' : 'primary.main'),
                 boxShadow: isDarkMode ? '0 2px 12px rgba(0, 230, 180, 0.4)' : '0 2px 8px rgba(0, 0, 0, 0.2)',
+                width: { xs: 48, sm: 56 },
+                height: { xs: 48, sm: 56 }
               }}
           >
-            <HelpIcon/>
+            <HelpIcon sx={{ fontSize: { xs: '1.2rem', sm: '1.5rem' } }}/>
           </Fab>
         </Tooltip>
 
@@ -101,15 +112,16 @@ const FloatingChatHelper = () => {
                 elevation={isDarkMode ? 6 : 3}
                 sx={{
                   position: 'absolute',
-                  bottom: 70,
+                  bottom: { xs: 60, sm: 70 },
                   right: 0,
-                  width: 300,
-                  height: 400,
+                  width: { xs: 280, sm: 300, md: 320 },
+                  height: { xs: 350, sm: 400 },
                   display: 'flex',
                   flexDirection: 'column',
                   overflow: 'hidden',
                   bgcolor: isDarkMode ? 'rgba(38, 50, 56, 0.95)' : 'background.paper',
-                  border: isDarkMode ? '1px solid rgba(0, 230, 180, 0.15)' : 'none'
+                  border: isDarkMode ? '1px solid rgba(0, 230, 180, 0.15)' : 'none',
+                  borderRadius: 2
                 }}
             >
               <Box
