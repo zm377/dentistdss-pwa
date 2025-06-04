@@ -18,6 +18,8 @@ import LockResetIcon from '@mui/icons-material/LockReset';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Cancel';
 import api from '../../services';
+import { isPasswordStrong } from '../../utils/passwordStrength';
+import PasswordStrengthIndicator from '../../components/PasswordStrengthIndicator';
 
 const ChangePasswordPage = () => {
     const theme = useTheme();
@@ -52,11 +54,11 @@ const ChangePasswordPage = () => {
             return false;
         }
 
-        if (formData.newPassword.length < 6) {
+        if (!isPasswordStrong(formData.newPassword)) {
             setAlert({
                 show: true,
                 type: 'error',
-                message: 'Password must be at least 6 characters long'
+                message: 'Please choose a stronger password. Follow the suggestions below.'
             });
             return false;
         }
@@ -206,25 +208,31 @@ const ChangePasswordPage = () => {
 
                         <Box component="form" onSubmit={handleSubmit} noValidate>
                             <Stack spacing={3}>
-                                <TextField
-                                    fullWidth
-                                    name="newPassword"
-                                    label="New Password"
-                                    type="password"
-                                    value={formData.newPassword}
-                                    onChange={handleInputChange}
-                                    required
-                                    disabled={loading}
-                                    variant="outlined"
-                                    sx={{
-                                        '& .MuiOutlinedInput-root': {
-                                            borderRadius: 2,
-                                            '&:hover .MuiOutlinedInput-notchedOutline': {
-                                                borderColor: 'primary.main',
+                                <Box>
+                                    <TextField
+                                        fullWidth
+                                        name="newPassword"
+                                        label="New Password"
+                                        type="password"
+                                        value={formData.newPassword}
+                                        onChange={handleInputChange}
+                                        required
+                                        disabled={loading}
+                                        variant="outlined"
+                                        sx={{
+                                            '& .MuiOutlinedInput-root': {
+                                                borderRadius: 2,
+                                                '&:hover .MuiOutlinedInput-notchedOutline': {
+                                                    borderColor: 'primary.main',
+                                                },
                                             },
-                                        },
-                                    }}
-                                />
+                                        }}
+                                    />
+                                    <PasswordStrengthIndicator
+                                        password={formData.newPassword}
+                                        theme={theme}
+                                    />
+                                </Box>
 
                                 <TextField
                                     fullWidth
@@ -309,7 +317,7 @@ const ChangePasswordPage = () => {
                                             }}
                                         />
                                     )}
-                                    {loading ? 'Changing...' : 'Change Password'}
+                                    {loading ? 'Changing...' : 'Save Changes'}
                                 </Button>
                             </Box>
                         </Box>
