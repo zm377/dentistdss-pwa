@@ -1,17 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import {
   Box,
-  Card,
-  CardContent,
-  Typography,
-  TextField,
-  Grid,
   Alert,
+  CircularProgress,
 } from '@mui/material';
 import { useAuth } from '../../../context/auth';
 import api from '../../../services';
 import SystemSettingsSection from './components/SystemSettingsSection';
+import ClinicInformationForm from './components/ClinicInformationForm';
 
 /**
  * SettingsPage - Unified settings page for admin roles
@@ -57,50 +54,20 @@ const SettingsPage = ({ userRole = 'CLINIC_ADMIN' }) => {
   }, [userRole, currentUser?.clinicId]);
 
   /**
+   * Handle clinic data update
+   */
+  const handleClinicUpdate = (updatedClinic) => {
+    setClinicDetails(updatedClinic);
+  };
+
+  /**
    * Render clinic admin settings
    */
   const renderClinicSettings = () => (
-    <Card>
-      <CardContent>
-        <Grid container spacing={3}>
-          <Grid item xs={12} md={6}>
-            <Typography variant="h6" gutterBottom>
-              Clinic Information
-            </Typography>
-            <TextField
-              label="Clinic Name"
-              defaultValue={clinicDetails?.name}
-              fullWidth
-              margin="normal"
-              variant="outlined"
-            />
-            <TextField
-              label="Address"
-              defaultValue={clinicDetails?.address}
-              fullWidth
-              margin="normal"
-              variant="outlined"
-              multiline
-              rows={2}
-            />
-            <TextField
-              label="Phone Number"
-              defaultValue={clinicDetails?.phone}
-              fullWidth
-              margin="normal"
-              variant="outlined"
-            />
-            <TextField
-              label="Email"
-              defaultValue={clinicDetails?.email}
-              fullWidth
-              margin="normal"
-              variant="outlined"
-            />
-          </Grid>
-        </Grid>
-      </CardContent>
-    </Card>
+    <ClinicInformationForm
+      clinicData={clinicDetails}
+      onUpdate={handleClinicUpdate}
+    />
   );
 
   /**
@@ -111,7 +78,23 @@ const SettingsPage = ({ userRole = 'CLINIC_ADMIN' }) => {
   );
 
   if (loading) {
-    return <Alert severity="info">Loading settings...</Alert>;
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: 400,
+          flexDirection: 'column',
+          gap: 2
+        }}
+      >
+        <CircularProgress />
+        <Alert severity="info" sx={{ border: 'none', backgroundColor: 'transparent' }}>
+          Loading settings...
+        </Alert>
+      </Box>
+    );
   }
 
   if (error) {

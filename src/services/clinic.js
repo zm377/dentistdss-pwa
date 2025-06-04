@@ -23,6 +23,17 @@ const clinicAPI = {
     return api.get(`/api/clinic/${clinicId}`);
   },
 
+
+  /**
+   * Update clinic details
+   * @param {number} clinicId - The clinic ID
+   * @param {Object} updates - The updates to apply to the clinic
+   * @returns {Promise<Object>} Updated clinic details object
+   */
+  async updateClinic(clinicId, updates) {
+    return api.put(`/api/clinic/${clinicId}`, updates);
+  },
+
   // Schedule Management API Methods
 
   /**
