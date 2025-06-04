@@ -72,13 +72,8 @@ const AIReceptionistPage = () => {
   const quickActions = getQuickActions(currentChatType, setQuickInput);
 
   return (
-    <Box sx={{ p: 3, maxWidth: 1200, mx: 'auto' }}>
-      <Typography variant="h4" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-        <SmartToyIcon color="primary" />
-        AI Assistant
-      </Typography>
-
-      <Paper elevation={2} sx={{ height: '70vh', display: 'flex', flexDirection: 'column' }}>
+    <Box sx={{ p: 3, maxWidth: 1000, mx: 'auto' }}>
+      <Paper elevation={2} sx={{ minHeight: '78vh', display: 'flex', flexDirection: 'column' }}>
         {/* Tab Header */}
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
           <Tabs value={activeTab} onChange={handleTabChange} aria-label="AI assistant modes">
