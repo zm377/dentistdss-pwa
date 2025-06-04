@@ -21,6 +21,8 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
 import MailIcon from '@mui/icons-material/Mail';
+import PersonIcon from '@mui/icons-material/Person';
+import LockResetIcon from '@mui/icons-material/LockReset';
 import { TOUCH_TARGETS } from '../../../utils/mobileOptimization';
 import { useAuth } from '../../../context/auth';
 import api from '../../../services';
@@ -70,6 +72,17 @@ const Header = ({
         const interval = setInterval(fetchUnreadCount, 30000);
         return () => clearInterval(interval);
     }, [userId]);
+
+    // Navigation handlers for menu items
+    const handleProfileClick = () => {
+        handleUserMenuClose();
+        navigate('/profile');
+    };
+
+    const handleChangePasswordClick = () => {
+        handleUserMenuClose();
+        navigate('/change-password');
+    };
 
     return (
         <AppBar
@@ -245,6 +258,42 @@ const Header = ({
                             Switch Role
                         </MenuItem>
                     )}
+                    <MenuItem
+                        onClick={handleProfileClick}
+                        sx={{
+                            minHeight: TOUCH_TARGETS.MINIMUM,
+                            px: 2,
+                            py: 1.5,
+                            fontSize: { xs: '0.9rem', sm: '1rem' }
+                        }}
+                    >
+                        <PersonIcon
+                            fontSize="small"
+                            sx={{
+                                mr: 1.5,
+                                fontSize: { xs: '1rem', sm: '1.25rem' }
+                            }}
+                        />
+                        Profile
+                    </MenuItem>
+                    <MenuItem
+                        onClick={handleChangePasswordClick}
+                        sx={{
+                            minHeight: TOUCH_TARGETS.MINIMUM,
+                            px: 2,
+                            py: 1.5,
+                            fontSize: { xs: '0.9rem', sm: '1rem' }
+                        }}
+                    >
+                        <LockResetIcon
+                            fontSize="small"
+                            sx={{
+                                mr: 1.5,
+                                fontSize: { xs: '1rem', sm: '1.25rem' }
+                            }}
+                        />
+                        Change Password
+                    </MenuItem>
                     <MenuItem
                         onClick={logout}
                         sx={{

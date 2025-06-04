@@ -14,6 +14,7 @@ import DashboardErrorBoundary from '../../ErrorBoundary/DashboardErrorBoundary';
 import Header from '../Header';
 import Sidebar from '../Sidebar';
 import PageContainer from '../PageContainer';
+import { ChangePasswordPage, UserProfilePage } from '../../../pages/Dashboard';
 
 
 const drawerWidth = 240;
@@ -89,6 +90,16 @@ const DashboardLayoutInternal = ({ darkMode, toggleDarkMode, logout }) => {
       {/* Main Content with Routes */}
       <PageContainer drawerWidth={drawerWidth}>
         <Routes>
+          {/* Standalone routes accessible from any role */}
+          <Route
+            path="/profile"
+            element={<UserProfilePage />}
+          />
+          <Route
+            path="/change-password"
+            element={<ChangePasswordPage />}
+          />
+
           {/* Generate routes for role-specific sections */}
           {roleRoutes.map((route) => (
             <Route
@@ -105,14 +116,10 @@ const DashboardLayoutInternal = ({ darkMode, toggleDarkMode, logout }) => {
 
           {/* Default redirect */}
           <Route
-            path="/"
+            path="/dashboard"
             element={
               <Navigate
-                to={
-                  activeRoleSections.length > 0
-                    ? activeRoleSections[0]?.path || '/overview'
-                    : '/overview'
-                }
+                to="/overview"
                 replace
               />
             }

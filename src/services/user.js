@@ -15,7 +15,7 @@ const userAPI = {
      * @returns {Promise<Object>} User profile
      */
     async getProfile(userId) {
-        return api.get(`/api/auth/user/${userId}`);
+        return api.get(`/api/auth/user/${userId}/details`);
     },
 
     /**

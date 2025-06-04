@@ -104,6 +104,15 @@ const authAPI = {
     // verification email was sent and the registration is pending approval.
     return api.post('/api/auth/signup/clinic/staff', clinicStaffData);
   },
+
+  /**
+   * Change user password
+   * @param {string} newPassword - The new password
+   * @returns {Promise<Object>} Response from the backend
+   */
+  async changePassword(newPassword) {
+    return api.post('/api/auth/password/change', { newPassword });
+  },
 };
 
 export default authAPI;

@@ -85,6 +85,10 @@ function AppRoutes() {
             />
             {/* Dashboard routes are now handled by AppShell based on public location dictionary */}
             <Route
+                path="/dashboard/*"
+                element={isAuthenticated ? null : <Navigate to="/login" replace />}
+            />
+            <Route
                 path="/pending-approval"
                 element={<Typography variant="h5" align="center" sx={{ mt: 4 }}>Your account is pending approval. Please check
                     your email or contact support.</Typography>}

@@ -211,6 +211,14 @@ export const navigationSections = {
 
   RECEPTIONIST: [
     {
+      key: 'overview',
+      label: 'Overview',
+      icon: <DashboardIcon />,
+      path: '/overview',
+      component: OverviewPage,
+      props: { userRole: 'RECEPTIONIST' }
+    },
+    {
       key: 'appointments',
       label: 'Appointments',
       icon: <EventAvailableIcon />,
@@ -242,6 +250,14 @@ export const navigationSections = {
   ],
 
   SYSTEM_ADMIN: [
+    {
+      key: 'overview',
+      label: 'Overview',
+      icon: <DashboardIcon />,
+      path: '/overview',
+      component: OverviewPage,
+      props: { userRole: 'SYSTEM_ADMIN' }
+    },
     {
       key: 'approvals',
       label: 'Pending Approvals',

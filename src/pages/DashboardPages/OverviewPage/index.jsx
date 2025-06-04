@@ -168,9 +168,10 @@ const OverviewPage = ({ userRole = 'PATIENT' }) => {
 
       <Grid container spacing={{ xs: 2, sm: 2.5, md: 3 }}>
         {/* Welcome Card */}
-        <Grid item xs={12}>
+        <Grid item size={6} xs={12} sm={6} md={6} lg={4} xs={12}>
           <Card
             sx={{
+              minHeight: 300,
               borderRadius: 2,
               transition: theme.transitions.create(['box-shadow'], {
                 duration: theme.transitions.duration.shorter,
@@ -198,6 +199,8 @@ const OverviewPage = ({ userRole = 'PATIENT' }) => {
                   {userRole === 'DENTIST' && <MedicalServicesIcon color="primary" sx={{ fontSize: { xs: '1.2rem', sm: '1.5rem' } }} />}
                   {userRole === 'PATIENT' && <PersonIcon color="primary" sx={{ fontSize: { xs: '1.2rem', sm: '1.5rem' } }} />}
                   {userRole === 'CLINIC_ADMIN' && <TrendingUpIcon color="primary" sx={{ fontSize: { xs: '1.2rem', sm: '1.5rem' } }} />}
+                  {userRole === 'RECEPTIONIST' && <AccessTimeIcon color="primary" sx={{ fontSize: { xs: '1.2rem', sm: '1.5rem' } }} />}
+                  {userRole === 'SYSTEM_ADMIN' && <AssignmentIcon color="primary" sx={{ fontSize: { xs: '1.2rem', sm: '1.5rem' } }} />}
                   Dashboard Overview
                 </Box>
               </Typography>
@@ -214,6 +217,7 @@ const OverviewPage = ({ userRole = 'PATIENT' }) => {
                 {userRole === 'PATIENT' && "Track your dental health journey and manage your appointments."}
                 {userRole === 'CLINIC_ADMIN' && "Manage your clinic operations from this dashboard."}
                 {userRole === 'RECEPTIONIST' && "Manage patient appointments and clinic communications."}
+                {userRole === 'SYSTEM_ADMIN' && "Monitor system operations and manage platform-wide settings."}
               </Typography>
             </CardContent>
           </Card>
@@ -221,9 +225,11 @@ const OverviewPage = ({ userRole = 'PATIENT' }) => {
 
         {/* Today's Appointments - For Dentist and Patient */}
         {(userRole === 'DENTIST' || userRole === 'PATIENT') && (
-          <Grid item xs={12} md={8}>
+          <Grid item size={3} xs={12} md={8}>
             <Card
               sx={{
+                minHeight: 300,
+                minWidth: 300,
                 borderRadius: 2,
                 transition: theme.transitions.create(['box-shadow'], {
                   duration: theme.transitions.duration.shorter,
@@ -329,9 +335,11 @@ const OverviewPage = ({ userRole = 'PATIENT' }) => {
         )}
 
         {/* Quick Stats - Role specific */}
-        <Grid item xs={12} md={4}>
+        <Grid item size={3} xs={12} md={4}>
           <Card
             sx={{
+              minHeight: 300,
+              minWidth: 300,
               borderRadius: 2,
               transition: theme.transitions.create(['box-shadow'], {
                 duration: theme.transitions.duration.shorter,
@@ -449,6 +457,66 @@ const OverviewPage = ({ userRole = 'PATIENT' }) => {
                     sx={{ fontSize: { xs: '0.75rem', sm: '0.8rem' } }}
                   >
                     Active Operations
+                  </Typography>
+                </Box>
+              )}
+
+              {userRole === 'RECEPTIONIST' && (
+                <Box sx={{ textAlign: { xs: 'center', sm: 'left' } }}>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    gutterBottom
+                    sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem' } }}
+                  >
+                    Today's Schedule
+                  </Typography>
+                  <Typography
+                    variant={isMobile ? "h5" : "h4"}
+                    color="primary"
+                    sx={{
+                      fontSize: { xs: '1.75rem', sm: '2rem', md: '2.125rem' },
+                      fontWeight: 700
+                    }}
+                  >
+                    {todayAppointments.length}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem' } }}
+                  >
+                    Appointments to Manage
+                  </Typography>
+                </Box>
+              )}
+
+              {userRole === 'SYSTEM_ADMIN' && (
+                <Box sx={{ textAlign: { xs: 'center', sm: 'left' } }}>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    gutterBottom
+                    sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem' } }}
+                  >
+                    System Status
+                  </Typography>
+                  <Typography
+                    variant="body1"
+                    sx={{
+                      fontSize: { xs: '0.9rem', sm: '1rem' },
+                      fontWeight: 500,
+                      mb: 0.5
+                    }}
+                  >
+                    Platform Active
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ fontSize: { xs: '0.75rem', sm: '0.8rem' } }}
+                  >
+                    All Systems Operational
                   </Typography>
                 </Box>
               )}
