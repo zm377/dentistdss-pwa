@@ -40,7 +40,7 @@ const ServiceDetailsStep = ({
 
       <Grid container spacing={3}>
         {/* Service Type */}
-        <Grid item xs={12} md={6}>
+        <Grid item size={3} xs={12} md={6}>
           <FormControl fullWidth error={!!errors.serviceType}>
             <InputLabel>Service Type</InputLabel>
             <Select

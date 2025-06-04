@@ -19,4 +19,5 @@ export { default as AppointmentDialog } from './AppointmentDialog';
 
 // Date/Time Components
 export { default as CalendarDatePicker } from './CalendarDatePicker';
+export { default as CalendarTimeSlotPicker } from './CalendarTimeSlotPicker';
 export { default as TimeSelector } from './TimeSelector';

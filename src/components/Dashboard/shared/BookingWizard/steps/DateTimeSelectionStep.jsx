@@ -1,19 +1,20 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import {
   Box,
   Typography,
-  Grid,
-  TextField,
   Alert,
   CircularProgress,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
+  Tabs,
+  Tab,
   Chip,
 } from '@mui/material';
-import CalendarDatePicker from '../../CalendarDatePicker';
+import CalendarTimeSlotPicker from '../../CalendarTimeSlotPicker';
+import api from '../../../../../services';
 
 /**
  * DateTimeSelectionStep - Second step for date, time, and dentist selection
@@ -30,6 +31,37 @@ const DateTimeSelectionStep = ({
   errors,
   loading,
 }) => {
+
+
+  const [dentists, setDentists] = useState([]);
+  const [dentistsLoading, setDentistsLoading] = useState(false);
+  const [viewMode, setViewMode] = useState('calendar'); // 'calendar' or 'list'
+
+  /**
+   * Load dentists for the selected clinic
+   */
+  useEffect(() => {
+    const loadDentists = async () => {
+      if (!selectedClinic) {
+        setDentists([]);
+        return;
+      }
+
+      setDentistsLoading(true);
+      try {
+        const dentistsData = await api.clinic.getClinicDentists(selectedClinic);
+        setDentists(dentistsData || []);
+      } catch (error) {
+        console.error('Failed to load dentists:', error);
+        setDentists([]);
+      } finally {
+        setDentistsLoading(false);
+      }
+    };
+
+    loadDentists();
+  }, [selectedClinic]);
+
   if (!selectedClinic) {
     return (
       <Alert severity="info">
@@ -37,20 +69,6 @@ const DateTimeSelectionStep = ({
       </Alert>
     );
   }
-
-  // Mock dentists for now - in real implementation, this would come from API
-  const dentists = [
-    { id: '1', name: 'Dr. Smith', specialty: 'General Dentistry' },
-    { id: '2', name: 'Dr. Johnson', specialty: 'Orthodontics' },
-    { id: '3', name: 'Dr. Brown', specialty: 'Oral Surgery' },
-  ];
-
-  // Mock time slots for now
-  const timeSlots = [
-    '09:00:00', '09:30:00', '10:00:00', '10:30:00',
-    '11:00:00', '11:30:00', '14:00:00', '14:30:00',
-    '15:00:00', '15:30:00', '16:00:00', '16:30:00',
-  ];
 
   const formatTime = (timeString) => {
     const [hours, minutes] = timeString.split(':');
@@ -61,43 +79,39 @@ const DateTimeSelectionStep = ({
   };
 
   return (
-    <Box>
+    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <Typography variant="h6" sx={{ mb: 2 }}>
-        Select Date, Time & Dentist
+        Select Time & Dentist
       </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-        Choose your preferred appointment date, time, and dentist.
+        Choose your preferred dentist and appointment time. Each appointment slot is 30 minutes.
       </Typography>
 
-      <Grid container spacing={3}>
-        {/* Date Selection */}
-        <Grid item xs={12} md={6}>
-          <CalendarDatePicker
-            label="Appointment Date"
-            value={selectedDate ? new Date(selectedDate) : null}
-            onChange={(date) => onSelectDate(date?.toISOString().split('T')[0])}
-            minDate={new Date()}
-            fullWidth
-            error={!!errors.date}
-            helperText={errors.date || 'Select your preferred appointment date'}
-            required
-          />
-        </Grid>
-
+      <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
         {/* Dentist Selection */}
-        <Grid item xs={12} md={6}>
+        <Box sx={{ mb: 3 }}>
           <FormControl fullWidth error={!!errors.dentistId}>
             <InputLabel>Preferred Dentist</InputLabel>
             <Select
-              value={selectedDentist}
+              value={selectedDentist || ''}
               label="Preferred Dentist"
               onChange={(e) => onSelectDentist(e.target.value)}
+              disabled={dentistsLoading}
             >
-              {dentists.map((dentist) => (
-                <MenuItem key={dentist.id} value={dentist.id}>
-                  {dentist.name} - {dentist.specialty}
+              {dentistsLoading ? (
+                <MenuItem disabled>
+                  <CircularProgress size={20} sx={{ mr: 1 }} />
+                  Loading dentists...
                 </MenuItem>
-              ))}
+              ) : dentists.length === 0 ? (
+                <MenuItem disabled>No dentists available</MenuItem>
+              ) : (
+                dentists.map((dentist) => (
+                  <MenuItem key={dentist.id} value={dentist.id}>
+                    {dentist.firstName} {dentist.lastName} - {dentist.specialty || 'General Dentistry'}
+                  </MenuItem>
+                ))
+              )}
             </Select>
             {errors.dentistId && (
               <Typography variant="caption" color="error" sx={{ mt: 1 }}>
@@ -105,56 +119,100 @@ const DateTimeSelectionStep = ({
               </Typography>
             )}
           </FormControl>
-        </Grid>
+        </Box>
 
         {/* Time Slot Selection */}
-        <Grid item xs={12}>
-          <Typography variant="subtitle1" sx={{ mb: 2 }}>
-            Available Time Slots
-          </Typography>
-          
-          {loading ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}>
-              <CircularProgress size={24} />
-            </Box>
+        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+          {/* View Mode Toggle */}
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+            <Tabs
+              value={viewMode}
+              onChange={(_, newValue) => setViewMode(newValue)}
+              size="small"
+            >
+              <Tab label="Choose Date" value="calendar" />
+              <Tab label="select Time" value="list" />
+            </Tabs>
+          </Box>
+
+          {viewMode === 'calendar' ? (
+            <CalendarTimeSlotPicker
+              dentistId={selectedDentist}
+              selectedTime={selectedTime}
+              onSelectTime={(startTime, endTime, date) => {
+                onSelectTime(startTime, endTime);
+                // Auto-set the date based on the selected time slot
+                if (date) {
+                  onSelectDate(date);
+                }
+              }}
+              loading={loading}
+              error={errors.slots}
+            />
           ) : (
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-              {timeSlots.map((slot) => (
-                <Chip
-                  key={slot}
-                  label={formatTime(slot)}
-                  clickable
-                  color={selectedTime === slot ? 'primary' : 'default'}
-                  variant={selectedTime === slot ? 'filled' : 'outlined'}
-                  onClick={() => {
-                    onSelectTime(slot, slot); // In real implementation, calculate end time
-                  }}
-                />
-              ))}
+            // List view for available slots
+            <Box>
+              {loading ? (
+                <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}>
+                  <CircularProgress size={24} />
+                </Box>
+              ) : availableSlots.length === 0 ? (
+                <Alert severity="info">
+                  {selectedDentist && selectedDate
+                    ? 'No available time slots found for the selected date and dentist.'
+                    : 'Please select a dentist and date to view available time slots.'
+                  }
+                </Alert>
+              ) : (
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                  {availableSlots.map((slot, index) => (
+                    <Chip
+                      key={index}
+                      label={formatTime(slot.startTime)}
+                      clickable
+                      color={selectedTime === slot.startTime ? 'primary' : 'default'}
+                      variant={selectedTime === slot.startTime ? 'filled' : 'outlined'}
+                      onClick={() => {
+                        onSelectTime(slot.startTime, slot.endTime);
+                      }}
+                    />
+                  ))}
+                </Box>
+              )}
             </Box>
           )}
-          
+
           {errors.startTime && (
             <Alert severity="error" sx={{ mt: 2 }}>
               {errors.startTime}
             </Alert>
           )}
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
     </Box>
   );
 };
 
 DateTimeSelectionStep.propTypes = {
-  selectedClinic: PropTypes.string,
+  /** Selected clinic ID */
+  selectedClinic: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  /** Selected date in YYYY-MM-DD format */
   selectedDate: PropTypes.string,
+  /** Selected time in HH:mm:ss format */
   selectedTime: PropTypes.string,
-  selectedDentist: PropTypes.string,
+  /** Selected dentist ID */
+  selectedDentist: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  /** Available time slots array */
   availableSlots: PropTypes.array,
+  /** Callback when date is selected */
   onSelectDate: PropTypes.func.isRequired,
+  /** Callback when time is selected */
   onSelectTime: PropTypes.func.isRequired,
+  /** Callback when dentist is selected */
   onSelectDentist: PropTypes.func.isRequired,
+  /** Validation errors object */
   errors: PropTypes.object,
+  /** Loading state */
   loading: PropTypes.bool,
 };
 

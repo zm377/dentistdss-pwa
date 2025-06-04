@@ -50,16 +50,16 @@ const useAppointmentBooking = (onBookingComplete) => {
 
   const [errors, setErrors] = useState({});
 
-  // Service types with durations
+  // Service types with durations and numeric IDs for API
   const serviceTypes = [
-    { id: 'checkup', name: 'Regular Checkup', duration: 30 },
-    { id: 'cleaning', name: 'Dental Cleaning', duration: 45 },
-    { id: 'filling', name: 'Dental Filling', duration: 60 },
-    { id: 'extraction', name: 'Tooth Extraction', duration: 90 },
-    { id: 'consultation', name: 'Consultation', duration: 30 },
-    { id: 'root-canal', name: 'Root Canal', duration: 120 },
-    { id: 'crown', name: 'Crown Placement', duration: 90 },
-    { id: 'emergency', name: 'Emergency Visit', duration: 45 },
+    { id: 'checkup', name: 'Regular Checkup', duration: 30, serviceId: 1 },
+    { id: 'cleaning', name: 'Dental Cleaning', duration: 45, serviceId: 2 },
+    { id: 'filling', name: 'Dental Filling', duration: 60, serviceId: 3 },
+    { id: 'extraction', name: 'Tooth Extraction', duration: 90, serviceId: 4 },
+    { id: 'consultation', name: 'Consultation', duration: 30, serviceId: 5 },
+    { id: 'root-canal', name: 'Root Canal', duration: 120, serviceId: 6 },
+    { id: 'crown', name: 'Crown Placement', duration: 90, serviceId: 7 },
+    { id: 'emergency', name: 'Emergency Visit', duration: 45, serviceId: 8 },
   ];
 
   /**
@@ -77,6 +77,28 @@ const useAppointmentBooking = (onBookingComplete) => {
       setLoading(false);
     }
   }, []);
+
+  /**
+   * Load dentists for selected clinic
+   */
+  const loadDentists = useCallback(async () => {
+    if (!bookingData.clinicId) {
+      setDentists([]);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const dentistsData = await api.clinic.getClinicDentists(bookingData.clinicId);
+      setDentists(dentistsData || []);
+    } catch (error) {
+      console.error('Failed to load dentists:', error);
+      setErrors(prev => ({ ...prev, dentists: 'Failed to load dentists' }));
+      setDentists([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [bookingData.clinicId]);
 
   /**
    * Load available slots for selected clinic, dentist, and date
@@ -158,12 +180,15 @@ const useAppointmentBooking = (onBookingComplete) => {
         }
         break;
 
-      case 1: // Date and time selection
-        if (!bookingData.date) {
-          newErrors.date = 'Please select a date';
-        }
+      case 1: // Time and dentist selection
         if (!bookingData.startTime) {
           newErrors.startTime = 'Please select a time slot';
+        }
+        if (!bookingData.endTime) {
+          newErrors.endTime = 'End time is required';
+        }
+        if (!bookingData.date) {
+          newErrors.date = 'Date is required';
         }
         if (!bookingData.dentistId) {
           newErrors.dentistId = 'Please select a dentist';
@@ -238,18 +263,45 @@ const useAppointmentBooking = (onBookingComplete) => {
         patientId = newPatient.id;
       }
 
-      // Create appointment
+      // Get the numeric service ID from the selected service type
+      const selectedService = serviceTypes.find(s => s.id === bookingData.serviceType);
+      const numericServiceId = selectedService ? selectedService.serviceId : null;
+
+      if (!numericServiceId) {
+        throw new Error(`Invalid service type: ${bookingData.serviceType}`);
+      }
+
+      // Create appointment with correct API field names
       const appointmentData = {
-        ...bookingData,
-        patientId,
+        patientId: patientId,
+        dentistId: bookingData.dentistId,
+        clinicId: bookingData.clinicId,
+        createdBy: currentUser?.id || patientId, // Use current user ID or patient ID if creating new patient
+        serviceId: numericServiceId, // Use numeric service ID
+        appointmentDate: bookingData.date,
+        startTime: bookingData.startTime,
+        endTime: bookingData.endTime,
+        reasonForVisit: bookingData.reason,
+        symptoms: bookingData.symptoms || '',
+        urgencyLevel: bookingData.urgency || 'medium',
+        notes: bookingData.notes || ''
       };
 
+      // Validate required fields before submission
+      const requiredFields = ['patientId', 'dentistId', 'clinicId', 'createdBy', 'serviceId', 'appointmentDate', 'startTime', 'endTime', 'reasonForVisit'];
+      const missingFields = requiredFields.filter(field => !appointmentData[field]);
+
+      if (missingFields.length > 0) {
+        throw new Error(`Missing required fields: ${missingFields.join(', ')}`);
+      }
+
+      console.log('Submitting appointment data:', appointmentData);
       const newAppointment = await api.appointment.createAppointment(appointmentData);
 
-      confirmationDialog.showSuccess({
-        title: 'Appointment Booked',
-        message: 'Your appointment has been successfully booked. You will receive a confirmation email shortly.'
-      });
+      confirmationDialog.showSuccess(
+        'Appointment Booked',
+        'Your appointment has been successfully booked. You will receive a confirmation email shortly.'
+      );
 
       if (onBookingComplete) {
         onBookingComplete(newAppointment);
@@ -260,10 +312,24 @@ const useAppointmentBooking = (onBookingComplete) => {
       return true;
     } catch (error) {
       console.error('Failed to book appointment:', error);
-      confirmationDialog.showError({
-        title: 'Booking Failed',
-        message: 'Failed to book the appointment. Please try again.'
-      });
+
+      // Extract error message from API response
+      let errorMessage = 'Failed to book the appointment. Please try again.';
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.response?.data?.dataObject) {
+        // Handle validation errors
+        const validationErrors = error.response.data.dataObject;
+        const errorFields = Object.keys(validationErrors);
+        if (errorFields.length > 0) {
+          errorMessage = `Validation failed: ${errorFields.join(', ')}`;
+        }
+      }
+
+      confirmationDialog.showError(
+        'Booking Failed',
+        errorMessage
+      );
       return false;
     } finally {
       setLoading(false);
@@ -307,6 +373,11 @@ const useAppointmentBooking = (onBookingComplete) => {
     loadClinics();
   }, [loadClinics]);
 
+  // Load dentists when clinic changes
+  useEffect(() => {
+    loadDentists();
+  }, [loadDentists]);
+
   // Load available slots when dependencies change
   useEffect(() => {
     loadAvailableSlots();
@@ -335,8 +406,9 @@ const useAppointmentBooking = (onBookingComplete) => {
     
     // Utilities
     loadClinics,
+    loadDentists,
     loadAvailableSlots,
-    
+
     // Dialog
     confirmationDialog: confirmationDialog.dialogProps,
   };

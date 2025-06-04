@@ -128,13 +128,14 @@ const appointmentAPI = {
    * @param {number} appointmentData.patientId - Patient's user ID
    * @param {number} appointmentData.dentistId - Dentist's user ID
    * @param {number} appointmentData.clinicId - Clinic ID
-   * @param {string} appointmentData.date - Appointment date in YYYY-MM-DD format
+   * @param {number} appointmentData.createdBy - User ID who created the appointment
+   * @param {number} appointmentData.serviceId - Service ID
+   * @param {string} appointmentData.appointmentDate - Appointment date in YYYY-MM-DD format
    * @param {string} appointmentData.startTime - Start time in HH:mm:ss format
    * @param {string} appointmentData.endTime - End time in HH:mm:ss format
-   * @param {string} appointmentData.serviceType - Type of dental service
-   * @param {string} appointmentData.reason - Reason for appointment
+   * @param {string} appointmentData.reasonForVisit - Reason for appointment
    * @param {string} appointmentData.symptoms - Patient symptoms (optional)
-   * @param {string} appointmentData.urgency - Urgency level (low, medium, high)
+   * @param {string} appointmentData.urgencyLevel - Urgency level (low, medium, high)
    * @param {string} appointmentData.notes - Additional notes (optional)
    * @returns {Promise<Object>} Created appointment object
    */

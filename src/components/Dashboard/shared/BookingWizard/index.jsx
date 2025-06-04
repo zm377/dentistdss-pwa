@@ -13,23 +13,34 @@ import {
   IconButton,
   useMediaQuery,
   useTheme,
+  AppBar,
+  Toolbar,
+  Typography,
+  Slide,
 } from '@mui/material';
-import { Close as CloseIcon } from '@mui/icons-material';
+import { Close as CloseIcon, ArrowBack as ArrowBackIcon } from '@mui/icons-material';
 import ClinicSelectionStep from './steps/ClinicSelectionStep';
 import DateTimeSelectionStep from './steps/DateTimeSelectionStep';
 import ServiceDetailsStep from './steps/ServiceDetailsStep';
 import PatientInfoStep from './steps/PatientInfoStep';
 import ConfirmationStep from './steps/ConfirmationStep';
 
+// Transition component for full-screen dialog
+const Transition = React.forwardRef(function Transition(props, ref) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
+
 /**
- * BookingWizard - Multi-step appointment booking dialog
- * 
+ * BookingWizard - Multi-step appointment booking full-screen dialog
+ *
  * Features:
  * - 5-step booking process
+ * - Full-screen dialog with app bar navigation
  * - Form validation at each step
- * - Responsive design
+ * - Responsive design with slide transition
  * - Progress indicator
  * - Patient profile creation for new users
+ * - Integrated navigation controls in app bar
  */
 const BookingWizard = memo(({
   open,
@@ -148,38 +159,83 @@ const BookingWizard = memo(({
     <Dialog
       open={open}
       onClose={onClose}
-      maxWidth="md"
-      fullWidth
-      fullScreen={isMobile}
+      fullScreen
+      TransitionComponent={Transition}
       PaperProps={{
         sx: {
-          minHeight: isMobile ? '100vh' : '600px',
+          backgroundColor: theme.palette.background.default,
         },
       }}
     >
-      <DialogTitle sx={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center',
-        pb: 1,
-      }}>
-        Book New Appointment
-        <IconButton
-          aria-label="close"
-          onClick={onClose}
-          sx={{ color: 'grey.500' }}
-        >
-          <CloseIcon />
-        </IconButton>
-      </DialogTitle>
+      {/* Full-screen App Bar */}
+      <AppBar
+        sx={{
+          position: 'relative',
+          backgroundColor: theme.palette.primary.main,
+        }}
+      >
+        <Toolbar>
+          <IconButton
+            edge="start"
+            color="inherit"
+            onClick={onClose}
+            aria-label="close"
+            sx={{ mr: 2 }}
+          >
+            <CloseIcon />
+          </IconButton>
+          <Typography variant="h6" component="div" sx={{ flex: 1 }}>
+            Book New Appointment
+          </Typography>
+          {!isFirstStep && (
+            <Button
+              color="inherit"
+              onClick={onPreviousStep}
+              disabled={loading}
+              sx={{ mr: 1 }}
+            >
+              <ArrowBackIcon />
+              Go Back 
+            </Button>
+          )}
+          <Button
+            color="inherit"
+            onClick={handleNext}
+            disabled={loading}
+            variant="outlined"
+            sx={{
+              borderColor: 'rgba(255, 255, 255, 0.5)',
+              '&:hover': {
+                borderColor: 'rgba(255, 255, 255, 0.8)',
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              }
+            }}
+          >
+            {loading ? 'Processing...' : isLastStep ? 'Book Appointment' : 'Next'}
+          </Button>
+        </Toolbar>
+      </AppBar>
 
-      <DialogContent sx={{ px: 3, py: 2 }}>
+      {/* Main Content Area */}
+      <Box
+        sx={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+        }}
+      >
         {/* Progress Stepper */}
-        <Box sx={{ mb: 4 }}>
-          <Stepper 
-            activeStep={currentStep} 
+        <Box sx={{ px: 3, pt: 3, pb: 2 }}>
+          <Stepper
+            activeStep={currentStep}
             alternativeLabel={!isMobile}
             orientation={isMobile ? 'vertical' : 'horizontal'}
+            sx={{
+              '& .MuiStepLabel-root': {
+                fontSize: isMobile ? '0.875rem' : '1rem',
+              }
+            }}
           >
             {steps.map((label) => (
               <Step key={label}>
@@ -190,39 +246,19 @@ const BookingWizard = memo(({
         </Box>
 
         {/* Step Content */}
-        <Box sx={{ minHeight: '400px' }}>
+        <Box
+          sx={{
+            flex: 1,
+            px: 3,
+            pb: 3,
+            overflow: 'auto',
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
           {getStepContent(currentStep)}
         </Box>
-      </DialogContent>
-
-      <DialogActions sx={{ px: 3, py: 2, gap: 1 }}>
-        <Button
-          onClick={onClose}
-          color="inherit"
-        >
-          Cancel
-        </Button>
-        
-        <Box sx={{ flex: 1 }} />
-        
-        {!isFirstStep && (
-          <Button
-            onClick={onPreviousStep}
-            color="inherit"
-            disabled={loading}
-          >
-            Back
-          </Button>
-        )}
-        
-        <Button
-          onClick={handleNext}
-          variant="contained"
-          disabled={loading}
-        >
-          {loading ? 'Processing...' : isLastStep ? 'Book Appointment' : 'Next'}
-        </Button>
-      </DialogActions>
+      </Box>
     </Dialog>
   );
 });
