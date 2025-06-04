@@ -117,6 +117,16 @@ const clinicAPI = {
     return api.delete(`/api/clinic/dentist-availability/${id}`);
   },
 
+  /**
+   * getClinicDentists
+   * @param {number} clinicId - The clinic ID
+   * @returns {Promise<Array>} Array of dentist objects
+   */
+
+  async getClinicDentists(clinicId) {
+    return api.get(`/api/clinic/${clinicId}/dentists`);
+  },
+
   // Clinical Notes API Methods
 
   /**
