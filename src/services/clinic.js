@@ -123,7 +123,7 @@ const clinicAPI = {
    * @returns {Promise<Array>} Array of patient record objects
    */
   async getClinicPatientRecords(clinicId) {
-    return api.get(`/api/clinic/clinical-note/${clinicId}`);
+    return api.get(`/api/clinic/clinical-note/clinic/${clinicId}`);
   }
 }
 
