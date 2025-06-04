@@ -47,24 +47,30 @@ const AppointmentCalendar = memo(({
   // Convert appointments to calendar events
   const events = useMemo(() => {
     return appointments.map(appointment => {
-      const startDateTime = new Date(`${appointment.date}T${appointment.startTime}`);
-      const endDateTime = new Date(`${appointment.date}T${appointment.endTime}`);
+      // Handle both old and new API data structures
+      const appointmentDate = appointment.appointmentDate || appointment.date;
+      const serviceName = appointment.serviceName || appointment.serviceType || appointment.serviceId;
+      const dentistName = appointment.dentistName;
+      const patientName = appointment.patientName;
+
+      const startDateTime = new Date(`${appointmentDate}T${appointment.startTime}`);
+      const endDateTime = new Date(`${appointmentDate}T${appointment.endTime}`);
 
       // Determine title based on user role
       let title = '';
       switch (userRole) {
         case 'PATIENT':
-          title = `${appointment.serviceType || 'Appointment'} - Dr. ${appointment.dentistName || 'Unknown'}`;
+          title = `${serviceName || 'Appointment'} - Dr. ${dentistName || 'Unknown'}`;
           break;
         case 'DENTIST':
-          title = `${appointment.patientName || 'Unknown Patient'} - ${appointment.serviceType || 'Appointment'}`;
+          title = `${patientName || 'Unknown Patient'} - ${serviceName || 'Appointment'}`;
           break;
         case 'RECEPTIONIST':
         case 'CLINIC_ADMIN':
-          title = `${appointment.patientName || 'Unknown'} with Dr. ${appointment.dentistName || 'Unknown'}`;
+          title = `${patientName || 'Unknown'} with Dr. ${dentistName || 'Unknown'}`;
           break;
         default:
-          title = appointment.serviceType || 'Appointment';
+          title = serviceName || 'Appointment';
           break;
       }
 

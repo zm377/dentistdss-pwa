@@ -295,7 +295,6 @@ const useAppointmentBooking = (onBookingComplete) => {
         throw new Error(`Missing required fields: ${missingFields.join(', ')}`);
       }
 
-      console.log('Submitting appointment data:', appointmentData);
       const newAppointment = await api.appointment.createAppointment(appointmentData);
 
       confirmationDialog.showSuccess(
@@ -303,13 +302,22 @@ const useAppointmentBooking = (onBookingComplete) => {
         'Your appointment has been successfully booked. You will receive a confirmation email shortly.'
       );
 
+      // Refresh patient appointments to get updated list
+      if (currentUser?.roles?.includes('PATIENT')) {
+        try {
+          await api.appointment.getPatientAppointments(currentUser.id);
+        } catch (error) {
+          console.error('Failed to refresh appointments:', error);
+        }
+      }
+
       if (onBookingComplete) {
         onBookingComplete(newAppointment);
       }
 
       // Reset form
       resetBooking();
-      return true;
+      return newAppointment; // Return the new appointment data instead of just true
     } catch (error) {
       console.error('Failed to book appointment:', error);
 

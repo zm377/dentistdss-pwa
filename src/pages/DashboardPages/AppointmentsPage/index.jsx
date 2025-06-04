@@ -57,6 +57,7 @@ const AppointmentsPage = ({ userRole = 'PATIENT' }) => {
     error,
     refreshAppointments,
     updateAppointment,
+    addAppointment,
   } = useAppointments(selectedDate);
 
   const appointmentActions = useAppointmentActions(updateAppointment);
@@ -106,6 +107,18 @@ const AppointmentsPage = ({ userRole = 'PATIENT' }) => {
     setShowBookingWizard(true);
   }, [bookingWizard]);
 
+  const handleBookingComplete = useCallback((newAppointment) => {
+    // Close the booking wizard
+    setShowBookingWizard(false);
+    // Refresh appointments to show the new appointment
+    refreshAppointments();
+
+    // Also add the new appointment to the local state immediately for better UX
+    if (newAppointment) {
+      addAppointment(newAppointment);
+    }
+  }, [refreshAppointments, addAppointment]);
+
   // Render calendar view
   const renderCalendarView = () => (
     <AppointmentCalendar
@@ -124,10 +137,10 @@ const AppointmentsPage = ({ userRole = 'PATIENT' }) => {
   // Render list view
   const renderListView = () => {
     const searchFields = userRole === 'PATIENT'
-      ? ['dentistName', 'serviceType']
+      ? ['dentistName', 'serviceName', 'serviceType']
       : userRole === 'DENTIST'
-      ? ['patientName', 'serviceType']
-      : ['patientName', 'dentistName', 'serviceType'];
+      ? ['patientName', 'serviceName', 'serviceType']
+      : ['patientName', 'dentistName', 'serviceName', 'serviceType'];
 
     const emptyMessage = userRole === 'PATIENT'
       ? 'You have no appointments.'
@@ -266,6 +279,7 @@ const AppointmentsPage = ({ userRole = 'PATIENT' }) => {
         onNextStep={bookingWizard.nextStep}
         onPreviousStep={bookingWizard.previousStep}
         onSubmitBooking={bookingWizard.submitBooking}
+        onBookingComplete={handleBookingComplete}
         userRole={userRole}
         isLoggedIn={!!currentUser}
       />

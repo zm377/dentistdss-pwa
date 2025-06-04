@@ -27,7 +27,17 @@ const useAppointments = (selectedDate = null) => {
    * Fetch appointments based on user role
    */
   const fetchAppointments = useCallback(async (date = null) => {
-    if (!currentUser) return;
+    // Check if user is loaded and has required properties
+    if (!currentUser) {
+      return;
+    }
+
+    // Get user role - it might be in roles array or role field
+    const userRole = currentUser.roles?.[0] || currentUser.role;
+
+    if (!userRole || !currentUser.id) {
+      return;
+    }
 
     setLoading(true);
     setError('');
@@ -36,7 +46,7 @@ const useAppointments = (selectedDate = null) => {
       const formattedDate = getFormattedDate(date);
       let appointmentData = [];
 
-      switch (currentUser.role) {
+      switch (userRole) {
         case 'PATIENT':
           appointmentData = await api.appointment.getPatientAppointments(currentUser.id);
           break;
@@ -53,7 +63,6 @@ const useAppointments = (selectedDate = null) => {
           break;
 
         default:
-          console.warn('Unknown user role for appointments:', currentUser.role);
           break;
       }
 
@@ -110,14 +119,18 @@ const useAppointments = (selectedDate = null) => {
 
   // Filter appointments for today (for dashboard overview)
   const todaysAppointments = appointments.filter(appointment => {
-    const appointmentDate = new Date(appointment.date).toISOString().split('T')[0];
+    // Handle both old and new API data structures
+    const dateField = appointment.appointmentDate || appointment.date;
+    const appointmentDate = new Date(dateField).toISOString().split('T')[0];
     const today = new Date().toISOString().split('T')[0];
     return appointmentDate === today;
   });
 
   // Get upcoming appointments (next 7 days)
   const upcomingAppointments = appointments.filter(appointment => {
-    const appointmentDate = new Date(appointment.date);
+    // Handle both old and new API data structures
+    const dateField = appointment.appointmentDate || appointment.date;
+    const appointmentDate = new Date(dateField);
     const today = new Date();
     const nextWeek = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
     return appointmentDate >= today && appointmentDate <= nextWeek;

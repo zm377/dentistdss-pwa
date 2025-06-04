@@ -58,6 +58,7 @@ const BookingWizard = memo(({
   onNextStep,
   onPreviousStep,
   onSubmitBooking,
+  onBookingComplete,
   userRole,
   isLoggedIn = false,
 }) => {
@@ -147,9 +148,14 @@ const BookingWizard = memo(({
   const isLastStep = currentStep === steps.length - 1;
   const isFirstStep = currentStep === 0;
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (isLastStep) {
-      onSubmitBooking();
+      // Submit booking
+      const result = await onSubmitBooking();
+      if (result && onBookingComplete) {
+        // onSubmitBooking should return the new appointment data
+        onBookingComplete(result);
+      }
     } else {
       onNextStep();
     }
@@ -294,6 +300,8 @@ BookingWizard.propTypes = {
   onPreviousStep: PropTypes.func.isRequired,
   /** Callback to submit booking */
   onSubmitBooking: PropTypes.func.isRequired,
+  /** Callback when booking is completed */
+  onBookingComplete: PropTypes.func,
   /** User role */
   userRole: PropTypes.string,
   /** Whether user is logged in */

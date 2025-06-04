@@ -89,30 +89,36 @@ const AppointmentCard = memo(({
 
   // Determine what information to show based on user role
   const getDisplayInfo = () => {
+    // Handle both old and new API data structures
+    const serviceName = appointment.serviceName || appointment.serviceType || 'Appointment';
+    const dentistName = appointment.dentistName || 'Unknown';
+    const patientName = appointment.patientName || 'Unknown Patient';
+    const clinicName = appointment.clinicName || 'Clinic';
+
     switch (userRole) {
       case 'PATIENT':
         return {
-          primaryText: appointment.dentistName || 'Dr. Unknown',
-          secondaryText: appointment.clinicName || 'Clinic',
+          primaryText: `Dr. ${dentistName}`,
+          secondaryText: clinicName,
           icon: <DentistIcon color="primary" />,
         };
       case 'DENTIST':
         return {
-          primaryText: appointment.patientName || 'Unknown Patient',
-          secondaryText: appointment.serviceType || 'Appointment',
+          primaryText: patientName,
+          secondaryText: serviceName,
           icon: <PatientIcon color="primary" />,
         };
       case 'RECEPTIONIST':
       case 'CLINIC_ADMIN':
         return {
-          primaryText: appointment.patientName || 'Unknown Patient',
-          secondaryText: `Dr. ${appointment.dentistName || 'Unknown'}`,
+          primaryText: patientName,
+          secondaryText: `Dr. ${dentistName}`,
           icon: <PatientIcon color="primary" />,
         };
       default:
         return {
-          primaryText: appointment.patientName || appointment.dentistName || 'Unknown',
-          secondaryText: appointment.serviceType || 'Appointment',
+          primaryText: patientName || `Dr. ${dentistName}`,
+          secondaryText: serviceName,
           icon: <PatientIcon color="primary" />,
         };
     }
@@ -184,7 +190,7 @@ const AppointmentCard = memo(({
               {/* Date and Time */}
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
                 <Typography variant="body2" color="text.secondary">
-                  {formatDate(appointment.date)}
+                  {formatDate(appointment.appointmentDate || appointment.date)}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
                   {formatTime(appointment.startTime)} - {formatTime(appointment.endTime)}
@@ -192,9 +198,9 @@ const AppointmentCard = memo(({
               </Box>
 
               {/* Service Type (if not already shown) */}
-              {userRole !== 'RECEPTIONIST' && userRole !== 'CLINIC_ADMIN' && appointment.serviceType && (
+              {userRole !== 'RECEPTIONIST' && userRole !== 'CLINIC_ADMIN' && (appointment.serviceName || appointment.serviceType) && (
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                  {appointment.serviceType}
+                  {appointment.serviceName || appointment.serviceType}
                 </Typography>
               )}
 
@@ -203,7 +209,7 @@ const AppointmentCard = memo(({
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                   <ClinicIcon fontSize="small" color="action" />
                   <Typography variant="body2" color="text.secondary">
-                    {appointment.serviceType}
+                    {appointment.serviceName || appointment.serviceType}
                   </Typography>
                 </Box>
               )}
