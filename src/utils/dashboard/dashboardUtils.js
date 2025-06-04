@@ -46,11 +46,26 @@ export const formatDate = (date) => {
 
 /**
  * Format time for display
- * @param {string|Date} time - Time to format
+ * @param {string|Date} time - Time to format (supports "HH:mm:ss" format or Date object)
  * @returns {string} Formatted time
  */
 export const formatTime = (time) => {
   if (!time) return 'N/A';
+
+  // Handle time string in "HH:mm:ss" format
+  if (typeof time === 'string' && time.includes(':')) {
+    const [hours, minutes] = time.split(':');
+    const hour = parseInt(hours, 10);
+    const minute = parseInt(minutes, 10);
+
+    // Create a date object for today with the specified time
+    const date = new Date();
+    date.setHours(hour, minute, 0, 0);
+
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
+  // Handle Date object
   return new Date(time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 };
 

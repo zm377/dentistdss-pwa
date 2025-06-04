@@ -60,13 +60,13 @@ const AppointmentDialog = memo(({
   useEffect(() => {
     if (appointment) {
       setEditData({
-        date: appointment.date,
+        date: appointment.appointmentDate || appointment.date,
         startTime: appointment.startTime,
         endTime: appointment.endTime,
-        reason: appointment.reason || '',
+        reason: appointment.reasonForVisit || appointment.reason || '',
         symptoms: appointment.symptoms || '',
         notes: appointment.notes || '',
-        urgency: appointment.urgency || 'medium',
+        urgency: appointment.urgencyLevel || appointment.urgency || 'medium',
       });
     }
   }, [appointment]);
@@ -253,7 +253,7 @@ const AppointmentDialog = memo(({
             ) : (
               <Box>
                 <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
-                  {formatDate(appointment.date)}
+                  {formatDate(appointment.appointmentDate || appointment.date)}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
                   {formatTime(appointment.startTime)} - {formatTime(appointment.endTime)}
@@ -265,7 +265,7 @@ const AppointmentDialog = memo(({
           {/* Service Information */}
           <Grid item xs={12} md={6}>
             <Typography variant="h6" sx={{ mb: 1 }}>Service Type</Typography>
-            <Typography variant="body1">{appointment.serviceType || 'Not specified'}</Typography>
+            <Typography variant="body1">{appointment.serviceName || appointment.serviceType || 'Not specified'}</Typography>
           </Grid>
 
           <Grid item xs={12} md={6}>
@@ -285,7 +285,7 @@ const AppointmentDialog = memo(({
               </FormControl>
             ) : (
               <Typography variant="body1" sx={{ textTransform: 'capitalize' }}>
-                {appointment.urgency || 'Medium'}
+                {appointment.urgencyLevel || appointment.urgency || 'Medium'}
               </Typography>
             )}
           </Grid>
@@ -305,7 +305,7 @@ const AppointmentDialog = memo(({
               />
             ) : (
               <Typography variant="body1">
-                {appointment.reason || 'No reason provided'}
+                {appointment.reasonForVisit || appointment.reason || 'No reason provided'}
               </Typography>
             )}
           </Grid>
