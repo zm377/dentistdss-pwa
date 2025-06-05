@@ -25,6 +25,8 @@ import {
   Stepper,
   Step,
   StepLabel,
+  List,
+  ListItem,
 } from '@mui/material';
 import {
   Event as EventIcon,
@@ -32,12 +34,15 @@ import {
   MedicalServices as MedicalServicesIcon,
   Schedule as ScheduleIcon,
 } from '@mui/icons-material';
+import { useAuth } from '../../context/auth';
+import api from '../../services';
 // import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 // import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 // import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 // import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 
 const AppointmentBooking = ({open, onClose, onBookingComplete}) => {
+  const { currentUser } = useAuth();
   const [activeStep, setActiveStep] = useState(0);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedTime, setSelectedTime] = useState(null);
@@ -47,26 +52,85 @@ const AppointmentBooking = ({open, onClose, onBookingComplete}) => {
   const [loading, setLoading] = useState(false);
   const [snackbar, setSnackbar] = useState({open: false, message: '', severity: 'info'});
 
-  const [dentists] = useState([
-    {id: 'dr-smith', name: 'Dr. Jane Smith', specialty: 'General Dentistry', available: true},
-    {id: 'dr-johnson', name: 'Dr. Mike Johnson', specialty: 'Orthodontics', available: true},
-    {id: 'dr-brown', name: 'Dr. Sarah Brown', specialty: 'Oral Surgery', available: false},
-  ]);
-
-  const [services] = useState([
-    {id: 'checkup', name: 'Regular Checkup', duration: 30, price: 150},
-    {id: 'cleaning', name: 'Dental Cleaning', duration: 45, price: 120},
-    {id: 'filling', name: 'Dental Filling', duration: 60, price: 200},
-    {id: 'extraction', name: 'Tooth Extraction', duration: 90, price: 300},
-    {id: 'consultation', name: 'Consultation', duration: 30, price: 100},
-  ]);
-
-  const [availableSlots] = useState([
-    '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
-    '14:00', '14:30', '15:00', '15:30', '16:00', '16:30'
-  ]);
+  const [dentists, setDentists] = useState([]);
+  const [services, setServices] = useState([]);
+  const [availableSlots, setAvailableSlots] = useState([]);
 
   const steps = ['Select Service', 'Choose Dentist', 'Pick Date & Time', 'Confirm Details'];
+
+  // Fetch services and dentists on component mount
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      setLoading(true);
+      try {
+        // Fetch services
+        // Assuming an API endpoint like api.clinic.getServices() exists
+        const fetchedServices = await api.clinic.getServices(); 
+        setServices(fetchedServices.data || []); // Adjust based on actual API response
+
+        // Fetch dentists
+        // Assuming an API endpoint like api.clinic.getDentists() exists
+        const fetchedDentists = await api.clinic.getDentists(currentUser.clinicId); // Pass clinicId if required
+        setDentists(fetchedDentists.data || []); // Adjust based on actual API response
+
+      } catch (err) {
+        console.error('Failed to fetch initial data:', err);
+        setSnackbar({
+          open: true,
+          message: 'Failed to load services or dentists. Please try again.',
+          severity: 'error'
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (currentUser?.clinicId) {
+      fetchInitialData();
+    }
+  }, [currentUser?.clinicId]);
+
+  // Fetch available slots when selectedDate, selectedDentist, or selectedService changes
+  useEffect(() => {
+    const fetchAvailableSlots = async () => {
+      if (!selectedDentist || !selectedService || !selectedDate || !currentUser?.clinicId) {
+        setAvailableSlots([]);
+        return;
+      }
+
+      setLoading(true);
+      try {
+        const serviceDuration = services.find(s => s.id === selectedService)?.duration;
+        if (!serviceDuration) {
+          console.warn('Service duration not found for selected service.');
+          setAvailableSlots([]);
+          setLoading(false);
+          return;
+        }
+
+        const dateString = selectedDate.toISOString().split('T')[0];
+        const slots = await api.appointment.getAvailableSlots(
+          selectedDentist, // This needs to be the dentist's ID, not the mock 'dr-smith'
+          currentUser.clinicId,
+          dateString,
+          serviceDuration
+        );
+        setAvailableSlots(slots || []); // Adjust based on actual API response
+      } catch (err) {
+        console.error('Failed to fetch available slots:', err);
+        setSnackbar({
+          open: true,
+          message: 'Failed to load available slots. Please try again.',
+          severity: 'error'
+        });
+        setAvailableSlots([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAvailableSlots();
+  }, [selectedDate, selectedDentist, selectedService, services, currentUser?.clinicId]);
 
   const handleNext = () => {
     if (activeStep < steps.length - 1) {
@@ -83,16 +147,33 @@ const AppointmentBooking = ({open, onClose, onBookingComplete}) => {
   const handleBookAppointment = async () => {
     setLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
       const appointmentData = {
-        service: selectedService,
-        dentist: selectedDentist,
-        date: selectedDate,
-        time: selectedTime,
+        patientId: currentUser.id, // Assuming the current user is the patient booking
+        dentistId: selectedDentist, 
+        clinicId: currentUser.clinicId,
+        createdBy: currentUser.id,
+        serviceId: selectedService,
+        appointmentDate: selectedDate.toISOString().split('T')[0],
+        startTime: selectedTime,
+        endTime: '', // This will need to be calculated based on start time and service duration
+        reasonForVisit: patientNotes,
+        symptoms: '',
+        urgencyLevel: 'low',
         notes: patientNotes,
       };
+
+      // Calculate endTime
+      const serviceObj = services.find(s => s.id === selectedService);
+      if (serviceObj && selectedTime) {
+        const [hours, minutes] = selectedTime.split(':').map(Number);
+        const startTimeDate = new Date(selectedDate);
+        startTimeDate.setHours(hours, minutes, 0, 0);
+
+        const endTimeDate = new Date(startTimeDate.getTime() + serviceObj.duration * 60 * 1000);
+        appointmentData.endTime = endTimeDate.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      }
+
+      const newAppointment = await api.appointment.createAppointment(appointmentData);
 
       setSnackbar({
         open: true,
@@ -101,7 +182,7 @@ const AppointmentBooking = ({open, onClose, onBookingComplete}) => {
       });
 
       if (onBookingComplete) {
-        onBookingComplete(appointmentData);
+        onBookingComplete(newAppointment);
       }
 
       // Reset form
@@ -116,9 +197,10 @@ const AppointmentBooking = ({open, onClose, onBookingComplete}) => {
       }, 1500);
 
     } catch (error) {
+      console.error('Failed to book appointment:', error);
       setSnackbar({
         open: true,
-        message: 'Failed to book appointment. Please try again.',
+        message: `Failed to book appointment: ${error.message || 'Please try again.'} `,
         severity: 'error'
       });
     } finally {
@@ -147,35 +229,41 @@ const AppointmentBooking = ({open, onClose, onBookingComplete}) => {
         return (
             <Box>
               <Typography variant="h6" gutterBottom>Select a Service</Typography>
-              <Grid container spacing={2}>
-                {services.map((service) => (
-                    <Grid item xs={12} sm={6} key={service.id}>
-                      <Card
-                          sx={{
-                            cursor: 'pointer',
-                            border: selectedService === service.id ? 2 : 1,
-                            borderColor: selectedService === service.id ? 'primary.main' : 'divider',
-                          }}
-                          onClick={() => setSelectedService(service.id)}
-                      >
-                        <CardContent>
-                          <Box sx={{display: 'flex', alignItems: 'center', mb: 1}}>
-                            <MedicalServicesIcon sx={{mr: 1}}/>
-                            <Typography variant="subtitle1" fontWeight="medium">
-                              {service.name}
+              {loading && activeStep === 0 ? (
+                <CircularProgress />
+              ) : services.length === 0 ? (
+                <Alert severity="info">No services available. Please check back later.</Alert>
+              ) : (
+                <Grid container spacing={2}>
+                  {services.map((service) => (
+                      <Grid item xs={12} sm={6} key={service.id}>
+                        <Card
+                            sx={{
+                              cursor: 'pointer',
+                              border: selectedService === service.id ? 2 : 1,
+                              borderColor: selectedService === service.id ? 'primary.main' : 'divider',
+                            }}
+                            onClick={() => setSelectedService(service.id)}
+                        >
+                          <CardContent>
+                            <Box sx={{display: 'flex', alignItems: 'center', mb: 1}}>
+                              <MedicalServicesIcon sx={{mr: 1}}/>
+                              <Typography variant="subtitle1" fontWeight="medium">
+                                {service.name}
+                              </Typography>
+                            </Box>
+                            <Typography variant="body2" color="text.secondary" gutterBottom>
+                              Duration: {service.duration} minutes
                             </Typography>
-                          </Box>
-                          <Typography variant="body2" color="text.secondary" gutterBottom>
-                            Duration: {service.duration} minutes
-                          </Typography>
-                          <Typography variant="h6" color="primary">
-                            ${service.price}
-                          </Typography>
-                        </CardContent>
-                      </Card>
-                    </Grid>
-                ))}
-              </Grid>
+                            <Typography variant="h6" color="primary">
+                              ${service.price}
+                            </Typography>
+                          </CardContent>
+                        </Card>
+                      </Grid>
+                  ))}
+                </Grid>
+              )}
             </Box>
         );
 
@@ -183,38 +271,44 @@ const AppointmentBooking = ({open, onClose, onBookingComplete}) => {
         return (
             <Box>
               <Typography variant="h6" gutterBottom>Choose Your Dentist</Typography>
-              <RadioGroup
-                  value={selectedDentist}
-                  onChange={(e) => setSelectedDentist(e.target.value)}
-              >
-                {dentists.map((dentist) => (
-                    <Card key={dentist.id} sx={{mb: 2, opacity: dentist.available ? 1 : 0.6}}>
-                      <CardContent>
-                        <FormControlLabel
-                            value={dentist.id}
-                            control={<Radio/>}
-                            disabled={!dentist.available}
-                            label={
-                              <Box sx={{ml: 1}}>
-                                <Box sx={{display: 'flex', alignItems: 'center', mb: 0.5}}>
-                                  <PersonIcon sx={{mr: 1}}/>
-                                  <Typography variant="subtitle1" fontWeight="medium">
-                                    {dentist.name}
+              {loading && activeStep === 1 ? (
+                <CircularProgress />
+              ) : dentists.length === 0 ? (
+                <Alert severity="info">No dentists available. Please check back later.</Alert>
+              ) : (
+                <RadioGroup
+                    value={selectedDentist}
+                    onChange={(e) => setSelectedDentist(e.target.value)}
+                >
+                  {dentists.map((dentist) => (
+                      <Card key={dentist.id} sx={{mb: 2, opacity: dentist.available ? 1 : 0.6}}>
+                        <CardContent>
+                          <FormControlLabel
+                              value={dentist.id}
+                              control={<Radio/>}
+                              disabled={!dentist.available}
+                              label={
+                                <Box sx={{ml: 1}}>
+                                  <Box sx={{display: 'flex', alignItems: 'center', mb: 0.5}}>
+                                    <PersonIcon sx={{mr: 1}}/>
+                                    <Typography variant="subtitle1" fontWeight="medium">
+                                      {dentist.name}
+                                    </Typography>
+                                    {!dentist.available && (
+                                        <Chip label="Unavailable" size="small" color="error" sx={{ml: 1}}/>
+                                    )}
+                                  </Box>
+                                  <Typography variant="body2" color="text.secondary">
+                                    {dentist.specialty}
                                   </Typography>
-                                  {!dentist.available && (
-                                      <Chip label="Unavailable" size="small" color="error" sx={{ml: 1}}/>
-                                  )}
                                 </Box>
-                                <Typography variant="body2" color="text.secondary">
-                                  {dentist.specialty}
-                                </Typography>
-                              </Box>
-                            }
-                        />
-                      </CardContent>
-                    </Card>
-                ))}
-              </RadioGroup>
+                              }
+                          />
+                        </CardContent>
+                      </Card>
+                  ))}
+                </RadioGroup>
+              )}
             </Box>
         );
 
@@ -235,69 +329,56 @@ const AppointmentBooking = ({open, onClose, onBookingComplete}) => {
                 </Grid>
                 <Grid item xs={12} md={6}>
                   <Typography variant="subtitle2" gutterBottom>Available Times</Typography>
-                  <Grid container spacing={1}>
-                    {availableSlots.map((slot) => (
-                        <Grid item xs={6} sm={4} key={slot}>
-                          <Button
-                              variant={selectedTime === slot ? 'contained' : 'outlined'}
-                              fullWidth
-                              size="small"
-                              onClick={() => setSelectedTime(slot)}
-                              startIcon={<ScheduleIcon/>}
-                          >
-                            {slot}
-                          </Button>
-                        </Grid>
-                    ))}
-                  </Grid>
+                  {loading && activeStep === 2 ? (
+                    <CircularProgress />
+                  ) : availableSlots.length === 0 ? (
+                    <Alert severity="info">No available slots for the selected dentist and service on this date.</Alert>
+                  ) : (
+                    <Grid container spacing={1}>
+                      {availableSlots.map((slot) => (
+                          <Grid item xs={6} sm={4} key={slot}>
+                            <Button
+                                variant={selectedTime === slot ? 'contained' : 'outlined'}
+                                fullWidth
+                                size="small"
+                                onClick={() => setSelectedTime(slot)}
+                                startIcon={<ScheduleIcon/>}
+                            >
+                              {slot}
+                            </Button>
+                          </Grid>
+                      ))}
+                    </Grid>
+                  )}
                 </Grid>
               </Grid>
             </Box>
         );
 
       case 3:
-        const selectedServiceData = services.find(s => s.id === selectedService);
-        const selectedDentistData = dentists.find(d => d.id === selectedDentist);
+        const selectedServiceObj = services.find(s => s.id === selectedService);
+        const selectedDentistObj = dentists.find(d => d.id === selectedDentist);
 
         return (
             <Box>
               <Typography variant="h6" gutterBottom>Confirm Your Appointment</Typography>
-              <Card sx={{mb: 3}}>
-                <CardContent>
-                  <Grid container spacing={2}>
-                    <Grid item xs={12} sm={6}>
-                      <Typography variant="subtitle2" color="text.secondary">Service</Typography>
-                      <Typography variant="body1">{selectedServiceData?.name}</Typography>
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <Typography variant="subtitle2" color="text.secondary">Dentist</Typography>
-                      <Typography variant="body1">{selectedDentistData?.name}</Typography>
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <Typography variant="subtitle2" color="text.secondary">Date</Typography>
-                      <Typography variant="body1">{selectedDate.toLocaleDateString()}</Typography>
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <Typography variant="subtitle2" color="text.secondary">Time</Typography>
-                      <Typography variant="body1">{selectedTime}</Typography>
-                    </Grid>
-                    <Grid item xs={12}>
-                      <Typography variant="subtitle2" color="text.secondary">Total Cost</Typography>
-                      <Typography variant="h6" color="primary">${selectedServiceData?.price}</Typography>
-                    </Grid>
-                  </Grid>
-                </CardContent>
-              </Card>
-
-              <TextField
-                  fullWidth
-                  multiline
-                  rows={3}
-                  label="Additional Notes (Optional)"
-                  value={patientNotes}
-                  onChange={(e) => setPatientNotes(e.target.value)}
-                  placeholder="Any specific concerns or requests..."
-              />
+              <List>
+                <ListItem><Typography variant="subtitle1">Service:</Typography> <Typography>{selectedServiceObj?.name}</Typography></ListItem>
+                <ListItem><Typography variant="subtitle1">Dentist:</Typography> <Typography>{selectedDentistObj?.name}</Typography></ListItem>
+                <ListItem><Typography variant="subtitle1">Date:</Typography> <Typography>{selectedDate.toLocaleDateString()}</Typography></ListItem>
+                <ListItem><Typography variant="subtitle1">Time:</Typography> <Typography>{selectedTime}</Typography></ListItem>
+                <ListItem><Typography variant="subtitle1">Notes:</Typography> <Typography>{patientNotes || 'N/A'}</Typography></ListItem>
+              </List>
+              <FormControl fullWidth margin="normal">
+                <TextField
+                    label="Additional Notes (Optional)"
+                    multiline
+                    rows={3}
+                    value={patientNotes}
+                    onChange={(e) => setPatientNotes(e.target.value)}
+                    variant="outlined"
+                />
+              </FormControl>
             </Box>
         );
 
@@ -307,63 +388,46 @@ const AppointmentBooking = ({open, onClose, onBookingComplete}) => {
   };
 
   return (
-      <>
-        <Dialog
-            open={open}
-            onClose={onClose}
-            maxWidth="md"
-            fullWidth
-            PaperProps={{sx: {minHeight: '500px'}}}
-        >
-          <DialogTitle>
-            <Typography variant="h5">Book an Appointment</Typography>
-          </DialogTitle>
-
-          <DialogContent>
-            <Box sx={{mb: 3}}>
-              <Stepper activeStep={activeStep} alternativeLabel>
-                {steps.map((label) => (
-                    <Step key={label}>
-                      <StepLabel>{label}</StepLabel>
-                    </Step>
-                ))}
-              </Stepper>
-            </Box>
-
-            {renderStepContent()}
-          </DialogContent>
-
-          <DialogActions sx={{p: 3}}>
-            <Button onClick={onClose} disabled={loading}>
-              Cancel
-            </Button>
-            <Button
-                onClick={handleBack}
-                disabled={activeStep === 0 || loading}
-            >
-              Back
-            </Button>
-            <Button
-                variant="contained"
-                onClick={handleNext}
-                disabled={!isStepValid() || loading}
-                startIcon={loading && <CircularProgress size={20}/>}
-            >
-              {activeStep === steps.length - 1 ? 'Book Appointment' : 'Next'}
-            </Button>
-          </DialogActions>
-        </Dialog>
+      <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+        <DialogTitle>Book New Appointment</DialogTitle>
+        <DialogContent dividers>
+          <Stepper activeStep={activeStep} alternativeLabel sx={{mb: 3}}>
+            {steps.map((label) => (
+                <Step key={label}>
+                  <StepLabel>{label}</StepLabel>
+                </Step>
+            ))}
+          </Stepper>
+          {renderStepContent()}
+        </DialogContent>
+        <DialogActions sx={{p: 2}}>
+          <Button
+              disabled={activeStep === 0 || loading}
+              onClick={handleBack}
+              variant="outlined"
+          >
+            Back
+          </Button>
+          <Button
+              variant="contained"
+              onClick={handleNext}
+              disabled={loading || !isStepValid()}
+          >
+            {activeStep === steps.length - 1 ? 'Book Appointment' : 'Next'}
+          </Button>
+        </DialogActions>
 
         <Snackbar
             open={snackbar.open}
             autoHideDuration={6000}
             onClose={() => setSnackbar({...snackbar, open: false})}
+            anchorOrigin={{vertical: 'bottom', horizontal: 'left'}}
         >
-          <Alert severity={snackbar.severity} onClose={() => setSnackbar({...snackbar, open: false})}>
+          <Alert onClose={() => setSnackbar({...snackbar, open: false})} severity={snackbar.severity} sx={{width: '100%'}}>
             {snackbar.message}
           </Alert>
         </Snackbar>
-      </>
+      </Dialog>
   );
 };
 

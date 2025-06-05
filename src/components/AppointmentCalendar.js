@@ -36,6 +36,7 @@ import {
   Schedule as ScheduleIcon,
   Today as TodayIcon,
 } from '@mui/icons-material';
+import { useSchedule } from '../hooks/useSchedule';
 
 const AppointmentCalendar = ({
                                viewType = 'month', // 'day', 'week', 'month'
@@ -43,74 +44,36 @@ const AppointmentCalendar = ({
                                onNewAppointment,
                                userRole = 'patient' // 'patient', 'dentist', 'receptionist'
                              }) => {
+  const { 
+    availability, 
+    loading, 
+    error, 
+    selectedDate, 
+    calendarView, 
+    calendarEvents, 
+    changeSelectedDate, 
+    setCalendarView, 
+    getSlotsForDate 
+  } = useSchedule();
+  
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [appointments, setAppointments] = useState([]);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [showAppointmentDialog, setShowAppointmentDialog] = useState(false);
-  const [loading, setLoading] = useState(false);
-
-  // Mock appointment data
-  const mockAppointments = [
-    {
-      id: 1,
-      patientName: 'John Doe',
-      dentistName: 'Dr. Smith',
-      date: new Date(2024, 11, 15, 10, 0),
-      duration: 60,
-      type: 'Checkup',
-      status: 'confirmed',
-      notes: 'Regular checkup appointment'
-    },
-    {
-      id: 2,
-      patientName: 'Jane Wilson',
-      dentistName: 'Dr. Johnson',
-      date: new Date(2024, 11, 15, 14, 30),
-      duration: 90,
-      type: 'Root Canal',
-      status: 'confirmed',
-      notes: 'Follow-up root canal treatment'
-    },
-    {
-      id: 3,
-      patientName: 'Mike Brown',
-      dentistName: 'Dr. Smith',
-      date: new Date(2024, 11, 16, 9, 0),
-      duration: 45,
-      type: 'Cleaning',
-      status: 'pending',
-      notes: 'Routine dental cleaning'
-    },
-  ];
 
   useEffect(() => {
-    loadAppointments();
-  }, [currentDate]);
-
-  const loadAppointments = async () => {
-    setLoading(true);
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
-      setAppointments(mockAppointments);
-    } catch (error) {
-      console.error('Error loading appointments:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    setCurrentDate(selectedDate);
+  }, [selectedDate]);
 
   const navigateDate = (direction) => {
     const newDate = new Date(currentDate);
-    if (viewType === 'month') {
+    if (calendarView === 'month') {
       newDate.setMonth(newDate.getMonth() + direction);
-    } else if (viewType === 'week') {
+    } else if (calendarView === 'week') {
       newDate.setDate(newDate.getDate() + (direction * 7));
     } else {
       newDate.setDate(newDate.getDate() + direction);
     }
-    setCurrentDate(newDate);
+    changeSelectedDate(newDate);
   };
 
   const getStatusColor = (status) => {
@@ -157,18 +120,22 @@ const AppointmentCalendar = ({
 
   const getAppointmentsForDate = (date) => {
     if (!date) return [];
-    return appointments.filter(apt =>
-        apt.date.toDateString() === date.toDateString()
-    );
+    return calendarEvents.filter(event => {
+      const eventDate = new Date(event.start);
+      return eventDate.toDateString() === date.toDateString();
+    });
   };
 
   const handleDateClick = (date) => {
     if (!date) return;
-    setSelectedDate(date);
+    changeSelectedDate(date);
     const dayAppointments = getAppointmentsForDate(date);
-    if (dayAppointments.length === 1) {
+    if (dayAppointments.length > 0) {
       setSelectedAppointment(dayAppointments[0]);
       setShowAppointmentDialog(true);
+    } else {
+      setSelectedAppointment(null);
+      setShowAppointmentDialog(false);
     }
   };
 
@@ -288,10 +255,12 @@ const AppointmentCalendar = ({
 
           <List>
             {timeSlots.map((timeSlot, index) => {
-              const slotAppointment = dayAppointments.find(apt =>
-                  apt.date.getHours() === timeSlot.getHours() &&
-                  apt.date.getMinutes() === timeSlot.getMinutes()
-              );
+              // Find the event that starts at this time slot
+              const slotEvent = dayAppointments.find(event => {
+                const eventStart = new Date(event.start);
+                return eventStart.getHours() === timeSlot.getHours() &&
+                       eventStart.getMinutes() === timeSlot.getMinutes();
+              });
 
               return (
                   <ListItem
@@ -299,23 +268,23 @@ const AppointmentCalendar = ({
                       sx={{
                         borderBottom: '1px solid',
                         borderColor: 'divider',
-                        bgcolor: slotAppointment ? 'action.hover' : 'transparent'
+                        bgcolor: slotEvent ? 'action.hover' : 'transparent'
                       }}
                   >
                     <Box sx={{ flex: 1 }}>
                       <Box sx={{ mb: 1 }}>
                         {formatTime(timeSlot)}
                       </Box>
-                      {slotAppointment ? (
+                      {slotEvent ? (
                           <Box>
                             <Typography variant="body2" fontWeight="medium" color="text.secondary" sx={{ fontSize: '0.875rem' }}>
-                              {slotAppointment.patientName} - {slotAppointment.type}
+                              {slotEvent.title} - {slotEvent.resource?.type || 'N/A'}
                             </Typography>
                             <Box sx={{ mt: 0.5 }}>
                               <Chip
-                                  label={slotAppointment.status}
+                                  label={slotEvent.resource?.status || 'Unknown'}
                                   size="small"
-                                  color={getStatusColor(slotAppointment.status)}
+                                  color={getStatusColor(slotEvent.resource?.status)}
                               />
                             </Box>
                           </Box>
@@ -325,11 +294,11 @@ const AppointmentCalendar = ({
                           </Typography>
                       )}
                     </Box>
-                    {slotAppointment && (
+                    {slotEvent && (
                         <ListItemSecondaryAction>
                           <IconButton
                               size="small"
-                              onClick={() => handleAppointmentClick(slotAppointment)}
+                              onClick={() => handleAppointmentClick(slotEvent)}
                           >
                             <EditIcon/>
                           </IconButton>
@@ -403,39 +372,44 @@ const AppointmentCalendar = ({
               <DialogContent>
                 <Grid container spacing={2}>
                   <Grid item xs={12} sm={6}>
-                    <Typography variant="subtitle2" color="text.secondary">Patient</Typography>
-                    <Typography variant="body1">{selectedAppointment.patientName}</Typography>
+                    <Typography variant="subtitle2" color="text.secondary">Patient / Event Title</Typography>
+                    <Typography variant="body1">{selectedAppointment.title}</Typography>
                   </Grid>
                   <Grid item xs={12} sm={6}>
-                    <Typography variant="subtitle2" color="text.secondary">Dentist</Typography>
-                    <Typography variant="body1">{selectedAppointment.dentistName}</Typography>
+                    <Typography variant="subtitle2" color="text.secondary">Associated Dentist</Typography>
+                    <Typography variant="body1">{selectedAppointment.resource?.dentistName || 'N/A'}</Typography>
                   </Grid>
                   <Grid item xs={12} sm={6}>
                     <Typography variant="subtitle2" color="text.secondary">Date & Time</Typography>
                     <Typography variant="body1">
-                      {selectedAppointment.date.toLocaleDateString()} at {formatTime(selectedAppointment.date)}
+                      {new Date(selectedAppointment.start).toLocaleDateString()} at {formatTime(new Date(selectedAppointment.start))}
                     </Typography>
                   </Grid>
                   <Grid item xs={12} sm={6}>
                     <Typography variant="subtitle2" color="text.secondary">Duration</Typography>
-                    <Typography variant="body1">{selectedAppointment.duration} minutes</Typography>
+                    <Typography variant="body1">
+                      {/* Calculate duration from start and end times */}
+                      {selectedAppointment.start && selectedAppointment.end ?
+                          `${(new Date(selectedAppointment.end).getTime() - new Date(selectedAppointment.start).getTime()) / (1000 * 60)} minutes`
+                          : 'N/A'}
+                    </Typography>
                   </Grid>
                   <Grid item xs={12} sm={6}>
                     <Typography variant="subtitle2" color="text.secondary">Type</Typography>
-                    <Typography variant="body1">{selectedAppointment.type}</Typography>
+                    <Typography variant="body1">{selectedAppointment.resource?.type || 'N/A'}</Typography>
                   </Grid>
                   <Grid item xs={12} sm={6}>
                     <Typography variant="subtitle2" color="text.secondary">Status</Typography>
                     <Chip
-                        label={selectedAppointment.status}
-                        color={getStatusColor(selectedAppointment.status)}
+                        label={selectedAppointment.resource?.status || 'Unknown'}
+                        color={getStatusColor(selectedAppointment.resource?.status)}
                         size="small"
                     />
                   </Grid>
-                  {selectedAppointment.notes && (
+                  {selectedAppointment.resource?.notes && (
                       <Grid item xs={12}>
                         <Typography variant="subtitle2" color="text.secondary">Notes</Typography>
-                        <Typography variant="body1">{selectedAppointment.notes}</Typography>
+                        <Typography variant="body1">{selectedAppointment.resource.notes}</Typography>
                       </Grid>
                   )}
                 </Grid>

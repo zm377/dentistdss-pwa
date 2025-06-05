@@ -68,19 +68,8 @@ export const useSchedule = () => {
         endDate
       );
 
-      // Handle different response formats
-      let processedData = [];
-      if (Array.isArray(data)) {
-        processedData = data;
-      } else if (data && Array.isArray(data.dataObject)) {
-        processedData = data.dataObject;
-      } else if (data && data.data && Array.isArray(data.data)) {
-        processedData = data.data;
-      } else {
-        processedData = [];
-      }
-
-      setAvailability(processedData);
+      // Assuming the API consistently returns an array of availability data
+      setAvailability(Array.isArray(data) ? data : data?.dataObject || data?.data || []);
     } catch (err) {
       console.error('❌ Failed to load availability:', err);
       setError(err.message || 'Failed to load availability data');
@@ -185,9 +174,14 @@ export const useSchedule = () => {
     }
 
     const filteredSlots = availability.filter(slot => {
-      // Validate slot data
-      if (!slot || typeof slot !== 'object') {
-        return false;
+      // Validate slot data and ensure dayOfWeek is consistently 0-6
+      if (!slot || typeof slot !== 'object' || typeof slot.dayOfWeek !== 'number' || slot.dayOfWeek < 0 || slot.dayOfWeek > 6) {
+        // If dayOfWeek is 7 (ISO Sunday), convert to 0 for consistency
+        if (slot?.dayOfWeek === 7) {
+          slot.dayOfWeek = 0;
+        } else {
+          return false;
+        }
       }
 
       if (slot.isRecurring) {
@@ -195,53 +189,11 @@ export const useSchedule = () => {
         // and matches the day of week
         const slotDayOfWeek = slot.dayOfWeek;
 
-        // Handle different day of week formats
-        // API might use 0-6 (JS standard) or 1-7 (ISO standard)
-        let normalizedSlotDay = slotDayOfWeek;
-        let normalizedTargetDay = dateDayOfWeek;
-
-        // Handle different day of week formats more robustly
-        if (typeof slotDayOfWeek === 'number') {
-          if (slotDayOfWeek >= 1 && slotDayOfWeek <= 7) {
-            // Check if this looks like ISO format (1=Monday, 7=Sunday)
-            // We can detect this by checking if we have slots with dayOfWeek=7
-            const hasSevenDay = availability.some(s => s.dayOfWeek === 7);
-            const hasZeroDay = availability.some(s => s.dayOfWeek === 0);
-
-            if (hasSevenDay && !hasZeroDay) {
-              // Likely ISO format (1=Monday, 7=Sunday) - convert to JS format
-              normalizedSlotDay = slotDayOfWeek === 7 ? 0 : slotDayOfWeek;
-            } else if (slotDayOfWeek >= 0 && slotDayOfWeek <= 6) {
-              // Already in JS format (0=Sunday, 6=Saturday)
-              normalizedSlotDay = slotDayOfWeek;
-            } else {
-              return false;
-            }
-          } else if (slotDayOfWeek >= 0 && slotDayOfWeek <= 6) {
-            // JS format (0=Sunday, 6=Saturday)
-            normalizedSlotDay = slotDayOfWeek;
-          } else {
-            return false;
-          }
-        } else {
-          return false;
-        }
-
-        // Parse dates more safely
+        // Parse dates safely and consistently
         let effectiveFrom, effectiveUntil;
         try {
-          // Handle different date formats
-          if (slot.effectiveFrom.includes('T')) {
-            effectiveFrom = new Date(slot.effectiveFrom);
-          } else {
-            effectiveFrom = new Date(slot.effectiveFrom + 'T00:00:00');
-          }
-
-          if (slot.effectiveUntil.includes('T')) {
-            effectiveUntil = new Date(slot.effectiveUntil);
-          } else {
-            effectiveUntil = new Date(slot.effectiveUntil + 'T23:59:59');
-          }
+          effectiveFrom = new Date(slot.effectiveFrom.split('T')[0] + 'T00:00:00');
+          effectiveUntil = new Date(slot.effectiveUntil.split('T')[0] + 'T23:59:59');
         } catch (error) {
           console.error('❌ Date parsing error for slot:', slot, error);
           return false;
@@ -251,15 +203,8 @@ export const useSchedule = () => {
         const targetDate = new Date(date);
         targetDate.setHours(0, 0, 0, 0);
 
-        // Normalize effective dates for comparison
-        const effectiveFromNormalized = new Date(effectiveFrom);
-        effectiveFromNormalized.setHours(0, 0, 0, 0);
-
-        const effectiveUntilNormalized = new Date(effectiveUntil);
-        effectiveUntilNormalized.setHours(23, 59, 59, 999);
-
-        const dayMatches = normalizedSlotDay === normalizedTargetDay;
-        const dateInRange = targetDate >= effectiveFromNormalized && targetDate <= effectiveUntilNormalized;
+        const dayMatches = slotDayOfWeek === dateDayOfWeek;
+        const dateInRange = targetDate >= effectiveFrom && targetDate <= effectiveUntil;
 
         return dayMatches && dateInRange;
       } else {
