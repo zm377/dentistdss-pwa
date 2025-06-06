@@ -126,7 +126,7 @@ const Hero = () => {
             alt: "Find a Clinic",
             link: "/find-a-clinic"
           }].map((item, index) => (
-              <Grid item xs={12} sm={6} md={6} key={index}>
+              <Grid size={{ xs: 12, sm: 6, md: 6 }} key={index}>
                 <Card
                     elevation={isDarkMode ? 4 : 2}
                     sx={{

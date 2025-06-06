@@ -208,11 +208,11 @@ function Learn() {
                     key={tag}
                     label={tag}
                     onClick={() => handleFilterToggle(tag)}
-                    color={activeFilters.includes(tag) ? 'secondary' : 'secondary.main'}
-                    textColor={activeFilters.includes(tag) ? 'primary' : 'secondary.main'}
-                    variant={activeFilters.includes(tag) ? 'outlined' : 'outlined'}
+                    color={activeFilters.includes(tag) ? 'secondary' : 'default'}
+                    variant={activeFilters.includes(tag) ? 'filled' : 'outlined'}
                     sx={{
                       fontWeight: activeFilters.includes(tag) ? 600 : 400,
+                      color: activeFilters.includes(tag) ? 'primary.contrastText' : 'text.primary',
                       '&:hover': {
                         bgcolor: activeFilters.includes(tag) ? 'primary.contrastText' : 'action.hover'
                       }
@@ -349,7 +349,7 @@ function Learn() {
               </Box>
           ) : (
               filteredArticles.map((article) => (
-                  <Grid size={4} item xs={12} md={6} lg={4} key={article.title}>
+                  <Grid size={{ xs: 12, md: 6, lg: 4 }} key={article.title}>
                     <Fade in={visibleArticles.includes(articles.indexOf(article))} timeout={500}>
                       <Card
                           elevation={2}

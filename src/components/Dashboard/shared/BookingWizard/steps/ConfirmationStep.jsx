@@ -60,7 +60,7 @@ const ConfirmationStep = ({
 
       <Grid container spacing={3}>
         {/* Appointment Details */}
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <Card variant="outlined">
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -69,13 +69,13 @@ const ConfirmationStep = ({
               </Box>
               
               <Grid container spacing={2}>
-                <Grid item xs={12} md={6}>
+                <Grid size={{ xs: 12, md: 6 }}>
                   <Typography variant="body2" color="text.secondary">Date</Typography>
                   <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
                     {formatDate(bookingData.date)}
                   </Typography>
                 </Grid>
-                <Grid item xs={12} md={6}>
+                <Grid size={{ xs: 12, md: 6 }}>
                   <Typography variant="body2" color="text.secondary">Time</Typography>
                   <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
                     {formatTime(bookingData.startTime)} - {formatTime(bookingData.endTime)}
@@ -87,7 +87,7 @@ const ConfirmationStep = ({
         </Grid>
 
         {/* Clinic Information */}
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Card variant="outlined">
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -107,7 +107,7 @@ const ConfirmationStep = ({
         </Grid>
 
         {/* Service Information */}
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Card variant="outlined">
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -138,7 +138,7 @@ const ConfirmationStep = ({
         </Grid>
 
         {/* Patient Information */}
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <Card variant="outlined">
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -152,19 +152,19 @@ const ConfirmationStep = ({
                 </Typography>
               ) : (
                 <Grid container spacing={2}>
-                  <Grid item xs={12} md={6}>
+                  <Grid size={{ xs: 12, md: 6 }}>
                     <Typography variant="body2" color="text.secondary">Name</Typography>
                     <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
                       {patientData.firstName} {patientData.lastName}
                     </Typography>
                   </Grid>
-                  <Grid item xs={12} md={6}>
+                  <Grid size={{ xs: 12, md: 6 }}>
                     <Typography variant="body2" color="text.secondary">Email</Typography>
                     <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
                       {patientData.email}
                     </Typography>
                   </Grid>
-                  <Grid item xs={12} md={6}>
+                  <Grid size={{ xs: 12, md: 6 }}>
                     <Typography variant="body2" color="text.secondary">Phone</Typography>
                     <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
                       {patientData.phone}
@@ -178,7 +178,7 @@ const ConfirmationStep = ({
 
         {/* Reason and Notes */}
         {(bookingData.reason || bookingData.symptoms || bookingData.notes) && (
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Card variant="outlined">
               <CardContent>
                 <Typography variant="h6" sx={{ mb: 2 }}>Additional Information</Typography>

@@ -208,7 +208,7 @@ const AddAvailabilityDialog = ({ open, onClose, onSubmit, loading }) => {
 
             <Grid container spacing={3}>
               {/* Recurring vs One-time */}
-              <Grid item xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <FormControl component="fieldset">
                   <FormLabel component="legend">Availability Type</FormLabel>
                   <RadioGroup
@@ -232,7 +232,7 @@ const AddAvailabilityDialog = ({ open, onClose, onSubmit, loading }) => {
 
               {/* Day of Week (for recurring) */}
               {formData.isRecurring && (
-                <Grid item xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <FormControl fullWidth error={!!errors.dayOfWeek}>
                     <InputLabel>Day of Week</InputLabel>
                     <Select
@@ -251,7 +251,7 @@ const AddAvailabilityDialog = ({ open, onClose, onSubmit, loading }) => {
               )}
 
               {/* Time Range */}
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TimePicker
                   label="Start Time"
                   value={formData.startTime}
@@ -266,7 +266,7 @@ const AddAvailabilityDialog = ({ open, onClose, onSubmit, loading }) => {
                 />
               </Grid>
 
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TimePicker
                   label="End Time"
                   value={formData.endTime}
@@ -282,7 +282,7 @@ const AddAvailabilityDialog = ({ open, onClose, onSubmit, loading }) => {
               </Grid>
 
               {/* Date Range */}
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <DatePicker
                   label={formData.isRecurring ? "Effective From" : "Date"}
                   value={formData.effectiveFrom}
@@ -298,7 +298,7 @@ const AddAvailabilityDialog = ({ open, onClose, onSubmit, loading }) => {
               </Grid>
 
               {formData.isRecurring && (
-                <Grid item xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <DatePicker
                     label="Effective Until"
                     value={formData.effectiveUntil}

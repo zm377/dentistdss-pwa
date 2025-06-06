@@ -222,14 +222,14 @@ const ClinicAdmin = () => {
           <Box component="form" onSubmit={handleSubmit} noValidate sx={{mt: 1, width: '100%'}}>
             <Grid container spacing={2}>
               {/* ---------- SECTION: ADMIN INFO ---------- */}
-              <Grid item size={12} xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <Typography variant="h6" sx={{fontWeight: 500, mb: 1}}>
                   Administrator Information
                 </Typography>
                 <Divider sx={{mb: 2}}/>
               </Grid>
               {/* User information */}
-              <Grid item size={6} xs={12} sm={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <TextField
                     required
                     fullWidth
@@ -249,7 +249,7 @@ const ClinicAdmin = () => {
                     sx={textFieldSx}
                 />
               </Grid>
-              <Grid item size={6} xs={12} sm={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <TextField
                     required
                     fullWidth
@@ -269,7 +269,7 @@ const ClinicAdmin = () => {
                     sx={textFieldSx}
                 />
               </Grid>
-              <Grid item size={12} xs={12} sm={12}>
+              <Grid size={{ xs: 12 }}>
                 <TextField
                     required
                     fullWidth
@@ -292,7 +292,7 @@ const ClinicAdmin = () => {
                     sx={textFieldSx}
                 />
               </Grid>
-              <Grid item size={6} xs={12} sm={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <TextField
                     required
                     fullWidth
@@ -324,7 +324,7 @@ const ClinicAdmin = () => {
                 {/* Password Strength Indicator */}
                 <PasswordStrengthIndicator password={formData.password} theme={theme}/>
               </Grid>
-              <Grid item size={6} xs={12} sm={6}>
+                <Grid size={{ xs: 12, md: 6 }}>
                 <TextField
                     required
                     fullWidth
@@ -358,14 +358,14 @@ const ClinicAdmin = () => {
               </Grid>
 
               {/* ---------- SECTION: CLINIC INFO ---------- */}
-              <Grid item size={12} xs={12} sx={{mt: 3}}>
+              <Grid size={{ xs: 12 }} sx={{mt: 3}}>
                 <Typography variant="h6" sx={{fontWeight: 500, mb: 1}}>
                   Clinic Information
                 </Typography>
                 <Divider sx={{mb: 2}}/>
               </Grid>
               {/* Clinic information */}
-              <Grid item size={6} xs={12} sm={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <TextField
                     required
                     fullWidth
@@ -384,7 +384,7 @@ const ClinicAdmin = () => {
                     sx={textFieldSx}
                 />
               </Grid>
-              <Grid item size={6} xs={12} sm={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <TextField
                     required
                     fullWidth
@@ -403,7 +403,7 @@ const ClinicAdmin = () => {
                     sx={textFieldSx}
                 />
               </Grid>
-              <Grid item size={3} xs={12} sm={3}>
+              <Grid size={{ xs: 12, md: 3 }}>
                 <TextField
                     required
                     fullWidth
@@ -415,7 +415,7 @@ const ClinicAdmin = () => {
                     sx={textFieldSx}
                 />
               </Grid>
-              <Grid item size={3} xs={12} sm={3}>
+              <Grid size={{ xs: 12, md: 3 }}>
                 <TextField
                     required
                     fullWidth
@@ -427,7 +427,7 @@ const ClinicAdmin = () => {
                     sx={textFieldSx}
                 />
               </Grid>
-              <Grid item size={3} xs={12} sm={3}>
+              <Grid size={{ xs: 12, md: 3 }}>
                 <TextField
                     required
                     fullWidth
@@ -439,7 +439,7 @@ const ClinicAdmin = () => {
                     sx={textFieldSx}
                 />
               </Grid>
-              <Grid item size={3} xs={12} sm={3}>
+              <Grid size={{ xs: 12, md: 3 }}>
                 <FormControl
                     required
                     fullWidth
@@ -491,7 +491,7 @@ const ClinicAdmin = () => {
                   </Select>
                 </FormControl>
               </Grid>
-              <Grid item size={6} xs={12} sm={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <TextField
                     required
                     fullWidth
@@ -514,7 +514,7 @@ const ClinicAdmin = () => {
                     sx={textFieldSx}
                 />
               </Grid>
-              <Grid item size={6} xs={12} sm={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <TextField
                     required
                     fullWidth
@@ -533,7 +533,7 @@ const ClinicAdmin = () => {
                     sx={textFieldSx}
                 />
               </Grid>
-              <Grid item size={12} xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <TextField
                     fullWidth
                     name="website"

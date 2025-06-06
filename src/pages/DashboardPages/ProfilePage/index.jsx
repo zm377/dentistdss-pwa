@@ -134,7 +134,7 @@ const ProfilePage = () => {
       </Typography>
 
       <Grid container spacing={getResponsiveMargin('medium')}>
-        <Grid item xs={12} md={8} lg={6}>
+        <Grid size={{ xs: 12, md: 8, lg: 6 }}>
           <Card
             variant="outlined"
             sx={{

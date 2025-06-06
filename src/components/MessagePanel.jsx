@@ -75,7 +75,7 @@ const MessagePanel = ({userId}) => {
             <Typography sx={{textAlign: 'center', p: 2}}>You have no messages.</Typography>
         ) : (
             <Grid container spacing={isMobile ? 1 : 2} sx={{flexGrow: 1, overflow: 'hidden'}}>
-              <Grid item xs={12} md={4} sx={{
+              <Grid size={{ xs: 12, md: 4 }} sx={{
                 overflowY: 'auto',
                 height: isMobile ? '200px' : 'auto',
                 borderRight: isMobile ? 'none' : `1px solid ${theme.palette.divider}`,
@@ -112,7 +112,7 @@ const MessagePanel = ({userId}) => {
                   ))}
                 </List>
               </Grid>
-              <Grid item xs={12} md={8}
+              <Grid size={{ xs: 12, md: 8 }}
                     sx={{overflowY: 'auto', height: isMobile ? 'calc(100% - 200px)' : 'auto', p: isMobile ? 1 : 2}}>
                 {selectedMessage ? (
                     <Box>

@@ -220,7 +220,7 @@ const ClinicalNotesEditor = ({
         </Typography>
 
         <Grid container spacing={2} sx={{mb: 3}}>
-          <Grid item xs={12} sm={4}>
+          <Grid size={{ xs: 12, sm: 4 }} sm={4}>
             <Button
                 fullWidth
                 variant="outlined"
@@ -231,7 +231,7 @@ const ClinicalNotesEditor = ({
               Generate Diagnosis
             </Button>
           </Grid>
-          <Grid item xs={12} sm={4}>
+          <Grid size={{ xs: 12, sm: 4 }}>
             <Button
                 fullWidth
                 variant="outlined"
@@ -242,7 +242,7 @@ const ClinicalNotesEditor = ({
               Treatment Summary
             </Button>
           </Grid>
-          <Grid item xs={12} sm={4}>
+          <Grid size={{ xs: 12, sm: 4 }}>
             <Button
                 fullWidth
                 variant="outlined"

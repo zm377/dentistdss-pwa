@@ -104,10 +104,7 @@ const FindAClinic = React.memo(() => {
       >
         {/* Map Section */}
         <Grid
-          item
-          xs={12}
-          md={8}
-          maxWidth={100}
+          size={{ xs: 12, md: 8 }}
           sx={{
             width: { xs: '100%', md: '66%' },
             maxWidth: { xs: '100%', md: '66%' },
@@ -139,9 +136,7 @@ const FindAClinic = React.memo(() => {
 
         {/* Results List Section */}
         <Grid
-          item
-          xs={12}
-          md={4}
+          size={{ xs: 12, md: 4 }}
           sx={{
             width: { xs: '100%', md: '33%' },
             maxWidth: { xs: '100%', md: '33%' },

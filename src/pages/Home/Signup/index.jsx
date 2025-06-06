@@ -464,7 +464,7 @@ const Signup = () => {
             </Divider>
 
             <Grid container spacing={2} justifyContent="center">
-              <Grid item xs={12} sx={{display: 'flex', justifyContent: 'center'}}>
+              <Grid size={{ xs: 12 }} sx={{display: 'flex', justifyContent: 'center'}}>
                 <Box
                     ref={containerRef}
                     sx={{

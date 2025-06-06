@@ -234,7 +234,7 @@ const Quiz = () => {
             >
               <Grid container spacing={1.5}>
                 {currentQuestion.options.map((option, index) => (
-                    <Grid item size={12} xs={12} sm={6} key={index}>
+                    <Grid size={{ xs: 12, md: 6 }} key={index}>
                       <FormControlLabel
                           value={option}
                           control={<Radio sx={{

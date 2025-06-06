@@ -236,7 +236,7 @@ const AppointmentBooking = ({open, onClose, onBookingComplete}) => {
               ) : (
                 <Grid container spacing={2}>
                   {services.map((service) => (
-                      <Grid item xs={12} sm={6} key={service.id}>
+                      <Grid size={{ xs: 12, sm: 6 }} key={service.id}>
                         <Card
                             sx={{
                               cursor: 'pointer',
@@ -317,7 +317,7 @@ const AppointmentBooking = ({open, onClose, onBookingComplete}) => {
             <Box>
               <Typography variant="h6" gutterBottom>Select Date & Time</Typography>
               <Grid container spacing={3}>
-                <Grid item xs={12} md={6}>
+                <Grid size={{ xs: 12, md: 6 }}>
                   <Typography variant="subtitle2" gutterBottom>Available Dates</Typography>
                   {/* Placeholder for DateCalendar - will be enabled when MUI X is installed */}
                   <Card sx={{p: 2, textAlign: 'center'}}>
@@ -327,7 +327,7 @@ const AppointmentBooking = ({open, onClose, onBookingComplete}) => {
                     </Typography>
                   </Card>
                 </Grid>
-                <Grid item xs={12} md={6}>
+                <Grid size={{ xs: 12, md: 6 }}>
                   <Typography variant="subtitle2" gutterBottom>Available Times</Typography>
                   {loading && activeStep === 2 ? (
                     <CircularProgress />
@@ -336,7 +336,7 @@ const AppointmentBooking = ({open, onClose, onBookingComplete}) => {
                   ) : (
                     <Grid container spacing={1}>
                       {availableSlots.map((slot) => (
-                          <Grid item xs={6} sm={4} key={slot}>
+                          <Grid size={{ xs: 6, sm: 4 }} key={slot}>
                             <Button
                                 variant={selectedTime === slot ? 'contained' : 'outlined'}
                                 fullWidth

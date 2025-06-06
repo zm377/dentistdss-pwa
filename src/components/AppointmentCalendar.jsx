@@ -156,7 +156,7 @@ const AppointmentCalendar = ({
           {/* Week day headers */}
           <Grid container sx={{mb: 1}}>
             {weekDays.map(day => (
-                <Grid item xs key={day}>
+                <Grid xs key={day}>
                   <Typography
                       variant="subtitle2"
                       align="center"
@@ -176,7 +176,7 @@ const AppointmentCalendar = ({
               const isSelected = date && date.toDateString() === selectedDate.toDateString();
 
               return (
-                  <Grid item xs key={index}>
+                  <Grid size={1} key={index}>
                     <Card
                         sx={{
                           minHeight: 100,
@@ -371,21 +371,21 @@ const AppointmentCalendar = ({
           {selectedAppointment && (
               <DialogContent>
                 <Grid container spacing={2}>
-                  <Grid item xs={12} sm={6}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
                     <Typography variant="subtitle2" color="text.secondary">Patient / Event Title</Typography>
                     <Typography variant="body1">{selectedAppointment.title}</Typography>
                   </Grid>
-                  <Grid item xs={12} sm={6}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
                     <Typography variant="subtitle2" color="text.secondary">Associated Dentist</Typography>
                     <Typography variant="body1">{selectedAppointment.resource?.dentistName || 'N/A'}</Typography>
                   </Grid>
-                  <Grid item xs={12} sm={6}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
                     <Typography variant="subtitle2" color="text.secondary">Date & Time</Typography>
                     <Typography variant="body1">
                       {new Date(selectedAppointment.start).toLocaleDateString()} at {formatTime(new Date(selectedAppointment.start))}
                     </Typography>
                   </Grid>
-                  <Grid item xs={12} sm={6}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
                     <Typography variant="subtitle2" color="text.secondary">Duration</Typography>
                     <Typography variant="body1">
                       {/* Calculate duration from start and end times */}
@@ -394,11 +394,11 @@ const AppointmentCalendar = ({
                           : 'N/A'}
                     </Typography>
                   </Grid>
-                  <Grid item xs={12} sm={6}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
                     <Typography variant="subtitle2" color="text.secondary">Type</Typography>
                     <Typography variant="body1">{selectedAppointment.resource?.type || 'N/A'}</Typography>
                   </Grid>
-                  <Grid item xs={12} sm={6}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
                     <Typography variant="subtitle2" color="text.secondary">Status</Typography>
                     <Chip
                         label={selectedAppointment.resource?.status || 'Unknown'}
@@ -407,7 +407,7 @@ const AppointmentCalendar = ({
                     />
                   </Grid>
                   {selectedAppointment.resource?.notes && (
-                      <Grid item xs={12}>
+                      <Grid size={{ xs: 12 }}>
                         <Typography variant="subtitle2" color="text.secondary">Notes</Typography>
                         <Typography variant="body1">{selectedAppointment.resource.notes}</Typography>
                       </Grid>

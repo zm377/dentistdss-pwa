@@ -295,7 +295,7 @@ const ClinicInformationForm = ({ clinicData, onUpdate }) => {
         <Box component="form" onSubmit={handleSubmit} noValidate>
           <Grid container spacing={3}>
             {/* Clinic Name */}
-            <Grid item size={12} xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 fullWidth
                 label="Clinic Name"
@@ -312,7 +312,7 @@ const ClinicInformationForm = ({ clinicData, onUpdate }) => {
             </Grid>
 
             {/* Phone Number */}
-            <Grid item size={6} xs={12} sm={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 fullWidth
                 label="Phone Number"
@@ -330,7 +330,7 @@ const ClinicInformationForm = ({ clinicData, onUpdate }) => {
             </Grid>
 
             {/* Email */}
-            <Grid item size={6} xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 fullWidth
                 label="Email Address"
@@ -348,7 +348,7 @@ const ClinicInformationForm = ({ clinicData, onUpdate }) => {
             </Grid>
 
             {/* Address */}
-            <Grid item size={12} xs={12}>
+            <Grid size={{ xs: 12 }}>
               <TextField
                 fullWidth
                 label="Street Address"
@@ -366,7 +366,7 @@ const ClinicInformationForm = ({ clinicData, onUpdate }) => {
             </Grid>
 
             {/* City */}
-            <Grid item size={3} xs={12} sm={6} md={4}>
+            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
               <TextField
                 fullWidth
                 label="City"
@@ -383,7 +383,7 @@ const ClinicInformationForm = ({ clinicData, onUpdate }) => {
             </Grid>
 
             {/* State */}
-            <Grid item size={3} xs={12} sm={6} md={4}>
+            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
               <TextField
                 fullWidth
                 label="State/Province"
@@ -400,7 +400,7 @@ const ClinicInformationForm = ({ clinicData, onUpdate }) => {
             </Grid>
 
             {/* ZIP Code */}
-            <Grid item size={3} xs={12} sm={6} md={4}>
+            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
               <TextField
                 fullWidth
                 label="ZIP/Postal Code"
@@ -417,7 +417,7 @@ const ClinicInformationForm = ({ clinicData, onUpdate }) => {
             </Grid>
 
             {/* Country */}
-            <Grid item size={3} xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <FormControl
                 fullWidth
                 variant="outlined"

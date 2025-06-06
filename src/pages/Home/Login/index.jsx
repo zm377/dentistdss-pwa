@@ -30,6 +30,7 @@ function Login() {
   const [emailError, setEmailError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [isUsingEmailLogin, setIsUsingEmailLogin] = useState(false);
   const {login, googleIdLogin} = useAuth();
   const navigate = useNavigate();
 
@@ -71,27 +72,59 @@ function Login() {
   const handleEmailChange = (e) => {
     const newEmail = e.target.value;
     setEmail(newEmail);
+    // Mark that user is interacting with email/password form
+    setIsUsingEmailLogin(true);
+    // Only validate if there's an existing error (real-time validation)
     if (emailError) {
       setEmailError(validateEmail(newEmail));
     }
   };
 
   const handleEmailBlur = () => {
-    setEmailError(validateEmail(email));
+    // Only validate on blur if user is actively using email/password login
+    if (isUsingEmailLogin) {
+      setEmailError(validateEmail(email));
+    }
+  };
+
+  const handlePasswordChange = (e) => {
+    setPassword(e.target.value);
+    // Mark that user is interacting with email/password form
+    if (!isUsingEmailLogin) {
+      setIsUsingEmailLogin(true);
+    }
   };
 
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
   };
 
+  const handleGoogleLoginClick = () => {
+    // Clear validation errors when user interacts with Google login
+    setEmailError('');
+    setError('');
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError('');
+
+    // Mark that user is definitely using email/password login
+    setIsUsingEmailLogin(true);
+
+    // Validate email and password
     const currentEmailError = validateEmail(email);
     setEmailError(currentEmailError);
+
     if (currentEmailError) {
       return;
     }
+
+    if (!password.trim()) {
+      setError('Password is required');
+      return;
+    }
+
     setLoading(true);
     try {
       await login(email, password);
@@ -204,7 +237,7 @@ function Login() {
                 id="password"
                 autoComplete="current-password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={handlePasswordChange}
                 disabled={loading}
                 InputProps={{
                   startAdornment: (
@@ -305,7 +338,7 @@ function Login() {
             </Divider>
 
             <Grid container spacing={2} justifyContent="center">
-              <Grid item xs={12} sx={{display: 'flex', justifyContent: 'center'}}>
+              <Grid size={{ xs: 12 }} sx={{display: 'flex', justifyContent: 'center'}}>
                 <Box
                     ref={containerRef}
                     sx={{
@@ -320,6 +353,7 @@ function Login() {
                         }
                       }
                     }}
+                    onClick={handleGoogleLoginClick}
                 >
                   <GoogleLogin
                       className="google-button"
@@ -328,6 +362,10 @@ function Login() {
                       onSuccess={async (credentialResponse) => {
                         try {
                           setLoading(true);
+                          // Clear any email validation errors when using Google login
+                          setEmailError('');
+                          setError('');
+                          setIsUsingEmailLogin(false);
                           await googleIdLogin(credentialResponse.credential);
                           navigate('/dashboard');
                         } catch (err) {

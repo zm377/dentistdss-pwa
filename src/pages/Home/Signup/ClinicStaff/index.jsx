@@ -252,7 +252,7 @@ const ClinicStaff = () => {
 
           <Box component="form" onSubmit={handleSubmit} noValidate sx={{mt: 1, width: '100%'}}>
             <Grid container spacing={2}>
-              <Grid item size={6} xs={12}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <TextField
                     required
                     fullWidth
@@ -272,7 +272,7 @@ const ClinicStaff = () => {
                     sx={textFieldSx}
                 />
               </Grid>
-              <Grid item size={6} xs={12}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <TextField
                     required
                     fullWidth
@@ -292,7 +292,7 @@ const ClinicStaff = () => {
                     sx={textFieldSx}
                 />
               </Grid>
-              <Grid item size={12} xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <TextField
                     required
                     fullWidth
@@ -315,7 +315,7 @@ const ClinicStaff = () => {
                     sx={textFieldSx}
                 />
               </Grid>
-              <Grid item size={12} xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <TextField
                     required
                     fullWidth
@@ -351,7 +351,7 @@ const ClinicStaff = () => {
                 {/* Password Strength Indicator */}
                 <PasswordStrengthIndicator password={formData.password} theme={theme}/>
               </Grid>
-              <Grid item size={12} xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <TextField
                     required
                     fullWidth
@@ -387,7 +387,7 @@ const ClinicStaff = () => {
                     sx={textFieldSx}
                 />
               </Grid>
-              <Grid item size={7} xs={12}>
+              <Grid size={{ xs: 12, md: 7 }}>
                 <FormControl
                     component="fieldset"
                     fullWidth
@@ -420,7 +420,7 @@ const ClinicStaff = () => {
               </Grid>
 
               {(formData.role === 'dentist' || formData.role === 'receptionist') && (
-                  <Grid item size={5} xs={12}>
+                  <Grid size={{ xs: 12, md: 5 }}>
                     <FormControl
                         fullWidth
                         required
@@ -516,7 +516,7 @@ const ClinicStaff = () => {
             </Typography>
 
             <Grid container spacing={1} sx={{mt: 2}}>
-              <Grid item size={6} xs={12} sm={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <MuiLink
                     component={RouterLink}
                     to="/signup"
@@ -533,7 +533,7 @@ const ClinicStaff = () => {
                   No a staff? Sign up here
                 </MuiLink>
               </Grid>
-              <Grid item size={6} xs={12} sm={6} sx={{textAlign: {sm: 'right'}}}>
+              <Grid size={{ xs: 12, md: 6 }} sx={{textAlign: {sm: 'right'}}}>
                 <MuiLink
                     component={RouterLink}
                     to="/signup/clinic-admin"

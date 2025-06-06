@@ -369,7 +369,7 @@ const SchedulePage = () => {
         {/* Calendar Grid */}
         <Grid container spacing={2}>
           {/* Calendar Component */}
-          <Grid item xs={12} md={8}>
+          <Grid size={{ xs: 12, md: 8 }}>
             <Card>
               <CardContent>
                 <Box sx={{ height: isMobile ? 400 : 600 }}>
@@ -410,7 +410,7 @@ const SchedulePage = () => {
           </Grid>
 
           {/* Selected Date Details */}
-          <Grid item xs={12} md={4}>
+          <Grid size={{ xs: 12, md: 4 }}>
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>

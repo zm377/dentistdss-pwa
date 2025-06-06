@@ -27,7 +27,7 @@ const PatientInfoStep = ({
 
       <Grid container spacing={3}>
         {/* First Name */}
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <TextField
             fullWidth
             label="First Name"
@@ -40,7 +40,7 @@ const PatientInfoStep = ({
         </Grid>
 
         {/* Last Name */}
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <TextField
             fullWidth
             label="Last Name"
@@ -53,7 +53,7 @@ const PatientInfoStep = ({
         </Grid>
 
         {/* Email */}
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <TextField
             fullWidth
             label="Email"
@@ -67,7 +67,7 @@ const PatientInfoStep = ({
         </Grid>
 
         {/* Phone */}
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <TextField
             fullWidth
             label="Phone Number"
@@ -80,7 +80,7 @@ const PatientInfoStep = ({
         </Grid>
 
         {/* Date of Birth */}
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <CalendarDatePicker
             label="Date of Birth"
             value={patientData.dateOfBirth ? new Date(patientData.dateOfBirth) : null}
@@ -93,7 +93,7 @@ const PatientInfoStep = ({
         </Grid>
 
         {/* Address */}
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <TextField
             fullWidth
             label="Address (Optional)"
@@ -106,7 +106,7 @@ const PatientInfoStep = ({
         </Grid>
 
         {/* Emergency Contact */}
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <TextField
             fullWidth
             label="Emergency Contact (Optional)"

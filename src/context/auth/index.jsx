@@ -14,11 +14,20 @@ export const AuthProvider = ({children}) => {
     try {
       localStorage.setItem('authToken', token);
       localStorage.setItem('tokenType', tokenType);
-      // Assuming 'api.axiosInstance' is the actual Axios instance
-      if (api.axiosInstance && api.axiosInstance.defaults && api.axiosInstance.defaults.headers) {
-        api.axiosInstance.defaults.headers.common['Authorization'] = `${tokenType} ${token}`;
-      } else {
-        console.warn("Could not set Authorization header: api.axiosInstance or its defaults/headers are not defined.");
+      // Set Authorization header on the axios instance
+      try {
+        if (!api.defaults) {
+          api.defaults = {};
+        }
+        if (!api.defaults.headers) {
+          api.defaults.headers = {};
+        }
+        if (!api.defaults.headers.common) {
+          api.defaults.headers.common = {};
+        }
+        api.defaults.headers.common['Authorization'] = `${tokenType} ${token}`;
+      } catch (error) {
+        console.warn("Could not set Authorization header:", error);
       }
 
       console.log('Token stored, fetching user details...');
@@ -38,10 +47,12 @@ export const AuthProvider = ({children}) => {
       console.error('Failed to process auth token or fetch user:', error);
       localStorage.removeItem('authToken');
       localStorage.removeItem('tokenType');
-      if (api.axiosInstance && api.axiosInstance.defaults && api.axiosInstance.defaults.headers && api.axiosInstance.defaults.headers.common) {
-        delete api.axiosInstance.defaults.headers.common['Authorization'];
-      } else {
-        console.warn("Could not delete Authorization header: api.axiosInstance or its defaults/headers are not defined.");
+      try {
+        if (api.defaults && api.defaults.headers && api.defaults.headers.common) {
+          delete api.defaults.headers.common['Authorization'];
+        }
+      } catch (error) {
+        console.warn("Could not delete Authorization header:", error);
       }
       setCurrentUser(null);
       throw error;
@@ -104,10 +115,12 @@ export const AuthProvider = ({children}) => {
     } finally {
       localStorage.removeItem('authToken');
       localStorage.removeItem('tokenType');
-      if (api.axiosInstance && api.axiosInstance.defaults && api.axiosInstance.defaults.headers && api.axiosInstance.defaults.headers.common) {
-        delete api.axiosInstance.defaults.headers.common['Authorization'];
-      } else {
-        console.warn("Could not delete Authorization header during logout: api.axiosInstance or its defaults/headers are not defined.");
+      try {
+        if (api.defaults && api.defaults.headers && api.defaults.headers.common) {
+          delete api.defaults.headers.common['Authorization'];
+        }
+      } catch (error) {
+        console.warn("Could not delete Authorization header during logout:", error);
       }
       setCurrentUser(null);
       console.log('Client-side logout complete.');
@@ -148,10 +161,19 @@ export const AuthProvider = ({children}) => {
       if (token) {
         try {
           console.log('Token found, verifying session...');
-          if (api.axiosInstance && api.axiosInstance.defaults && api.axiosInstance.defaults.headers) {
-            api.axiosInstance.defaults.headers.common['Authorization'] = `${tokenType} ${token}`;
-          } else {
-            console.warn("Could not set Authorization header during initial auth check: api.axiosInstance or its defaults/headers are not defined.");
+          try {
+            if (!api.defaults) {
+              api.defaults = {};
+            }
+            if (!api.defaults.headers) {
+              api.defaults.headers = {};
+            }
+            if (!api.defaults.headers.common) {
+              api.defaults.headers.common = {};
+            }
+            api.defaults.headers.common['Authorization'] = `${tokenType} ${token}`;
+          } catch (error) {
+            console.warn("Could not set Authorization header during initial auth check:", error);
           }
           const userData = await api.auth.me();
           if (userData && userData.user) {

@@ -148,7 +148,7 @@ const AppointmentDialog = memo(({
       <DialogContent sx={{ px: 3, py: 2 }}>
         <Grid container spacing={3}>
           {/* Status */}
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
               <Typography variant="h6">Status:</Typography>
               <Chip
@@ -163,7 +163,7 @@ const AppointmentDialog = memo(({
           </Grid>
 
           {/* Patient Information */}
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
               <PatientIcon color="primary" />
               <Typography variant="h6">Patient</Typography>
@@ -184,7 +184,7 @@ const AppointmentDialog = memo(({
           </Grid>
 
           {/* Dentist Information */}
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
               <DentistIcon color="primary" />
               <Typography variant="h6">Dentist</Typography>
@@ -202,20 +202,20 @@ const AppointmentDialog = memo(({
             )}
           </Grid>
 
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Divider />
           </Grid>
 
           {/* Date and Time */}
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
               <TimeIcon color="primary" />
               <Typography variant="h6">Date & Time</Typography>
             </Box>
-            
+
             {canEdit() && mode === 'reschedule' ? (
               <Grid container spacing={2}>
-                <Grid item xs={12} md={4}>
+                <Grid size={{ xs: 12, md: 4 }}>
                   <CalendarDatePicker
                     label="Date"
                     value={editData.date ? new Date(editData.date) : null}
@@ -227,7 +227,7 @@ const AppointmentDialog = memo(({
                     required
                   />
                 </Grid>
-                <Grid item xs={12} md={4}>
+                <Grid size={{ xs: 12, md: 4 }}>
                   <TimeSelector
                     label="Start Time"
                     value={editData.startTime}
@@ -238,7 +238,7 @@ const AppointmentDialog = memo(({
                     required
                   />
                 </Grid>
-                <Grid item xs={12} md={4}>
+                <Grid size={{ xs: 12, md: 4 }}>
                   <TimeSelector
                     label="End Time"
                     value={editData.endTime}
@@ -263,12 +263,12 @@ const AppointmentDialog = memo(({
           </Grid>
 
           {/* Service Information */}
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Typography variant="h6" sx={{ mb: 1 }}>Service Type</Typography>
             <Typography variant="body1">{appointment.serviceName || appointment.serviceType || 'Not specified'}</Typography>
           </Grid>
 
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Typography variant="h6" sx={{ mb: 1 }}>Urgency</Typography>
             {canEdit() && mode === 'edit' ? (
               <FormControl fullWidth>
@@ -291,7 +291,7 @@ const AppointmentDialog = memo(({
           </Grid>
 
           {/* Reason */}
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Typography variant="h6" sx={{ mb: 1 }}>Reason for Visit</Typography>
             {canEdit() && mode === 'edit' ? (
               <TextField
@@ -311,7 +311,7 @@ const AppointmentDialog = memo(({
           </Grid>
 
           {/* Symptoms */}
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Typography variant="h6" sx={{ mb: 1 }}>Symptoms</Typography>
             {canEdit() && mode === 'edit' ? (
               <TextField
@@ -329,7 +329,7 @@ const AppointmentDialog = memo(({
           </Grid>
 
           {/* Notes */}
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Typography variant="h6" sx={{ mb: 1 }}>Notes</Typography>
             {canEdit() && mode === 'edit' ? (
               <TextField

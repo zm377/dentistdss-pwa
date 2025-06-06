@@ -168,7 +168,7 @@ const OverviewPage = ({ userRole = 'PATIENT' }) => {
 
       <Grid container spacing={{ xs: 2, sm: 2.5, md: 3 }}>
         {/* Welcome Card */}
-        <Grid item size={6} xs={12} sm={6} md={6} lg={4}>
+        <Grid size={{ xs: 12, sm: 6, md: 6, lg: 4 }}>
           <Card
             sx={{
               minHeight: 300,
@@ -225,7 +225,7 @@ const OverviewPage = ({ userRole = 'PATIENT' }) => {
 
         {/* Today's Appointments - For Dentist and Patient */}
         {(userRole === 'DENTIST' || userRole === 'PATIENT') && (
-          <Grid item size={3} xs={12} md={8}>
+          <Grid size={{ xs: 12, md: 8 }}>
             <Card
               sx={{
                 minHeight: 300,
@@ -335,7 +335,7 @@ const OverviewPage = ({ userRole = 'PATIENT' }) => {
         )}
 
         {/* Quick Stats - Role specific */}
-        <Grid item size={3} xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <Card
             sx={{
               minHeight: 300,

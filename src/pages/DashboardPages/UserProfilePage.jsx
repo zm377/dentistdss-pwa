@@ -158,7 +158,7 @@ const UserProfilePage = () => {
         <Container maxWidth="lg" sx={{ py: { xs: 2, sm: 4 } }}>
             <Grid container spacing={3}>
                 {/* Profile Form Card */}
-                <Grid item xs={12} md={8}>
+                <Grid size={{ xs: 12, md: 8 }}>
                     <Card
                         elevation={2}
                         sx={{
@@ -203,7 +203,7 @@ const UserProfilePage = () => {
 
                                 <Box component="form" onSubmit={handleSubmit} noValidate>
                                     <Grid container spacing={3}>
-                                        <Grid item size={6} xs={12} sm={6}>
+                                        <Grid size={{ xs: 12, md: 6 }}>
                                             <TextField
                                                 fullWidth
                                                 name="firstName"
@@ -223,7 +223,7 @@ const UserProfilePage = () => {
                                                 }}
                                             />
                                         </Grid>
-                                        <Grid item size={6} xs={12} sm={6}>
+                                        <Grid size={{ xs: 12, md: 6 }}>
                                             <TextField
                                                 fullWidth
                                                 name="lastName"
@@ -243,7 +243,7 @@ const UserProfilePage = () => {
                                                 }}
                                             />
                                         </Grid>
-                                        <Grid item size={6} xs={12} sm={6}>
+                                        <Grid size={{ xs: 12, md: 6 }}>
                                             <LocalizationProvider dateAdapter={AdapterDayjs}>
                                                 <DatePicker
                                                     label="Date of Birth"
@@ -268,7 +268,7 @@ const UserProfilePage = () => {
                                                 />
                                             </LocalizationProvider>
                                         </Grid>
-                                        <Grid item size={6} xs={12} sm={6}>
+                                        <Grid size={{ xs: 12, md: 6 }}>
                                             <TextField
                                                 fullWidth
                                                 name="phone"
@@ -287,7 +287,7 @@ const UserProfilePage = () => {
                                                 }}
                                             />
                                         </Grid>
-                                        <Grid item size={12} xs={12}>
+                                        <Grid size={{ xs: 12 }}>
                                             <TextField
                                                 fullWidth
                                                 name="address"

@@ -133,7 +133,7 @@ const PatientRecordsPage = () => {
       </Typography>
 
       <Grid container spacing={getResponsiveMargin('medium')}>
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <Card
             variant="outlined"
             sx={{

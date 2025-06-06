@@ -198,9 +198,9 @@ const CalendarDatePicker = memo(({
           {/* Weekday Headers */}
           <Grid container spacing={0} sx={{ mb: 1 }}>
             {weekDays.map((day) => (
-              <Grid item xs key={day}>
-                <Box sx={{ 
-                  textAlign: 'center', 
+              <Grid size={1} key={day}>
+                <Box sx={{
+                  textAlign: 'center',
                   py: 1,
                   fontSize: '0.75rem',
                   fontWeight: 'medium',
@@ -221,7 +221,7 @@ const CalendarDatePicker = memo(({
               const isSelectable = isDateSelectable(day.toDate());
               
               return (
-                <Grid item xs key={index}>
+                <Grid size={1} key={index}>
                   <Button
                     size="small"
                     onClick={() => handleDateSelect(day.toDate())}

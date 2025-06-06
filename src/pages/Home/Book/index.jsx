@@ -440,7 +440,7 @@ function BookPage() {
         {filteredBooks.length > 0 ? (
             <Grid container spacing={isMobile ? 2 : 3}>
               {filteredBooks.map((book) => (
-                  <Grid item size={3} key={book.id} xs={12} sm={6} md={4} lg={3}>
+                  <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={book.id}>
                     <BookCard book={book}/>
                   </Grid>
               ))}

@@ -150,7 +150,7 @@ const TimeSelector = memo(({
                 </Typography>
                 <Grid container spacing={1} sx={{ mb: 2 }}>
                   {slots.map((slot) => (
-                    <Grid item xs={6} key={slot.value}>
+                    <Grid size={{ xs: 6 }} key={slot.value}>
                       <Button
                         size="small"
                         variant={value === slot.value ? 'contained' : 'outlined'}

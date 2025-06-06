@@ -38,7 +38,7 @@ const ServiceDetailsStep = ({
 
       <Grid container spacing={3}>
         {/* Service Type */}
-        <Grid item size={3} xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 3}}>
           <FormControl fullWidth error={!!errors.serviceType}>
             <InputLabel>Service Type</InputLabel>
             <Select
@@ -61,7 +61,7 @@ const ServiceDetailsStep = ({
         </Grid>
 
         {/* Urgency */}
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <FormControl fullWidth>
             <InputLabel>Urgency</InputLabel>
             <Select
@@ -77,7 +77,7 @@ const ServiceDetailsStep = ({
         </Grid>
 
         {/* Reason */}
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <TextField
             fullWidth
             label="Reason for Visit"
@@ -92,7 +92,7 @@ const ServiceDetailsStep = ({
         </Grid>
 
         {/* Symptoms */}
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <TextField
             fullWidth
             label="Symptoms (Optional)"
@@ -105,7 +105,7 @@ const ServiceDetailsStep = ({
         </Grid>
 
         {/* Additional Notes */}
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <TextField
             fullWidth
             label="Additional Notes (Optional)"

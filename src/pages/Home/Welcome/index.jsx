@@ -135,7 +135,7 @@ const Welcome = () => {
               }}
           >
             <Grid container spacing={{ xs: 2, sm: 2.5, md: 3 }}>
-              <Grid item xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <TextField
                     fullWidth
                     label="Your Name"
@@ -147,7 +147,7 @@ const Welcome = () => {
                     }}
                 />
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
                     fullWidth
                     label="Date"
@@ -159,7 +159,7 @@ const Welcome = () => {
                     }}
                 />
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
                     fullWidth
                     label="Time"
@@ -168,7 +168,7 @@ const Welcome = () => {
                     InputLabelProps={{shrink: true}}
                 />
               </Grid>
-              <Grid item xs={12} sx={{textAlign: 'center'}}>
+              <Grid size={{ xs: 12 }} sx={{textAlign: 'center'}}>
                 <Button
                     variant="contained"
                     color="primary"
@@ -238,7 +238,7 @@ const Welcome = () => {
               title: "Benefits of Regular Dental Visits",
               text: "Detect issues early and maintain overall health."
             }].map((item, index) => (
-                <Grid item size={12} xs={12} sm={6} md={4} key={index}>
+                <Grid size={{ xs: 12, sm: 6, md: 4 }} key={index}>
                   <Paper
                       elevation={isDarkMode ? 3 : 1}
                       sx={{
