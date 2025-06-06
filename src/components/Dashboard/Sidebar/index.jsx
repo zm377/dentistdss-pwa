@@ -20,7 +20,7 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import LogoutIcon from '@mui/icons-material/Logout';
 import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
 import { getDisplayName, getInitials } from '../../../utils/dashboard/dashboardUtils';
-import { roleMeta } from '../../../utils/dashboard/roleConfig';
+import { roleMeta } from '../../../utils/dashboard/roleConfig.jsx';
 import { TOUCH_TARGETS, getResponsivePadding } from '../../../utils/mobileOptimization';
 
 // Assuming roleMeta and drawerWidth are defined elsewhere or passed as props

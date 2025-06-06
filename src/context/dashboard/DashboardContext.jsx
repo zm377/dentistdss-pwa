@@ -7,7 +7,7 @@ import {
   getDefaultSection,
   getRoleRoutes,
   roleMeta
-} from '../../utils/dashboard/roleConfig';
+} from '../../utils/dashboard/roleConfig.jsx';
 
 // Dashboard state shape
 const initialState = {

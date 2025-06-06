@@ -92,7 +92,7 @@ class DashboardErrorBoundary extends React.Component {
                   'An unexpected error occurred while loading this section of the dashboard.'}
               </Alert>
 
-              {process.env.NODE_ENV === 'development' && this.state.error && (
+              {import.meta.env.DEV && this.state.error && (
                 <Box sx={{ mt: 2 }}>
                   <Typography variant="subtitle2" gutterBottom>
                     Error Details (Development Only):

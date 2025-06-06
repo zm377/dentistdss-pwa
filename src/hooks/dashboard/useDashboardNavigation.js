@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDashboardState, useDashboardDispatch, DASHBOARD_ACTIONS } from '../../context/dashboard/DashboardContext';
-import { getRoleNavigationSections, getDefaultSection } from '../../utils/dashboard/roleConfig';
+import { getRoleNavigationSections, getDefaultSection } from '../../utils/dashboard/roleConfig.jsx';
 
 /**
  * Custom hook for dashboard navigation management

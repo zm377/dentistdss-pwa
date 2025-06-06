@@ -30,7 +30,7 @@ import {
   formatAppointmentTime,
   formatAppointmentText,
   getAppointmentServiceType
-} from '../../../utils/chatUtils';
+} from '../../../utils/chatUtils.jsx';
 import api from '../../../services';
 
 /**
@@ -168,7 +168,7 @@ const OverviewPage = ({ userRole = 'PATIENT' }) => {
 
       <Grid container spacing={{ xs: 2, sm: 2.5, md: 3 }}>
         {/* Welcome Card */}
-        <Grid item size={6} xs={12} sm={6} md={6} lg={4} xs={12}>
+        <Grid item size={6} xs={12} sm={6} md={6} lg={4}>
           <Card
             sx={{
               minHeight: 300,

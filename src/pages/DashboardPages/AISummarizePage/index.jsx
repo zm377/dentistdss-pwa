@@ -22,7 +22,7 @@ import useAIChat from '../../../hooks/useAIChat';
 import ChatHeader from '../../../components/shared/ChatComponents/ChatHeader';
 import ChatMessage from '../../../components/shared/ChatComponents/ChatMessage';
 import ChatInput from '../../../components/shared/ChatComponents/ChatInput';
-import { getWelcomeMessage, getQuickActions } from '../../../utils/chatUtils';
+import { getWelcomeMessage, getQuickActions } from '../../../utils/chatUtils.jsx';
 import api from '../../../services';
 
 /**
