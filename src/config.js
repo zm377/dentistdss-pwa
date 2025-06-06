@@ -11,16 +11,6 @@ const API_AUTH_PATH = API_ROOT_PATH + (import.meta.env.VITE_API_AUTH_PATH || '/a
 const API_OAUTH_PATH = API_ROOT_PATH + (import.meta.env.VITE_API_OAUTH_PATH || '/oauth');
 const API_GENAI_PATH = API_ROOT_PATH + (import.meta.env.VITE_API_GENAI_PATH || '/genai');
 
-// Debug: Log API configuration
-console.log('API Configuration:', {
-  API_HOST,
-  API_PORT,
-  API_ROOT_PATH,
-  baseUrl: isProduction ? `${API_HOST}` : `${API_HOST}:${API_PORT}`,
-  googleMapsApiKey: !!import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
-});
-
-
 // Google OAuth
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
