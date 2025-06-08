@@ -1,0 +1,313 @@
+// Custom styles for react-big-calendar in Schedule page
+// Converted from Schedule.css to SCSS with Sass features
+
+// Variables
+$font-family: 'Roboto', sans-serif;
+$color-white: #ffffff;
+$color-light-gray: #f5f5f5;
+$color-medium-gray: #e0e0e0;
+$color-dark-gray: #333;
+$color-text-secondary: #666;
+$color-primary: #1976d2;
+$color-primary-light: #e3f2fd;
+$color-success: #4caf50;
+$color-success-dark: #388e3c;
+$color-error: #f44336;
+$color-error-dark: #d32f2f;
+$color-disabled: #9e9e9e;
+$color-disabled-dark: #757575;
+$color-border-light: #f0f0f0;
+$color-shadow: rgba(0, 0, 0, 0.12);
+$color-shadow-hover: rgba(0, 0, 0, 0.2);
+$color-shadow-popup: rgba(0, 0, 0, 0.15);
+
+// Breakpoints
+$breakpoint-tablet: 768px;
+
+// Mixins
+@mixin tablet-down {
+  @media (max-width: $breakpoint-tablet) {
+    @content;
+  }
+}
+
+@mixin card-shadow {
+  box-shadow: 0 1px 3px $color-shadow;
+}
+
+@mixin card-shadow-hover {
+  box-shadow: 0 2px 6px $color-shadow-hover;
+}
+
+@mixin focus-outline {
+  outline: 2px solid $color-primary;
+  outline-offset: 2px;
+}
+
+// Calendar container
+.rbc-calendar {
+  font-family: $font-family;
+  background-color: $color-white;
+  border-radius: 8px;
+}
+
+// Calendar header
+.rbc-header {
+  background-color: $color-light-gray;
+  border-bottom: 1px solid $color-medium-gray;
+  padding: 8px 12px;
+  font-weight: 500;
+  color: $color-dark-gray;
+}
+
+// Today's date highlighting
+.rbc-today {
+  background-color: $color-primary-light !important;
+}
+
+// Event styling
+.rbc-event {
+  border-radius: 4px;
+  border: none !important;
+  padding: 2px 4px;
+  font-size: 12px;
+  font-weight: 500;
+  @include card-shadow;
+  transition: all 0.2s ease-in-out;
+
+  &:hover {
+    transform: scale(1.02);
+    @include card-shadow-hover;
+  }
+
+  &:focus {
+    @include focus-outline;
+  }
+
+  &.rbc-selected {
+    box-shadow: 0 0 0 2px $color-primary;
+  }
+
+  // Event state colors
+  &.event-available {
+    background-color: $color-success;
+    border-color: $color-success-dark;
+    color: $color-white;
+  }
+
+  &.event-blocked {
+    background-color: $color-error;
+    border-color: $color-error-dark;
+    color: $color-white;
+  }
+
+  &.event-inactive {
+    background-color: $color-disabled;
+    border-color: $color-disabled-dark;
+    color: $color-white;
+  }
+
+  // Accessibility
+  &[aria-selected="true"] {
+    box-shadow: 0 0 0 3px $color-primary;
+  }
+}
+
+// Time slot styling
+.rbc-time-slot {
+  border-top: 1px solid $color-border-light;
+}
+
+.rbc-timeslot-group {
+  border-bottom: 1px solid $color-medium-gray;
+}
+
+// Current time indicator
+.rbc-current-time-indicator {
+  background-color: $color-error;
+  height: 2px;
+  z-index: 3;
+}
+
+// Month view specific
+.rbc-month-view {
+  border: 1px solid $color-medium-gray;
+  border-radius: 8px;
+}
+
+.rbc-date-cell {
+  padding: 4px;
+  min-height: 80px;
+
+  > a {
+    color: $color-dark-gray;
+    text-decoration: none;
+    font-weight: 500;
+
+    &:hover {
+      color: $color-primary;
+    }
+  }
+
+  @include tablet-down {
+    min-height: 60px;
+    padding: 2px;
+  }
+}
+
+// Week and day view specific
+.rbc-time-view {
+  border: 1px solid $color-medium-gray;
+  border-radius: 8px;
+}
+
+.rbc-time-header {
+  border-bottom: 1px solid $color-medium-gray;
+}
+
+.rbc-time-content {
+  border-top: none;
+}
+
+// Toolbar styling
+.rbc-toolbar {
+  margin-bottom: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid $color-medium-gray;
+
+  button {
+    background-color: $color-white;
+    border: 1px solid $color-medium-gray;
+    border-radius: 4px;
+    padding: 8px 16px;
+    margin: 0 2px;
+    font-size: 14px;
+    font-weight: 500;
+    color: $color-dark-gray;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+
+    &:hover {
+      background-color: $color-light-gray;
+      border-color: $color-primary;
+      color: $color-primary;
+    }
+
+    &.rbc-active {
+      background-color: $color-primary;
+      border-color: $color-primary;
+      color: $color-white;
+    }
+
+    &:focus {
+      @include focus-outline;
+    }
+
+    @include tablet-down {
+      margin: 2px 0;
+      padding: 12px;
+      font-size: 16px;
+    }
+  }
+
+  @include tablet-down {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+}
+
+// Toolbar label
+.rbc-toolbar-label {
+  font-size: 18px;
+  font-weight: 600;
+  color: $color-dark-gray;
+  margin: 0 16px;
+
+  @include tablet-down {
+    text-align: center;
+    margin: 8px 0;
+    font-size: 16px;
+  }
+}
+
+// Responsive event adjustments
+@include tablet-down {
+  .rbc-event {
+    font-size: 11px;
+    padding: 1px 2px;
+  }
+}
+
+// Popup styling
+.rbc-overlay {
+  background-color: $color-white;
+  border: 1px solid $color-medium-gray;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px $color-shadow-popup;
+  padding: 8px;
+  max-width: 300px;
+
+  &-header {
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: $color-dark-gray;
+  }
+}
+
+// Agenda view
+.rbc-agenda-view {
+  border: 1px solid $color-medium-gray;
+  border-radius: 8px;
+
+  table {
+    width: 100%;
+  }
+
+  .rbc-agenda-date-cell {
+    background-color: $color-light-gray;
+    font-weight: 600;
+    padding: 12px;
+    border-bottom: 1px solid $color-medium-gray;
+  }
+
+  .rbc-agenda-time-cell {
+    padding: 8px 12px;
+    border-bottom: 1px solid $color-border-light;
+    font-size: 14px;
+    color: $color-text-secondary;
+  }
+
+  .rbc-agenda-event-cell {
+    padding: 8px 12px;
+    border-bottom: 1px solid $color-border-light;
+  }
+}
+
+// Loading state
+.calendar-loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+// Slot selection
+.rbc-slot-selection {
+  background-color: rgba($color-primary, 0.1);
+  border: 2px dashed $color-primary;
+}
+
+// Print styles
+@media print {
+  .rbc-toolbar {
+    display: none;
+  }
+
+  .rbc-calendar {
+    border: none;
+  }
+
+  .rbc-event {
+    box-shadow: none;
+    border: 1px solid #000;
+  }
+}

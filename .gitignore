@@ -10,6 +10,9 @@
 
 # testing
 /coverage
+/test-results
+/playwright-report
+debug-dashboard.png
 
 # production
 /build
