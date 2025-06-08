@@ -7,6 +7,37 @@ import type { Appointment, CalendarEvent, UserRole, CalendarView } from './types
  */
 
 /**
+ * Parse appointment date and time into a proper Date object
+ * Handles timezone issues by creating dates in local timezone
+ */
+export const parseAppointmentDateTime = (dateStr: string, timeStr: string): Date => {
+  if (!dateStr || !timeStr) {
+    console.warn('Invalid date or time provided:', { dateStr, timeStr });
+    return new Date();
+  }
+
+  // Parse date components (YYYY-MM-DD)
+  const [year, month, day] = dateStr.split('-').map(Number);
+
+  // Parse time components (HH:mm:ss or HH:mm)
+  const timeParts = timeStr.split(':').map(Number);
+  const hours = timeParts[0] || 0;
+  const minutes = timeParts[1] || 0;
+  const seconds = timeParts[2] || 0;
+
+  // Create date in local timezone to avoid timezone conversion issues
+  const date = new Date(year, month - 1, day, hours, minutes, seconds);
+
+  // Validate the created date
+  if (isNaN(date.getTime())) {
+    console.error('Invalid date created from:', { dateStr, timeStr });
+    return new Date();
+  }
+
+  return date;
+};
+
+/**
  * Convert appointments to calendar events
  */
 export const convertAppointmentsToEvents = (
@@ -20,8 +51,9 @@ export const convertAppointmentsToEvents = (
     const dentistName = appointment.dentistName;
     const patientName = appointment.patientName;
 
-    const startDateTime = new Date(`${appointmentDate}T${appointment.startTime}`);
-    const endDateTime = new Date(`${appointmentDate}T${appointment.endTime}`);
+    // Parse date and time more reliably to avoid timezone issues
+    const startDateTime = parseAppointmentDateTime(appointmentDate || '', appointment.startTime);
+    const endDateTime = parseAppointmentDateTime(appointmentDate || '', appointment.endTime);
 
     // Determine title based on user role
     const title = getTitleByRole(userRole, String(serviceName), dentistName, patientName);

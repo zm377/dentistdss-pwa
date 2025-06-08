@@ -14,6 +14,7 @@ import {
   List as ListIcon,
   Add as AddIcon,
 } from '@mui/icons-material';
+import '../Schedule/Schedule.scss';
 import { useAuth } from '../../../context/auth';
 import {
   AppointmentCard,
