@@ -70,8 +70,8 @@ const AISummarizePage: React.FC = () => {
       setLastSummary(fullText);
     };
 
-    await sendMessage(null, (content: string, sessionId: string, onTokenReceived: (token: string, fullText: string) => void) => {
-      return api.chatbot.documentationSummarize(content, sessionId, (token: string, fullText: string) => {
+    await sendMessage(null, (content: string, onTokenReceived: (token: string, fullText: string) => void) => {
+      return api.chatbot.documentationSummarize(content, (token: string, fullText: string) => {
         onTokenReceived(token, fullText);
         customCallback(token, fullText);
       });

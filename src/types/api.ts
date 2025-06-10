@@ -167,7 +167,6 @@ export interface ChatMessage {
   content: string;
   role: 'user' | 'assistant';
   timestamp: string;
-  sessionId?: string;
 }
 
 export interface ChatSession {

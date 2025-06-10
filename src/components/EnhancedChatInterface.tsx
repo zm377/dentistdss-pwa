@@ -27,7 +27,7 @@ import {
 import ReactMarkdown from 'react-markdown';
 import { useAuth } from '../context/auth';
 import api from '../services';
-import { v4 as uuidv4 } from 'uuid';
+
 
 interface ChatMessage {
   id: number;
@@ -65,7 +65,7 @@ const EnhancedChatInterface: React.FC<EnhancedChatInterfaceProps> = ({
   const [inputValue, setInputValue] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isStreaming, setIsStreaming] = useState<boolean>(false);
-  const [sessionId] = useState<string>(() => uuidv4()); // Generate session ID once per component instance
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -108,7 +108,7 @@ const EnhancedChatInterface: React.FC<EnhancedChatInterfaceProps> = ({
       let apiCall: Promise<any>;
       switch (chatType) {
         case 'aidentist':
-          apiCall = api.chatbot.aidentist(userMessage.content, sessionId, (token: string, fullText: string) => {
+          apiCall = api.chatbot.aidentist(userMessage.content, (token: string, fullText: string) => {
             setMessages(prev =>
               prev.map(msg =>
                 msg.id === aiMessage.id
@@ -120,7 +120,7 @@ const EnhancedChatInterface: React.FC<EnhancedChatInterfaceProps> = ({
           break;
         case 'help':
         default:
-          apiCall = api.chatbot.help(userMessage.content, sessionId, (token: string, fullText: string) => {
+          apiCall = api.chatbot.help(userMessage.content, (token: string, fullText: string) => {
             setMessages(prev =>
               prev.map(msg =>
                 msg.id === aiMessage.id

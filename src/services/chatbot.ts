@@ -1,5 +1,4 @@
 import config from '../config';
-import { v4 as uuidv4 } from 'uuid';
 
 /**
  * Chatbot API service following established service patterns
@@ -7,6 +6,9 @@ import { v4 as uuidv4 } from 'uuid';
  *
  * The Spring WebFlux service automatically formats each emitted string as an SSE event
  * by prefixing it with 'data:' before every individual token/word in the streaming response.
+ *
+ * User identification and session management is handled through JWT authentication tokens
+ * in the Authorization header, following the same pattern as other API services.
  */
 
 // Type definitions for chatbot service
@@ -27,55 +29,6 @@ interface AuthStatus {
 }
 
 type TokenCallback = (token: string, fullResponse: string) => void;
-
-/**
- * Generates a UUID-based session ID for chatbot conversations
- * @returns UUID session ID
- */
-function generateSessionId(): string {
-  return uuidv4();
-}
-
-/**
- * Validates if a string is a proper UUID v4 format
- * @param uuid - String to validate
- * @returns True if valid UUID v4, false otherwise
- */
-function isValidUUID(uuid: string): boolean {
-  if (!uuid || typeof uuid !== 'string') {
-    return false;
-  }
-
-  // UUID v4 regex pattern: xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx
-  // where x is any hexadecimal digit and y is one of 8, 9, A, or B
-  const uuidV4Regex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-  return uuidV4Regex.test(uuid);
-}
-
-/**
- * Ensures a valid UUID session ID is available, generating one if needed or invalid
- * @param sessionId - Existing session ID or null/undefined
- * @returns Valid UUID session ID (existing valid UUID or newly generated)
- */
-function ensureSessionId(sessionId?: string | null): string {
-  // If no session ID provided, generate a new one
-  if (!sessionId) {
-    const newSessionId = generateSessionId();
-    console.log('No session ID provided, generated new UUID:', newSessionId);
-    return newSessionId;
-  }
-
-  // If session ID is provided but not a valid UUID, generate a new one
-  if (!isValidUUID(sessionId)) {
-    const newSessionId = generateSessionId();
-    console.warn(`Invalid session ID format detected: "${sessionId}". Generated new UUID: ${newSessionId}`);
-    return newSessionId;
-  }
-
-  // Session ID is valid, use it
-  console.log('Using existing valid UUID session ID:', sessionId);
-  return sessionId;
-}
 
 /**
  * Gets authentication token from localStorage with validation
@@ -155,16 +108,12 @@ function parseSSEDataLines(rawEventsBlock: string, cumulativeResponse: string, o
 }
 
 // Core function to call the backend streaming API using fetch for streaming support
-async function streamApiCall(endpoint: string, prompt: string, sessionId?: string, onTokenReceived?: TokenCallback): Promise<string> {
+async function streamApiCall(endpoint: string, prompt: string, onTokenReceived?: TokenCallback): Promise<string> {
   const headers: Record<string, string> = {
     'Content-Type': 'text/plain', // Send prompt as plain text
     'Accept': 'text/event-stream', // Expect SSE response from Spring WebFlux
     'Cache-Control': 'no-cache', // Prevent caching of SSE streams
   };
-
-  // Ensure we have a valid UUID session ID
-  const validSessionId = ensureSessionId(sessionId);
-  headers['X-Session-Id'] = validSessionId;
 
   // Add authentication token with improved validation
   const authData = getAuthToken();
@@ -271,7 +220,7 @@ async function streamApiCall(endpoint: string, prompt: string, sessionId?: strin
 
       buffer += decoder.decode(value, {stream: true});
 
-      let position;
+      let position: number;
       // Process complete SSE messages (terminated by double newline)
       while ((position = buffer.indexOf('\n\n')) >= 0) {
         const rawEventsBlock = buffer.slice(0, position);
@@ -313,29 +262,27 @@ async function streamApiCall(endpoint: string, prompt: string, sessionId?: strin
 /**
  * Chatbot API following established service patterns
  * All endpoints return promises and handle streaming responses
+ * User identification is handled through JWT authentication tokens
  */
 const chatbotAPI = {
   /**
    * General help chatbot - no authentication required
    * @param userInput - The user's message
-   * @param sessionId - Session identifier for conversation continuity (optional - UUID will be generated if not provided)
    * @param onTokenReceived - Callback for streaming tokens (token, fullResponse) => void
    * @returns Complete response text
    */
-  async help(userInput: string, sessionId?: string, onTokenReceived?: TokenCallback): Promise<string> {
-    const validSessionId = ensureSessionId(sessionId);
-    const response = await streamApiCall('/help', userInput, validSessionId, onTokenReceived);
+  async help(userInput: string, onTokenReceived?: TokenCallback): Promise<string> {
+    const response = await streamApiCall('/help', userInput, onTokenReceived);
     return response;
   },
 
   /**
    * AI Dentist chatbot - requires authentication
    * @param userInput - The user's message
-   * @param sessionId - Session identifier for conversation continuity (optional - UUID will be generated if not provided)
    * @param onTokenReceived - Callback for streaming tokens (token, fullResponse) => void
    * @returns Complete response text
    */
-  async aidentist(userInput: string, sessionId?: string, onTokenReceived?: TokenCallback): Promise<string> {
+  async aidentist(userInput: string, onTokenReceived?: TokenCallback): Promise<string> {
     const authData = getAuthToken();
     if (!authData) {
       const authErrorMsg = 'Authentication required to access the AI Dentist. Please log in.';
@@ -355,19 +302,17 @@ const chatbotAPI = {
       }
       return Promise.reject(new Error(authErrorMsg));
     }
-    const validSessionId = ensureSessionId(sessionId);
-    const response = await streamApiCall('/aidentist', userInput, validSessionId, onTokenReceived);
+    const response = await streamApiCall('/aidentist', userInput, onTokenReceived);
     return response;
   },
 
   /**
    * Triage chatbot - requires authentication
    * @param userInput - The user's message
-   * @param sessionId - Session identifier (optional - UUID will be generated if not provided)
    * @param onTokenReceived - Callback for streaming tokens (token, fullResponse) => void
    * @returns Complete response text
    */
-  async triage(userInput: string, sessionId?: string, onTokenReceived?: TokenCallback): Promise<string> {
+  async triage(userInput: string, onTokenReceived?: TokenCallback): Promise<string> {
     // Check authentication first
     const authData = getAuthToken();
     if (!authData) {
@@ -388,20 +333,17 @@ const chatbotAPI = {
       return Promise.reject(new Error(authErrorMsg));
     }
 
-    // Ensure we have a valid UUID session ID
-    const validSessionId = ensureSessionId(sessionId);
-    const response = await streamApiCall('/triage', userInput, validSessionId, onTokenReceived);
+    const response = await streamApiCall('/triage', userInput, onTokenReceived);
     return response;
   },
 
   /**
    * Receptionist chatbot - requires authentication
    * @param userInput - The user's message
-   * @param sessionId - Session identifier (optional - UUID will be generated if not provided)
    * @param onTokenReceived - Callback for streaming tokens (token, fullResponse) => void
    * @returns Complete response text
    */
-  async receptionist(userInput: string, sessionId?: string, onTokenReceived?: TokenCallback): Promise<string> {
+  async receptionist(userInput: string, onTokenReceived?: TokenCallback): Promise<string> {
     // Check authentication first
     const authData = getAuthToken();
     if (!authData) {
@@ -422,20 +364,17 @@ const chatbotAPI = {
       return Promise.reject(new Error(authErrorMsg));
     }
 
-    // Ensure we have a valid UUID session ID
-    const validSessionId = ensureSessionId(sessionId);
-    const response = await streamApiCall('/receptionist', userInput, validSessionId, onTokenReceived);
+    const response = await streamApiCall('/receptionist', userInput, onTokenReceived);
     return response;
   },
 
   /**
    * Documentation summarization chatbot - requires authentication
    * @param userInput - The user's message
-   * @param sessionId - Session identifier (optional - UUID will be generated if not provided)
    * @param onTokenReceived - Callback for streaming tokens (token, fullResponse) => void
    * @returns Complete response text
    */
-  async documentationSummarize(userInput: string, sessionId?: string, onTokenReceived?: TokenCallback): Promise<string> {
+  async documentationSummarize(userInput: string, onTokenReceived?: TokenCallback): Promise<string> {
     // Check authentication first
     const authData = getAuthToken();
     if (!authData) {
@@ -456,36 +395,17 @@ const chatbotAPI = {
       return Promise.reject(new Error(authErrorMsg));
     }
 
-    // Ensure we have a valid UUID session ID
-    const validSessionId = ensureSessionId(sessionId);
-    const response = await streamApiCall('/documentation/summarize', userInput, validSessionId, onTokenReceived);
+    const response = await streamApiCall('/documentation/summarize', userInput, onTokenReceived);
     return response;
   },
 
   // Legacy function names for backward compatibility
-  botAssistant(userInput: string, sessionId?: string, onTokenReceived?: TokenCallback): Promise<string> {
-    return this.help(userInput, sessionId, onTokenReceived);
+  botAssistant(userInput: string, onTokenReceived?: TokenCallback): Promise<string> {
+    return this.help(userInput, onTokenReceived);
   },
 
-  botDentist(userInput: string, sessionId?: string, onTokenReceived?: TokenCallback): Promise<string> {
-    return this.aidentist(userInput, sessionId, onTokenReceived);
-  },
-
-  /**
-   * Generate a new UUID session ID
-   * @returns New UUID session ID
-   */
-  generateSessionId(): string {
-    return generateSessionId();
-  },
-
-  /**
-   * Validate if a session ID is a proper UUID v4 format
-   * @param sessionId - Session ID to validate
-   * @returns True if valid UUID v4, false otherwise
-   */
-  isValidSessionId(sessionId: string): boolean {
-    return isValidUUID(sessionId);
+  botDentist(userInput: string, onTokenReceived?: TokenCallback): Promise<string> {
+    return this.aidentist(userInput, onTokenReceived);
   },
 
   /**

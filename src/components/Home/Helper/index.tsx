@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import HelpIcon from '@mui/icons-material/Help';
 import api from '../../../services';
-import { v4 as uuidv4 } from 'uuid';
+
 
 interface ChatMessage {
   sender: 'user' | 'bot';
@@ -34,7 +34,7 @@ const FloatingChatHelper: React.FC<FloatingChatHelperProps> = () => {
   const [chatOpen, setChatOpen] = useState<boolean>(false);
   const [chatInput, setChatInput] = useState<string>('');
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
-  const [sessionId] = useState<string>(() => uuidv4()); // Generate session ID once per component instance
+
 
   const handleChatToggle = () => {
     setChatOpen(!chatOpen);
@@ -51,7 +51,6 @@ const FloatingChatHelper: React.FC<FloatingChatHelperProps> = () => {
 
       api.chatbot.help(
           userMessage,
-          sessionId,
           (token: string, fullText: string) => {
             setChatMessages(prev => {
               const updated = [...prev];

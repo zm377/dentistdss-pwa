@@ -11,7 +11,7 @@ import {
 import SendIcon from '@mui/icons-material/Send';
 import api from '../../../services';
 import MessageBubble from '../../../components/MessageBubble';
-import { v4 as uuidv4 } from 'uuid';
+
 
 interface Message {
   role: 'user' | 'assistant' | 'Professional Dentist';
@@ -38,7 +38,7 @@ const THINK_TAG_END = '</think>';
  * - Thinking process visualization with animations
  * - Auto-scroll with user control
  * - Mobile-responsive design
- * - Session management with UUID
+ * - User identification through JWT authentication
  * - Typing indicators and loading states
  * - Multi-line input support
  */
@@ -51,7 +51,7 @@ const ChatInterface: React.FC = () => {
   const [dots, setDots] = useState<string>('');
   const [isThinkingClosing, setIsThinkingClosing] = useState<boolean>(false);
   const [isAtBottom, setIsAtBottom] = useState<boolean>(true);
-  const [sessionId] = useState<string>(() => uuidv4()); // Generate session ID once per component instance
+
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -179,7 +179,6 @@ const ChatInterface: React.FC = () => {
     try {
       await api.chatbot.aidentist(
         input,
-        sessionId,
         (token: string, fullText: string) => {
           setMessages(prevMessages => {
             const { updatedMessages } = processThinkingContent(fullText, prevMessages);

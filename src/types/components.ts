@@ -144,10 +144,7 @@ export interface EnhancedChatInterfaceProps {
   apiEndpoint: string;
   placeholder?: string;
   title?: string;
-  sessionId?: string;
   userId?: number;
-  onSessionStart?: (sessionId: string) => void;
-  onSessionEnd?: (sessionId: string) => void;
   maxHeight?: string | number;
   enableFileUpload?: boolean;
   enableVoiceInput?: boolean;

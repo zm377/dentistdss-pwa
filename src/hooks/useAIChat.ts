@@ -14,14 +14,13 @@ type ChatType = 'help' | 'aidentist' | 'receptionist' | 'triage' | 'documentatio
 
 type StreamCallback = (token: string, fullText: string) => void;
 
-type ApiEndpoint = (content: string, sessionId: string, callback: StreamCallback) => Promise<any>;
+type ApiEndpoint = (content: string, callback: StreamCallback) => Promise<any>;
 
 interface UseAIChatReturn {
   messages: ChatMessage[];
   inputValue: string;
   isLoading: boolean;
   error: string;
-  sessionId: string;
   sendMessage: (messageContent?: string | null, apiEndpoint?: ApiEndpoint | null) => Promise<void>;
   clearConversation: (newWelcomeMessage?: string | null) => void;
   handleKeyPress: (event: React.KeyboardEvent) => void;
@@ -36,25 +35,21 @@ interface UseAIChatReturn {
  * Custom hook for AI chat functionality
  *
  * Features:
- * - Session management with automatic ID generation
  * - Message state management
  * - Real-time SSE streaming support
  * - Error handling and loading states
  * - Reusable across different chat types
+ * - User identification through JWT authentication tokens
  */
 const useAIChat = (chatType: ChatType = 'help', initialWelcomeMessage: string = ''): UseAIChatReturn => {
   const { currentUser } = useAuth();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [sessionId, setSessionId] = useState<string>('');
   const [error, setError] = useState<string>('');
 
-  // Initialize session and welcome message
+  // Initialize welcome message
   useEffect(() => {
-    const newSessionId = `${chatType}-${currentUser?.id || 'anonymous'}-${Date.now()}`;
-    setSessionId(newSessionId);
-    
     if (initialWelcomeMessage) {
       setMessages([{
         id: 1,
@@ -63,7 +58,7 @@ const useAIChat = (chatType: ChatType = 'help', initialWelcomeMessage: string = 
         timestamp: new Date(),
       }]);
     }
-  }, [chatType, currentUser?.id, initialWelcomeMessage]);
+  }, [initialWelcomeMessage]);
 
   // Send message handler
   const sendMessage = useCallback(async (messageContent: string | null = null, apiEndpoint: ApiEndpoint | null = null): Promise<void> => {
@@ -97,7 +92,7 @@ const useAIChat = (chatType: ChatType = 'help', initialWelcomeMessage: string = 
       // Determine API endpoint
       let apiCall;
       if (apiEndpoint) {
-        apiCall = apiEndpoint(content, sessionId, (token, fullText) => {
+        apiCall = apiEndpoint(content, (token, fullText) => {
           setMessages(prev =>
             prev.map(msg =>
               msg.id === aiMessage.id
@@ -110,7 +105,7 @@ const useAIChat = (chatType: ChatType = 'help', initialWelcomeMessage: string = 
         // Default endpoint selection based on chatType
         switch (chatType) {
           case 'aidentist':
-            apiCall = api.chatbot.aidentist(content, sessionId, (token, fullText) => {
+            apiCall = api.chatbot.aidentist(content, (token, fullText) => {
               setMessages(prev =>
                 prev.map(msg =>
                   msg.id === aiMessage.id
@@ -121,7 +116,7 @@ const useAIChat = (chatType: ChatType = 'help', initialWelcomeMessage: string = 
             });
             break;
           case 'receptionist':
-            apiCall = api.chatbot.receptionist(content, sessionId, (token, fullText) => {
+            apiCall = api.chatbot.receptionist(content, (token, fullText) => {
               setMessages(prev =>
                 prev.map(msg =>
                   msg.id === aiMessage.id
@@ -132,7 +127,7 @@ const useAIChat = (chatType: ChatType = 'help', initialWelcomeMessage: string = 
             });
             break;
           case 'triage':
-            apiCall = api.chatbot.triage(content, sessionId, (token, fullText) => {
+            apiCall = api.chatbot.triage(content, (token, fullText) => {
               setMessages(prev =>
                 prev.map(msg =>
                   msg.id === aiMessage.id
@@ -143,7 +138,7 @@ const useAIChat = (chatType: ChatType = 'help', initialWelcomeMessage: string = 
             });
             break;
           case 'documentationSummarize':
-            apiCall = api.chatbot.documentationSummarize(content, sessionId, (token, fullText) => {
+            apiCall = api.chatbot.documentationSummarize(content, (token, fullText) => {
               setMessages(prev =>
                 prev.map(msg =>
                   msg.id === aiMessage.id
@@ -155,7 +150,7 @@ const useAIChat = (chatType: ChatType = 'help', initialWelcomeMessage: string = 
             break;
           case 'help':
           default:
-            apiCall = api.chatbot.help(content, sessionId, (token, fullText) => {
+            apiCall = api.chatbot.help(content, (token, fullText) => {
               setMessages(prev =>
                 prev.map(msg =>
                   msg.id === aiMessage.id
@@ -178,7 +173,7 @@ const useAIChat = (chatType: ChatType = 'help', initialWelcomeMessage: string = 
     } finally {
       setIsLoading(false);
     }
-  }, [inputValue, isLoading, sessionId, chatType]);
+  }, [inputValue, isLoading, chatType]);
 
   // Clear conversation
   const clearConversation = useCallback((newWelcomeMessage: string | null = null): void => {
@@ -215,8 +210,7 @@ const useAIChat = (chatType: ChatType = 'help', initialWelcomeMessage: string = 
     inputValue,
     isLoading,
     error,
-    sessionId,
-    
+
     // Actions
     sendMessage,
     clearConversation,
@@ -224,7 +218,7 @@ const useAIChat = (chatType: ChatType = 'help', initialWelcomeMessage: string = 
     setQuickInput,
     setInputValue,
     setError,
-    
+
     // Convenience
     hasMessages: messages.length > 0,
     hasError: error.length > 0,
