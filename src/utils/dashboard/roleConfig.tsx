@@ -35,6 +35,7 @@ import PatientsPage from '../../pages/DashboardPages/PatientsPage';
 import CommunicationsPage from '../../pages/DashboardPages/CommunicationsPage';
 import SchedulePage from '../../pages/DashboardPages/Schedule';
 import HolidayManagementPage from '../../pages/DashboardPages/HolidayManagementPage';
+import WorkingHoursPage from '../../pages/DashboardPages/WorkingHoursPage';
 
 
 // Role metadata configuration
@@ -199,6 +200,13 @@ export const navigationSections: Record<UserRole, DashboardSection[]> = {
       icon: <CalendarTodayIcon />,
       path: '/holidays',
       component: HolidayManagementPage
+    },
+    {
+      id: 'working-hours',
+      label: 'Working Hours',
+      icon: <ScheduleIcon />,
+      path: '/working-hours',
+      component: WorkingHoursPage
     },
     {
       id: 'settings',

@@ -8,7 +8,9 @@ import {
   TimeSlot,
   ClinicService,
   Holiday,
-  CreateHolidayRequest
+  CreateHolidayRequest,
+  WorkingHours,
+  CreateWorkingHoursRequest
 } from '../types';
 
 const clinicAPI = {
@@ -209,6 +211,27 @@ const clinicAPI = {
    */
   async createHoliday(clinicId: number, holidayData: CreateHolidayRequest): Promise<Holiday> {
     return api.post(`/api/clinic-admin/clinics/${clinicId}/holidays`, holidayData);
+  },
+
+  // Working Hours Management API Methods
+
+  /**
+   * Get all working hours for a clinic
+   * @param clinicId - The clinic ID
+   * @returns Array of working hours objects
+   */
+  async getClinicWorkingHours(clinicId: number): Promise<WorkingHours[]> {
+    return api.get(`/api/clinic-admin/clinics/${clinicId}/working-hours`);
+  },
+
+  /**
+   * Create new working hours for a clinic
+   * @param clinicId - The clinic ID
+   * @param workingHoursData - Working hours data object
+   * @returns Created working hours object
+   */
+  async createWorkingHours(clinicId: number, workingHoursData: CreateWorkingHoursRequest): Promise<WorkingHours> {
+    return api.post(`/api/clinic-admin/clinics/${clinicId}/working-hours`, workingHoursData);
   }
 }
 

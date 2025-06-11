@@ -73,6 +73,45 @@ export interface CreateHolidayRequest {
   emergencyContact?: string;
 }
 
+// Working Hours types
+export type DayOfWeek =
+  | 'MONDAY'
+  | 'TUESDAY'
+  | 'WEDNESDAY'
+  | 'THURSDAY'
+  | 'FRIDAY'
+  | 'SATURDAY'
+  | 'SUNDAY';
+
+export interface WorkingHours extends BaseEntity {
+  clinicId: number;
+  clinicName: string;
+  dayOfWeek: DayOfWeek;
+  specificDate?: string; // YYYY-MM-DD format for specific date overrides
+  openingTime: string; // HH:mm format
+  closingTime: string; // HH:mm format
+  breakStartTime?: string; // HH:mm format
+  breakEndTime?: string; // HH:mm format
+  isClosed: boolean;
+  isEmergencyHours: boolean;
+  notes?: string;
+  scheduleType: string;
+  displaySchedule: string;
+  hasBreakTime: boolean;
+}
+
+export interface CreateWorkingHoursRequest {
+  dayOfWeek: DayOfWeek;
+  specificDate?: string; // YYYY-MM-DD format
+  openingTime: string; // HH:mm format
+  closingTime: string; // HH:mm format
+  breakStartTime?: string; // HH:mm format
+  breakEndTime?: string; // HH:mm format
+  isClosed: boolean;
+  isEmergencyHours: boolean;
+  notes?: string;
+}
+
 export interface ClinicService extends BaseEntity {
   name: string;
   description?: string;

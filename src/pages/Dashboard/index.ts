@@ -20,6 +20,7 @@ export { default as SettingsPage } from '../DashboardPages/SettingsPage';
 export { default as UserManagementPage } from '../DashboardPages/UserManagementPage';
 export { default as ApprovalsPage } from '../DashboardPages/ApprovalsPage';
 export { default as HolidayManagementPage } from '../DashboardPages/HolidayManagementPage';
+export { default as WorkingHoursPage } from '../DashboardPages/WorkingHoursPage';
 
 // Role-specific Pages
 export { default as DentalRecordsPage } from '../DashboardPages/DentalRecordsPage';
