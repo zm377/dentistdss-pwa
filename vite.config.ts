@@ -56,9 +56,29 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
-    setupFiles: './src/setupTests.ts',
+    setupFiles: ['./tests/setup.tsx'],
     css: true,
-    types: ['vitest/globals']
+    types: ['vitest/globals'],
+    include: [
+      'tests/**/*.{test,spec}.{js,ts,jsx,tsx}',
+      'src/**/*.{test,spec}.{js,ts,jsx,tsx}'
+    ],
+    exclude: [
+      'node_modules/**',
+      'build/**',
+      'tests/e2e/**'
+    ],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html'],
+      exclude: [
+        'node_modules/**',
+        'tests/**',
+        'src/setupTests.ts',
+        '**/*.d.ts',
+        'build/**'
+      ]
+    }
   },
   resolve: {
     alias: {
@@ -71,7 +91,8 @@ export default defineConfig({
       '@/types': path.resolve(__dirname, './src/types'),
       '@/context': path.resolve(__dirname, './src/context'),
       '@/styles': path.resolve(__dirname, './src/styles'),
-      '@/assets': path.resolve(__dirname, './src/assets')
+      '@/assets': path.resolve(__dirname, './src/assets'),
+      '@/tests': path.resolve(__dirname, './tests')
     }
   }
 })

@@ -55,7 +55,35 @@ This project codebase is managed by git on GitHub: [https://github.com/zm377/den
 
 ## Configuration
 
--   Set your OpenAI API key in `src/config.js`.
+## Backend-Only OpenAI Integration
+
+The system uses a backend-only OpenAI integration architecture through Spring AI:
+
+### Architecture
+- **Spring AI Backend**: All OpenAI API communication handled by the backend
+- **Enhanced SSE Processing**: Frontend uses OpenAI SDK utilities for better data processing
+- **Type Safety**: Comprehensive TypeScript interfaces using OpenAI SDK types
+- **No Frontend API Keys**: No OpenAI API keys required in the frontend environment
+- **Secure Communication**: All AI interactions flow through authenticated backend endpoints
+
+### Features
+- **Enhanced SSE Streaming**: Improved Server-Sent Events processing with OpenAI SDK utilities
+- **Better Error Handling**: Enhanced error detection and user-friendly messaging
+- **Type Safety**: Full TypeScript support using OpenAI SDK type definitions
+- **Session Management**: Backend-managed conversation sessions with JWT authentication
+- **Intelligent Token Spacing**: Smart token concatenation for natural text flow
+
+### Usage
+The chatbot API interface remains unchanged:
+```typescript
+// Help chat (no authentication required)
+const response = await api.chatbot.help("What are your clinic hours?", onStreamCallback);
+
+// AI Dentist (requires authentication)
+const clinicalResponse = await api.chatbot.aidentist("Patient symptoms...", onStreamCallback);
+```
+
+All OpenAI communication flows through the Spring AI backend at `/api/genai/chatbot/*` endpoints.
 
 ## Available Scripts
 

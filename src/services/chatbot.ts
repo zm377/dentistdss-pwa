@@ -1,14 +1,18 @@
 import config from '../config';
+import { createEnhancedSSEReader, formatSSEError, TokenCallback } from '../utils/sseUtils';
 
 /**
- * Chatbot API service following established service patterns
- * Handles Server-Sent Events (SSE) streaming responses from Spring WebFlux backend
+ * Chatbot API service with enhanced SSE processing
  *
- * The Spring WebFlux service automatically formats each emitted string as an SSE event
- * by prefixing it with 'data:' before every individual token/word in the streaming response.
+ * This service communicates with the Spring AI backend which handles all OpenAI API interactions.
+ * The frontend uses OpenAI SDK utilities for improved SSE data processing and type safety.
  *
- * User identification and session management is handled through JWT authentication tokens
- * in the Authorization header, following the same pattern as other API services.
+ * Features:
+ * - Enhanced SSE (Server-Sent Events) streaming response handling
+ * - Type safety using OpenAI SDK TypeScript definitions
+ * - Improved token parsing and message formatting
+ * - Session management through backend JWT authentication
+ * - All OpenAI communication flows through Spring AI backend
  */
 
 // Type definitions for chatbot service
@@ -28,7 +32,7 @@ interface AuthStatus {
   };
 }
 
-type TokenCallback = (token: string, fullResponse: string) => void;
+// TokenCallback is now imported from sseUtils
 
 /**
  * Gets authentication token from localStorage with validation
@@ -55,57 +59,7 @@ function getAuthToken(): AuthData | null {
 }
 
 
-/**
- * Parses SSE data lines and extracts tokens with proper spacing
- * @param rawEventsBlock - Raw SSE event block to parse
- * @param cumulativeResponse - Current cumulative response
- * @param onTokenReceived - Callback for token processing
- * @returns Updated cumulative response
- */
-function parseSSEDataLines(rawEventsBlock: string, cumulativeResponse: string, onTokenReceived?: TokenCallback): string {
-  const lines = rawEventsBlock.split('\n');
-  let updatedResponse = cumulativeResponse;
-
-  for (const line of lines) {
-    const trimmedLine = line.trim();
-    if (trimmedLine.startsWith('data:')) {
-      const token = trimmedLine.slice('data:'.length).trim();
-      if (token && token !== '[DONE]' && token !== 'null') { // Filter out termination signals and null values
-        // Add space before token if response already has content and token doesn't start with punctuation
-        const needsSpace = updatedResponse.length > 0 &&
-                          !token.match(/^[.,!?;:)}\]"']/) &&
-                          !updatedResponse.match(/[(\[{"'\s]$/);
-
-        if (needsSpace) {
-          updatedResponse += ' ' + token;
-        } else {
-          updatedResponse += token;
-        }
-
-        // The rate limit message from backend ("You have reached the maximal inquiries...")
-        // will also arrive here as a token.
-        if (typeof onTokenReceived === 'function') {
-          onTokenReceived(token, updatedResponse);
-        }
-      }
-    }
-    // Handle other SSE event types if needed
-    else if (trimmedLine.startsWith('event:')) {
-      const eventType = trimmedLine.slice('event:'.length).trim();
-      // Could handle different event types here (e.g., 'error', 'complete', etc.)
-      if (eventType === 'error') {
-        console.warn('SSE Error event received');
-      }
-    }
-    // Handle retry directive
-    else if (trimmedLine.startsWith('retry:')) {
-      const retryTime = parseInt(trimmedLine.slice('retry:'.length).trim(), 10);
-      console.log(`SSE retry time: ${retryTime}ms`);
-    }
-  }
-
-  return updatedResponse;
-}
+// SSE processing is now handled by enhanced utilities in sseUtils.ts
 
 // Core function to call the backend streaming API using fetch for streaming support
 async function streamApiCall(endpoint: string, prompt: string, onTokenReceived?: TokenCallback): Promise<string> {
@@ -191,54 +145,23 @@ async function streamApiCall(endpoint: string, prompt: string, onTokenReceived?:
       throw new Error(errorMessage);
     }
 
-    const reader = response.body?.getReader();
-    if (!reader) {
-      throw new Error('Response body is not readable');
-    }
-    const decoder = new TextDecoder('utf-8');
-    let buffer = '';
-    let cumulativeResponse = '';
-
-    // Verify we're getting the expected content type
-    const contentType = response.headers.get('content-type');
-    if (contentType && !contentType.includes('text/event-stream')) {
-      console.warn(`Expected text/event-stream but got: ${contentType}`);
-    }
-
-    // eslint-disable-next-line no-constant-condition
-    while (true) {
-      const {value, done} = await reader.read();
-      if (done) {
-        // Process any remaining data in the buffer if the stream ended abruptly
-        // This is a fallback; well-formed SSE streams usually end cleanly.
-        if (buffer.length > 0) {
-          // Use the utility function to parse remaining buffer with proper spacing
-          cumulativeResponse = parseSSEDataLines(buffer, cumulativeResponse, onTokenReceived);
-        }
-        break;
-      }
-
-      buffer += decoder.decode(value, {stream: true});
-
-      let position: number;
-      // Process complete SSE messages (terminated by double newline)
-      while ((position = buffer.indexOf('\n\n')) >= 0) {
-        const rawEventsBlock = buffer.slice(0, position);
-        buffer = buffer.slice(position + 2); // Move past the '\n\n'
-
-        // Use the utility function to parse SSE data lines with proper spacing
-        cumulativeResponse = parseSSEDataLines(rawEventsBlock, cumulativeResponse, onTokenReceived);
-      }
-    }
+    // Use enhanced SSE reader with OpenAI SDK utilities
+    const cumulativeResponse = await createEnhancedSSEReader(response, onTokenReceived);
     return cumulativeResponse;
   } catch (error) {
     console.error('Error in streamApiCall:', error);
 
-    // Determine appropriate error message
-    let userMessage = 'Sorry, I encountered an error processing your request. Please try again.';
+    // Use enhanced error formatting
+    let userMessage = formatSSEError(error, endpoint);
     const errorMessage = (error as Error).message;
+
+    // Handle specific backend error messages
     if (errorMessage && errorMessage.includes("maximal inquiries")) {
       userMessage = errorMessage; // Use specific rate limit message
+    } else if (errorMessage && errorMessage.includes("SSE streaming failed")) {
+      userMessage = 'Sorry, I encountered a connection error. Please try again.';
+    } else if (!userMessage.includes('SSE streaming failed')) {
+      userMessage = 'Sorry, I encountered an error processing your request. Please try again.';
     }
 
     // Dispatch error event following established pattern
@@ -260,9 +183,11 @@ async function streamApiCall(endpoint: string, prompt: string, onTokenReceived?:
 }
 
 /**
- * Chatbot API following established service patterns
- * All endpoints return promises and handle streaming responses
- * User identification is handled through JWT authentication tokens
+ * Enhanced Chatbot API with backend-only OpenAI integration
+ *
+ * All OpenAI communication flows through the Spring AI backend.
+ * Frontend uses enhanced SSE processing with OpenAI SDK utilities for better data handling.
+ * User identification is handled through JWT authentication tokens.
  */
 const chatbotAPI = {
   /**
@@ -406,6 +331,12 @@ const chatbotAPI = {
 
   botDentist(userInput: string, onTokenReceived?: TokenCallback): Promise<string> {
     return this.aidentist(userInput, onTokenReceived);
+  },
+
+  // Additional utility methods
+  isBackendIntegrationEnabled(): boolean {
+    // Always true since we use backend-only OpenAI integration
+    return true;
   },
 
   /**

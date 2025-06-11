@@ -161,23 +161,7 @@ export interface Notification extends BaseEntity {
   relatedEntityType?: string;
 }
 
-// Chat/AI types
-export interface ChatMessage {
-  id: string;
-  content: string;
-  role: 'user' | 'assistant';
-  timestamp: string;
-}
-
-export interface ChatSession {
-  id: string;
-  userId: number;
-  type: 'receptionist' | 'triage';
-  messages: ChatMessage[];
-  isActive: boolean;
-  startedAt: string;
-  endedAt?: string;
-}
+// Note: ChatMessage and ChatSession types are defined in common.ts to avoid duplication
 
 // Clinic search and booking
 export interface ClinicSearchParams {
