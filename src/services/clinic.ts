@@ -6,7 +6,9 @@ import {
   UpdateClinicRequest,
   DentistAvailability,
   TimeSlot,
-  ClinicService
+  ClinicService,
+  Holiday,
+  CreateHolidayRequest
 } from '../types';
 
 const clinicAPI = {
@@ -177,6 +179,36 @@ const clinicAPI = {
    */
   async getClinicPatientRecords(clinicId: number): Promise<any[]> {
     return api.get(`/api/clinic/clinical-note/clinic/${clinicId}`);
+  },
+
+  // Holiday Management API Methods
+
+  /**
+   * Get all holidays for a clinic
+   * @param clinicId - The clinic ID
+   * @returns Array of holiday objects
+   */
+  async getClinicHolidays(clinicId: number): Promise<Holiday[]> {
+    return api.get(`/api/clinic-admin/clinics/${clinicId}/holidays`);
+  },
+
+  /**
+   * Get upcoming holidays for a clinic
+   * @param clinicId - The clinic ID
+   * @returns Array of upcoming holiday objects
+   */
+  async getUpcomingHolidays(clinicId: number): Promise<Holiday[]> {
+    return api.get(`/api/clinic-admin/clinics/${clinicId}/holidays/upcoming`);
+  },
+
+  /**
+   * Create a new holiday for a clinic
+   * @param clinicId - The clinic ID
+   * @param holidayData - Holiday data object
+   * @returns Created holiday object
+   */
+  async createHoliday(clinicId: number, holidayData: CreateHolidayRequest): Promise<Holiday> {
+    return api.post(`/api/clinic-admin/clinics/${clinicId}/holidays`, holidayData);
   }
 }
 

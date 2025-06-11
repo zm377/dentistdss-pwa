@@ -19,6 +19,7 @@ export { default as SettingsPage } from '../DashboardPages/SettingsPage';
 // Admin Pages
 export { default as UserManagementPage } from '../DashboardPages/UserManagementPage';
 export { default as ApprovalsPage } from '../DashboardPages/ApprovalsPage';
+export { default as HolidayManagementPage } from '../DashboardPages/HolidayManagementPage';
 
 // Role-specific Pages
 export { default as DentalRecordsPage } from '../DashboardPages/DentalRecordsPage';

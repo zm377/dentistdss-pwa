@@ -32,6 +32,47 @@ export interface OperatingHours {
   isOpen: boolean;
 }
 
+// Holiday types
+export type HolidayType =
+  | 'NATIONAL_HOLIDAY'
+  | 'CLINIC_CLOSURE'
+  | 'STAFF_TRAINING'
+  | 'MAINTENANCE'
+  | 'EMERGENCY_CLOSURE'
+  | 'VACATION'
+  | 'OTHER';
+
+export interface Holiday extends BaseEntity {
+  clinicId: number;
+  clinicName: string;
+  name: string;
+  holidayDate: string; // YYYY-MM-DD format
+  description: string;
+  type: HolidayType;
+  typeDisplayName: string;
+  isFullDayClosure: boolean;
+  specialOpeningTime?: string; // HH:mm format
+  specialClosingTime?: string; // HH:mm format
+  isRecurring: boolean;
+  emergencyContact?: string;
+  displayInfo: string;
+  hasSpecialHours: boolean;
+  isUpcoming: boolean;
+  daysUntilHoliday: number;
+}
+
+export interface CreateHolidayRequest {
+  name: string;
+  holidayDate: string; // YYYY-MM-DD format
+  description: string;
+  type: HolidayType;
+  isFullDayClosure: boolean;
+  specialOpeningTime?: string; // HH:mm format
+  specialClosingTime?: string; // HH:mm format
+  isRecurring: boolean;
+  emergencyContact?: string;
+}
+
 export interface ClinicService extends BaseEntity {
   name: string;
   description?: string;

@@ -16,6 +16,7 @@ import SupportAgentIcon from '@mui/icons-material/SupportAgent';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
 import SummarizeIcon from '@mui/icons-material/Summarize';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import { UserRole, DashboardSection } from '../../types';
 // Import page components
 import OverviewPage from '../../pages/DashboardPages/OverviewPage';
@@ -33,6 +34,7 @@ import ProfilePage from '../../pages/DashboardPages/ProfilePage';
 import PatientsPage from '../../pages/DashboardPages/PatientsPage';
 import CommunicationsPage from '../../pages/DashboardPages/CommunicationsPage';
 import SchedulePage from '../../pages/DashboardPages/Schedule';
+import HolidayManagementPage from '../../pages/DashboardPages/HolidayManagementPage';
 
 
 // Role metadata configuration
@@ -190,6 +192,13 @@ export const navigationSections: Record<UserRole, DashboardSection[]> = {
       icon: <PendingActionsIcon />,
       path: '/approvals',
       component: ApprovalsPage
+    },
+    {
+      id: 'holidays',
+      label: 'Holiday Management',
+      icon: <CalendarTodayIcon />,
+      path: '/holidays',
+      component: HolidayManagementPage
     },
     {
       id: 'settings',
