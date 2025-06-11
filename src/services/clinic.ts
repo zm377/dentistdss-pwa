@@ -11,12 +11,12 @@ import {
 
 const clinicAPI = {
   async getClinics(): Promise<Clinic[]> {
-    return api.get('/api/clinic/list/all');
+    return api.get('/api/clinic-admin/clinics');
   },
 
   async searchClinics(keywords: string): Promise<ClinicSearchResult[]> {
     try {
-      const response = await api.post('/api/clinic/search', { keywords }) as ClinicSearchResult[];
+      const response = await api.post('/api/clinic-admin/clinics/search', { keywords }) as ClinicSearchResult[];
       return response;
     } catch (error) {
       throw error;
