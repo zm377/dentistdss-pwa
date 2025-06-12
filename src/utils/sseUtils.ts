@@ -39,7 +39,7 @@ export function parseSSEEvents(eventBlock: string): SSEEvent[] {
 
   for (const line of lines) {
     const trimmedLine = line.trim();
-    
+
     if (trimmedLine === '') {
       // Empty line indicates end of event
       if (currentEvent.data !== undefined) {
@@ -63,6 +63,16 @@ export function parseSSEEvents(eventBlock: string): SSEEvent[] {
         currentEvent.retry = retryValue;
       }
     }
+  }
+
+  // 🔧 FIX: Push any remaining event that doesn't end with an empty line
+  if (currentEvent.data !== undefined) {
+    events.push({
+      type: currentEvent.type || 'message',
+      data: currentEvent.data,
+      id: currentEvent.id,
+      retry: currentEvent.retry,
+    });
   }
 
   return events;
@@ -222,7 +232,7 @@ export async function createEnhancedSSEReader(
     // eslint-disable-next-line no-constant-condition
     while (true) {
       const { value, done } = await reader.read();
-      
+
       if (done) {
         // Process any remaining data in the buffer
         if (buffer.length > 0) {
@@ -235,7 +245,8 @@ export async function createEnhancedSSEReader(
         break;
       }
 
-      buffer += decoder.decode(value, { stream: true });
+      const chunk = decoder.decode(value, { stream: true });
+      buffer += chunk;
 
       // Process complete SSE events
       const parseResult = processSSEBuffer(buffer);
